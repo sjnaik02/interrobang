@@ -8,7 +8,7 @@ Interrobang is a tool for creating audience polls for Tangle.
 
 - [x] Scaffold out the project
 - [ ] Connect to database
-- [ ] Connect to Clerk
+- [x] Connect to Clerk
 - [ ] Set up auth + protected dashboard route
 - [ ] Create a survey with 1 question
 - [ ] Save survey as draft functionality
