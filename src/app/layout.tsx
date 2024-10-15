@@ -7,7 +7,7 @@ import { type Metadata } from "next";
 export const metadata: Metadata = {
   title: "Interrobang | Audience Polls for Tangle",
   description: "Interrobang | Audience Polls for Tangle",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [{ rel: "icon", url: "/logo-square-white.png" }],
 };
 
 export default function RootLayout({
