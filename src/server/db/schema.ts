@@ -16,7 +16,7 @@ export const surveys = createTable("survey", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 256 }).notNull(),
   questions: jsonb("questions").default([]),
-  isActive: boolean("is_active").default(false),
+  isPublished: boolean("is_published").default(false),
   isArchived: boolean("is_archived").default(false),
   createdBy: varchar("created_by", { length: 256 }),
   responseCount: integer("response_count").default(0),
