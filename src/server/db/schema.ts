@@ -1,36 +1,46 @@
-// Example model schema from the Drizzle docs
-// https://orm.drizzle.team/docs/sql-schema-declaration
-
 import { sql } from "drizzle-orm";
 import {
   index,
+  jsonb,
   pgTableCreator,
-  serial,
   timestamp,
   varchar,
+  uuid,
+  boolean,
+  integer,
 } from "drizzle-orm/pg-core";
 
-/**
- * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
- * database instance for multiple projects.
- *
- * @see https://orm.drizzle.team/docs/goodies#multi-project-schema
- */
 export const createTable = pgTableCreator((name) => `interrobang_${name}`);
 
-export const posts = createTable(
-  "post",
+export const surveys = createTable("survey", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: varchar("name", { length: 256 }),
+  questions: jsonb("questions").default([]),
+  isActive: boolean("is_active").default(false),
+  isArchived: boolean("is_archived").default(false),
+  createdBy: varchar("created_by", { length: 256 }),
+  responseCount: integer("response_count").default(0),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .default(sql`CURRENT_TIMESTAMP`)
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+    () => new Date(),
+  ),
+});
+
+export const responses = createTable(
+  "response",
   {
-    id: serial("id").primaryKey(),
-    name: varchar("name", { length: 256 }),
+    id: uuid("id").primaryKey().defaultRandom(),
+    surveyId: uuid("survey_id").references(() => surveys.id),
+    responses: jsonb("responses").default([]),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
-    ),
   },
-  (example) => ({
-    nameIndex: index("name_idx").on(example.name),
-  })
+  (table) => {
+    return {
+      surveyIdIdx: index("response_survey_id_idx").on(table.surveyId),
+    };
+  },
 );
