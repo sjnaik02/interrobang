@@ -4,7 +4,9 @@ import { db } from "@/server/db";
 import { eq } from "drizzle-orm";
 
 export const getSurveyFromId = async (id: string) => {
-  const survey = await db.select().from(surveys).where(eq(surveys.id, id));
+  const survey = await db.query.surveys.findFirst({
+    where: eq(surveys.id, id),
+  });
   return survey;
 };
 
@@ -16,4 +18,9 @@ export const createSurvey = async () => {
     })
     .returning();
   return newSurvey[0];
+};
+
+export const getAllSurveys = async () => {
+  const allSurveys = await db.select().from(surveys);
+  return allSurveys;
 };

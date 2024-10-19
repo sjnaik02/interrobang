@@ -11,7 +11,7 @@ import { Save, Eye, Send } from "lucide-react";
 
 const CreateFormPage = async ({ params }: { params: { id: string } }) => {
   const survey = await getSurveyFromId(params.id);
-  const currentSurvey = survey[0];
+  const currentSurvey = survey;
 
   return (
     <main className="container mx-auto flex flex-col gap-4 p-4">
