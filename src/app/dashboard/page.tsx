@@ -1,5 +1,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { getAllSurveys } from "@/server/queries";
+import Link from "next/link";
+import { ExternalLink } from "lucide-react";
 
 export default async function DashboardPage() {
   const user = await currentUser();
@@ -15,10 +17,15 @@ export default async function DashboardPage() {
         </header>
         <div className="flex flex-col items-center gap-2">
           {surveys.map((survey) => (
-            <div key={survey.id} className="flex items-center gap-2">
+            <Link
+              key={survey.id}
+              href={`/survey/create/${survey.id}`}
+              className="flex items-center gap-2 hover:underline"
+            >
               <p>{survey.name}</p>
               <p>{survey.id}</p>
-            </div>
+              <ExternalLink className="h-4 w-4" />
+            </Link>
           ))}
         </div>
       </div>
