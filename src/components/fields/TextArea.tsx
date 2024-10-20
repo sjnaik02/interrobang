@@ -5,9 +5,12 @@ import {
   ElementType,
 } from "../SurveyElement";
 
+import { Textarea } from "../ui/textarea";
+import { Label } from "../ui/label";
+
 const type: ElementType = "TextArea";
 const properties = {
-  label: "",
+  label: "Text Area",
   placeholder: "Click to edit",
   required: false,
 };
@@ -25,7 +28,17 @@ type CustomInstance = SurveyElementInstance & {
 const TextAreaEditorComponent: React.FC<{
   elementInstance: SurveyElementInstance;
 }> = ({ elementInstance }) => {
-  return <div>TextAreaEditorComponent</div>;
+  const element = elementInstance as CustomInstance;
+  const { label, placeholder, required } = element.properties;
+  return (
+    <div className="flex w-full flex-col gap-2">
+      <Label>
+        {label}
+        {required && "*"}
+      </Label>
+      <Textarea readOnly id={elementInstance.id} />
+    </div>
+  );
 };
 
 const TextAreaSurveyComponent: React.FC<{
