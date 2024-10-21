@@ -11,7 +11,7 @@ import { Label } from "../ui/label";
 const type: ElementType = "TextArea";
 const properties = {
   label: "Text Area",
-  placeholder: "Click to edit",
+  placeholder: "Type here...",
   required: false,
 };
 
@@ -36,7 +36,7 @@ const TextAreaEditorComponent: React.FC<{
         {label}
         {required && "*"}
       </Label>
-      <Textarea readOnly id={elementInstance.id} />
+      <Textarea placeholder={placeholder} readOnly id={elementInstance.id} />
     </div>
   );
 };
