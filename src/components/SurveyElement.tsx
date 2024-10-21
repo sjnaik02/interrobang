@@ -1,6 +1,6 @@
 import { TextArea } from "./fields/TextArea";
-
-export type ElementType = "TextArea";
+import { MultipleChoice } from "./fields/MultipleChoice";
+export type ElementType = "TextArea" | "MultipleChoice";
 
 export type SubmitFunction = (key: string, value: string) => void;
 
@@ -31,4 +31,5 @@ type SurveyElementsType = {
 
 export const SurveyElements: SurveyElementsType = {
   TextArea: TextArea,
+  MultipleChoice: MultipleChoice,
 };
