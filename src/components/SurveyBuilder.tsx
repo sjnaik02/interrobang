@@ -24,18 +24,23 @@ const SurveyBuilder: React.FC = () => {
           />
         ))}
         <Button
-          onClick={() => addElement(0, TextArea.construct(randomId()))}
+          onClick={() =>
+            addElement(elements.length, TextArea.construct(randomId()))
+          }
           variant="secondary"
           className="flex w-fit items-center border-2 border-dashed text-lg"
         >
           <CirclePlus className="mr-1 h-8 w-8" />
-          Add TextArea
+          Add Text Field
         </Button>
         <Button
-          onClick={() => addElement(0, MultipleChoice.construct(randomId()))}
+          onClick={() =>
+            addElement(elements.length, MultipleChoice.construct(randomId()))
+          }
           variant="secondary"
           className="flex w-fit items-center border-2 border-dashed text-lg"
         >
+          <CirclePlus className="mr-1 h-8 w-8" />
           Add Multiple Choice
         </Button>
       </div>

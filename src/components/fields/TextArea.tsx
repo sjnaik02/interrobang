@@ -32,7 +32,7 @@ const TextAreaEditorComponent: React.FC<{
   const { label, placeholder, required } = element.properties;
   return (
     <div className="flex w-full flex-col gap-2">
-      <Label>
+      <Label className="text-lg">
         {label}
         {required && "*"}
       </Label>
