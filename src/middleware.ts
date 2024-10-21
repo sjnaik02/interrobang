@@ -11,7 +11,7 @@ export const config = {
 
 const isProtectedRoute = createRouteMatcher([
   "/dashboard(.*)",
-  "/survey/create(.*)",
+  // "/survey/create(.*)",
 ]);
 
 export default clerkMiddleware((auth, req) => {
