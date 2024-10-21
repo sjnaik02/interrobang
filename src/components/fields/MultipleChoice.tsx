@@ -7,10 +7,10 @@ import * as z from "zod";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Input } from "../ui/input";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
-import { CircleX } from "lucide-react";
+import { CircleX, CirclePlus } from "lucide-react";
 
 const type: ElementType = "MultipleChoice";
 
@@ -23,7 +23,7 @@ const propertiesSchema = z.object({
 const properties = {
   label: "Multiple Choice",
   required: false,
-  options: ["Option 1", "Option 2"],
+  options: ["Option 1"],
 };
 
 type CustomInstance = SurveyElementInstance & {
@@ -37,13 +37,24 @@ const MultipleChoiceEditorComponent: React.FC<{
   const element = elementInstance as CustomInstance;
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  const addOption = () => {
-    const newOptions = [...element.properties.options, "New Option"];
+  useEffect(() => {
+    if (editingIndex !== null) {
+      inputRef.current?.focus();
+    }
+  }, [editingIndex]);
+
+  const addOption = (focus: boolean = false) => {
+    const newOptions = [...element.properties.options, ""];
     updateElement(element.id, {
       ...element,
       properties: { ...element.properties, options: newOptions },
     });
+    if (focus) {
+      setEditingIndex(newOptions.length - 1);
+      setEditingValue("");
+    }
   };
 
   const removeOption = (index: number) => {
@@ -76,51 +87,70 @@ const MultipleChoiceEditorComponent: React.FC<{
     setEditingValue("");
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      if (editingIndex !== null) {
+        const newOptions = [...element.properties.options];
+        newOptions[editingIndex] = editingValue;
+        newOptions.push("");
+        updateElement(element.id, {
+          ...element,
+          properties: { ...element.properties, options: newOptions },
+        });
+        setEditingIndex(newOptions.length - 1);
+        setEditingValue("");
+      }
+    } else if (e.key === "Escape") {
+      cancelEdit();
+      if (editingValue === "") {
+        removeOption(editingIndex || 0);
+      }
+    }
+  };
+
   return (
     <div className="flex w-full flex-col gap-2">
-      <Label className="text-lg">{element.properties.label}</Label>
+      <Label className="text-lg">
+        {element.properties.label}
+        {element.properties.required && " *"}
+      </Label>
       <RadioGroup className="w-full">
         {element.properties.options.map((option, index) => (
           <div key={index} className="flex w-full items-center gap-2">
             <RadioGroupItem value={option} id={`option-${index}`} />
             {editingIndex === index ? (
               <Input
+                ref={inputRef}
                 value={editingValue}
                 onChange={(e) => setEditingValue(e.target.value)}
                 onBlur={saveEdit}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    saveEdit();
-                  }
-                  if (e.key === "Escape") {
-                    cancelEdit();
-                  }
-                }}
-                autoFocus
-                className="w-full rounded-lg px-2 py-2 text-base font-normal"
+                onKeyDown={handleKeyDown}
+                placeholder="Click to edit, Enter to save"
+                className="w-full rounded-none border-0 px-0 text-base focus-visible:border-b-2 focus-visible:border-b-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
               />
             ) : (
               <Label
                 htmlFor={`option-${index}`}
                 onClick={() => startEditing(index)}
-                className="w-full cursor-pointer rounded-lg px-2 py-2 text-base font-normal hover:bg-blue-200 hover:underline"
+                className="w-full cursor-pointer py-2 text-base font-normal"
               >
                 {option}
               </Label>
             )}
             <Button
-              variant="outline"
+              variant="secondary"
               size="icon"
-              className="ml-auto border-destructive bg-background"
+              className="ml-auto"
               onClick={() => removeOption(index)}
             >
-              <CircleX color="red" />
+              <CircleX />
             </Button>
           </div>
         ))}
       </RadioGroup>
-      <Button variant="secondary" className="w-fit" onClick={addOption}>
-        Add Option
+      <Button variant="secondary" className="w-fit" onClick={() => addOption()}>
+        <CirclePlus className="mr-1 h-4 w-4" /> Add Option
       </Button>
     </div>
   );
