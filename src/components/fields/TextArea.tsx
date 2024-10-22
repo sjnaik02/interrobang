@@ -4,6 +4,7 @@ import {
   SurveyElement,
   ElementType,
 } from "../SurveyElement";
+import { Text } from "lucide-react";
 
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
@@ -49,6 +50,8 @@ const TextAreaSurveyComponent: React.FC<{
 
 export const TextArea: SurveyElement = {
   type,
+  name: "Text Area",
+  icon: Text,
   construct: (id: string) => ({
     id,
     type,

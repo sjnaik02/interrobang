@@ -92,8 +92,8 @@ const BuilderElementWrapper: React.FC<{
       </div>
       <div
         className={cn(
-          "flex w-full cursor-pointer flex-col items-center gap-2 rounded-md border-2 border-muted p-4 transition-all duration-100 hover:border-primary",
-          selectedElement?.id === element.id && "border-primary",
+          "flex w-full cursor-pointer flex-col items-center gap-2 rounded-md p-4 transition-all duration-100 hover:border-primary",
+          selectedElement?.id === element.id && "border-2 border-primary",
         )}
         onClick={(e) => {
           e.stopPropagation();

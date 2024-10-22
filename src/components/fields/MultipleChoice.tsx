@@ -10,7 +10,7 @@ import { Button } from "../ui/button";
 import { useState, useRef, useEffect } from "react";
 import { Input } from "../ui/input";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
-import { CircleX, CirclePlus } from "lucide-react";
+import { CircleX, CirclePlus, CheckCircle } from "lucide-react";
 
 const type: ElementType = "MultipleChoice";
 
@@ -139,17 +139,22 @@ const MultipleChoiceEditorComponent: React.FC<{
               </Label>
             )}
             <Button
-              variant="secondary"
+              variant="outline"
               size="icon"
               className="ml-auto"
               onClick={() => removeOption(index)}
             >
-              <CircleX />
+              <CircleX className="h-4 w-4" />
             </Button>
           </div>
         ))}
       </RadioGroup>
-      <Button variant="secondary" className="w-fit" onClick={() => addOption()}>
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-fit"
+        onClick={() => addOption()}
+      >
         <CirclePlus className="mr-1 h-4 w-4" /> Add Option
       </Button>
     </div>
@@ -163,6 +168,8 @@ const MultipleChoiceSurveyComponent: React.FC<{
 };
 
 export const MultipleChoice: SurveyElement = {
+  name: "Multiple Choice",
+  icon: CheckCircle,
   type,
   construct: (id) => ({ id, type, properties }),
   surveyComponent: MultipleChoiceSurveyComponent,

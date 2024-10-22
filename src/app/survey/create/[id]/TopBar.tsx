@@ -52,7 +52,8 @@ const TopBar = ({ name }: { name: string | undefined }) => {
                 }
                 className="cursor-pointer font-mono"
               >
-                {element.type}
+                <element.icon className="mr-1 h-4 w-4" />
+                {element.name}
               </DropdownMenuItem>
             ))}
           </DropdownMenuContent>
