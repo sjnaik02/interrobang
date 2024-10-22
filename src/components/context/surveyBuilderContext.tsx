@@ -11,6 +11,11 @@ type SurveyBuilderContextType = {
   addElement: (idx: number, element: SurveyElementInstance) => void;
   removeElement: (idx: string) => void;
   updateElement: (idx: string, element: SurveyElementInstance) => void;
+  moveElement: (
+    idx: string,
+    direction: "up" | "down",
+    element: SurveyElementInstance,
+  ) => void;
 };
 
 export const SurveyBuilderContext =
@@ -35,6 +40,20 @@ export const SurveyBuilderContextProvider: React.FC<{
     setElements((prev) => prev.map((e) => (e.id === idx ? element : e)));
   };
 
+  const moveElement = (
+    idx: string,
+    direction: "up" | "down",
+    element: SurveyElementInstance,
+  ) => {
+    setElements((prev) => {
+      const index = prev.findIndex((e) => e.id === idx);
+      const newElements = [...prev];
+      newElements.splice(index, 1);
+      newElements.splice(index + (direction === "up" ? -1 : 1), 0, element);
+      return newElements;
+    });
+  };
+
   return (
     <SurveyBuilderContext.Provider
       value={{
@@ -45,6 +64,7 @@ export const SurveyBuilderContextProvider: React.FC<{
         addElement,
         removeElement,
         updateElement,
+        moveElement,
       }}
     >
       {children}
