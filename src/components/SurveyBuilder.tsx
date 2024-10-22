@@ -2,19 +2,15 @@
 
 import useSurveyBuilder from "./hooks/useSurveyBuilder";
 import { Button } from "./ui/button";
-import { TextArea } from "./fields/TextArea";
 import { Label } from "./ui/label";
 import { cn } from "@/lib/utils";
-import { MultipleChoice } from "./fields/MultipleChoice";
 import { SurveyElements, SurveyElementInstance } from "./SurveyElement";
-import { Trash, CirclePlus, ChevronUp, ChevronDown } from "lucide-react";
+import { Trash, ChevronUp, ChevronDown } from "lucide-react";
 import { Switch } from "./ui/switch";
-import { escape } from "querystring";
 
 const SurveyBuilder: React.FC = () => {
   const {
     elements,
-    addElement,
     removeElement,
     updateElement,
     moveElement,
@@ -41,36 +37,12 @@ const SurveyBuilder: React.FC = () => {
             length={elements.length}
           />
         ))}
-        <Button
-          onClick={() =>
-            addElement(elements.length, TextArea.construct(randomId()))
-          }
-          variant="secondary"
-          className="flex w-fit items-center border-2 border-dashed text-lg"
-        >
-          <CirclePlus className="mr-1 h-8 w-8" />
-          Add Text Field
-        </Button>
-        <Button
-          onClick={() =>
-            addElement(elements.length, MultipleChoice.construct(randomId()))
-          }
-          variant="secondary"
-          className="flex w-fit items-center border-2 border-dashed text-lg"
-        >
-          <CirclePlus className="mr-1 h-8 w-8" />
-          Add Multiple Choice
-        </Button>
       </div>
     </div>
   );
 };
 
 export default SurveyBuilder;
-
-const randomId = () => {
-  return Date.now().toString() + Math.random().toString(36).substring(2, 15);
-};
 
 const BuilderElementWrapper: React.FC<{
   element: SurveyElementInstance;
