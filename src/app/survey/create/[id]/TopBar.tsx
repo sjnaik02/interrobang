@@ -16,8 +16,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Save, Eye, Send, Plus } from "lucide-react";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
+import { Save, Eye, Send, Plus } from "lucide-react";
+import { toast } from "sonner";
 
 const TopBar = ({ name }: { name: string | undefined }) => {
   const { elements, addElement } = useSurveyBuilder();
@@ -60,17 +61,28 @@ const TopBar = ({ name }: { name: string | undefined }) => {
         </DropdownMenu>
       </div>
       <div className="flex gap-2">
-        <Button variant="outline" className="px-2 py-1 text-sm" size="sm">
+        <Button
+          variant="outline"
+          className="px-2 py-1 text-sm"
+          size="sm"
+          onClick={() => toast.success("Saved!")}
+        >
           <Save className="mr-1 h-4 w-4" />
           Save
         </Button>
-        <Button variant="outline" className="px-2 py-1 text-sm" size="sm">
+        <Button
+          variant="outline"
+          className="px-2 py-1 text-sm"
+          size="sm"
+          onClick={() => toast.success("Preview!")}
+        >
           <Eye className="mr-1 h-4 w-4" />
           Preview
         </Button>
         <Button
           className="bg-gradient-to-r from-red-500 to-blue-500 px-2 py-1 text-sm hover:from-red-600 hover:to-blue-600"
           size="sm"
+          onClick={() => toast.success("Published!")}
         >
           <Send className="mr-1 h-4 w-4" />
           Publish

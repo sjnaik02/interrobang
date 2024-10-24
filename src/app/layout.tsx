@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import { GeistSans } from "geist/font/sans";
 import { GeistMono } from "geist/font/mono";
 import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
 import { type Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -18,9 +19,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html
         lang="en"
-        className={`${GeistSans.variable} ${GeistMono.variable} text-foreground bg-background`}
+        className={`${GeistSans.variable} ${GeistMono.variable} bg-background text-foreground`}
       >
         <body>{children}</body>
+        <Toaster />
       </html>
     </ClerkProvider>
   );
