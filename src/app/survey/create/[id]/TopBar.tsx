@@ -39,7 +39,7 @@ const TopBar = ({ name }: { name: string | undefined }) => {
         <Separator orientation="vertical" className="my-2 h-6" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="px-2 py-1 text-sm" size="sm">
+            <Button className="px-2 py-1 text-sm" size="sm">
               <Plus className="mr-1 h-4 w-4" />
               Add Element
             </Button>
