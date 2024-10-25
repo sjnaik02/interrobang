@@ -1,15 +1,15 @@
 import { getSurveyFromId } from "@/server/queries";
 import SurveyBuilder from "@/components/SurveyBuilder";
-import TopBar from "./TopBar";
 
 const CreateFormPage = async ({ params }: { params: { id: string } }) => {
   const survey = await getSurveyFromId(params.id);
-  const currentSurvey = survey;
+  if (!survey) {
+    throw Error("No survey of this id exists");
+  }
 
   return (
     <main className="container mx-auto flex flex-col gap-4 p-4">
-      <TopBar name={currentSurvey?.name} />
-      <SurveyBuilder />
+      <SurveyBuilder survey={survey} />
     </main>
   );
 };
