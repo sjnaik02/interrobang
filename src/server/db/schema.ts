@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import { SurveyElementInstance } from "@/components/SurveyElement";
 import {
   index,
   jsonb,
@@ -16,7 +17,7 @@ export const surveys = createTable("survey", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 256 }).notNull(),
   title: varchar("title", { length: 256 }).notNull(),
-  questions: jsonb("questions").default([]),
+  questions: jsonb("questions").$type<SurveyElementInstance[]>(),
   isPublished: boolean("is_published").default(false),
   isArchived: boolean("is_archived").default(false),
   createdBy: varchar("created_by", { length: 256 }),
