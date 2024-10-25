@@ -125,7 +125,7 @@ const MultipleChoiceEditorComponent: React.FC<{
         </ClickToEdit>
         {element.properties.required && " *"}
       </div>
-      <RadioGroup className="w-full">
+      <RadioGroup className="w-full" disabled={true}>
         {element.properties.options.map((option, index) => (
           <div key={index} className="flex w-full items-center gap-2">
             <RadioGroupItem value={option} id={`option-${index}`} />
