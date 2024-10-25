@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import useSurveyBuilder from "./hooks/useSurveyBuilder";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
@@ -8,25 +9,45 @@ import { SurveyElements, SurveyElementInstance } from "./SurveyElement";
 import { Trash, ChevronUp, ChevronDown } from "lucide-react";
 import { Switch } from "./ui/switch";
 import ClickToEdit from "./ClickToEdit";
+import TopBar from "./TopBar";
+import { Survey } from "@/server/db/schema";
 
-const SurveyBuilder: React.FC = () => {
+const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
+  const [isReady, setIsReady] = useState(false);
+
   const {
     elements,
     removeElement,
+    setElements,
     updateElement,
     moveElement,
     selectedElement,
     setSelectedElement,
+    title,
+    setTitle,
+    name,
+    setName,
   } = useSurveyBuilder();
+
+  useEffect(() => {
+    if (isReady) return;
+    setTitle(survey.title);
+    setName(survey.name);
+    if (survey.questions && survey.questions.length > 0) {
+      setElements(survey.questions);
+    }
+    setIsReady(true);
+  }, []);
 
   return (
     <div
       className="flex min-h-screen flex-col gap-4"
       onClick={() => setSelectedElement(null)}
     >
+      <TopBar name={name} />
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-        <ClickToEdit onSave={() => {}}>
-          <h1 className="text-2xl">Survey Builder</h1>
+        <ClickToEdit onSave={(value) => setTitle(value)} className="text-2xl">
+          <h1>{title}</h1>
         </ClickToEdit>
         {elements.map((element, idx) => (
           <BuilderElementWrapper

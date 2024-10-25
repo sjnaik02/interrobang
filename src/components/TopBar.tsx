@@ -17,22 +17,34 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
-import { Save, Eye, Send, Plus } from "lucide-react";
+import { Save, Eye, Send, Plus, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
+import ClickToEdit from "./ClickToEdit";
 
 const TopBar = ({ name }: { name: string | undefined }) => {
-  const { elements, addElement } = useSurveyBuilder();
+  const {
+    elements,
+    addElement,
+    title,
+    name: surveyName,
+    setName,
+  } = useSurveyBuilder();
   return (
     <div className="flex w-full items-center justify-between border-b border-gray-200 py-2 font-mono">
       <div className="flex items-center gap-2">
         <Breadcrumb>
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard">Dashboard</BreadcrumbLink>
+              <BreadcrumbLink href="/dashboard" className="flex items-center">
+                <LayoutDashboard className="mr-1 h-4 w-4" />
+                Dashboard
+              </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <p>{name}</p>
+              <ClickToEdit onSave={(value) => setName(value)}>
+                <p>{surveyName}</p>
+              </ClickToEdit>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
@@ -65,7 +77,11 @@ const TopBar = ({ name }: { name: string | undefined }) => {
           variant="outline"
           className="px-2 py-1 text-sm"
           size="sm"
-          onClick={() => toast.success("Saved!")}
+          onClick={() => {
+            const elementsString = JSON.stringify(elements, null, 2);
+            console.log(elementsString);
+            toast.success(`Saved "${title}" as "${surveyName}"`);
+          }}
         >
           <Save className="mr-1 h-4 w-4" />
           Save
