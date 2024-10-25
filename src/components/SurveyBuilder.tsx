@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { SurveyElements, SurveyElementInstance } from "./SurveyElement";
 import { Trash, ChevronUp, ChevronDown } from "lucide-react";
 import { Switch } from "./ui/switch";
+import ClickToEdit from "./ClickToEdit";
 
 const SurveyBuilder: React.FC = () => {
   const {
@@ -24,7 +25,9 @@ const SurveyBuilder: React.FC = () => {
       onClick={() => setSelectedElement(null)}
     >
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-        <h1 className="text-2xl">Survey Builder</h1>
+        <ClickToEdit onSave={() => {}}>
+          <h1 className="text-2xl">Survey Builder</h1>
+        </ClickToEdit>
         {elements.map((element, idx) => (
           <BuilderElementWrapper
             element={element}
@@ -115,6 +118,9 @@ const BuilderElementWrapper: React.FC<{
               Remove
             </Button>
             <div className="flex items-center gap-2">
+              <Label htmlFor="required" className="font-mono">
+                Required
+              </Label>
               <Switch
                 id="required"
                 checked={element.properties?.required}
@@ -129,9 +135,6 @@ const BuilderElementWrapper: React.FC<{
                   });
                 }}
               />
-              <Label htmlFor="required" className="font-mono">
-                Required
-              </Label>
             </div>
           </div>
         )}

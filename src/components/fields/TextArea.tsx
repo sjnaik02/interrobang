@@ -5,6 +5,8 @@ import {
   ElementType,
 } from "../SurveyElement";
 import { Text } from "lucide-react";
+import ClickToEdit from "../ClickToEdit";
+import useSurveyBuilder from "../hooks/useSurveyBuilder";
 
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
@@ -29,14 +31,24 @@ type CustomInstance = SurveyElementInstance & {
 const TextAreaEditorComponent: React.FC<{
   elementInstance: SurveyElementInstance;
 }> = ({ elementInstance }) => {
+  const { updateElement } = useSurveyBuilder();
   const element = elementInstance as CustomInstance;
   const { label, placeholder, required } = element.properties;
+
+  const handleSave = (value: string) => {
+    updateElement(elementInstance.id, {
+      ...elementInstance,
+      properties: { ...element.properties, label: value },
+    });
+  };
   return (
     <div className="flex w-full flex-col gap-2">
-      <Label className="text-lg">
-        {label}
+      <div className="flex">
+        <ClickToEdit onSave={handleSave}>
+          <Label className="text-lg">{label}</Label>
+        </ClickToEdit>
         {required && "*"}
-      </Label>
+      </div>
       <Textarea placeholder={placeholder} readOnly id={elementInstance.id} />
     </div>
   );
@@ -50,7 +62,7 @@ const TextAreaSurveyComponent: React.FC<{
 
 export const TextArea: SurveyElement = {
   type,
-  name: "Text Area",
+  name: "Long Answer",
   icon: Text,
   construct: (id: string) => ({
     id,

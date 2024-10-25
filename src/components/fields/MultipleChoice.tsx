@@ -11,6 +11,7 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "../ui/input";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
 import { CircleX, CirclePlus, CheckCircle } from "lucide-react";
+import ClickToEdit from "../ClickToEdit";
 
 const type: ElementType = "MultipleChoice";
 
@@ -109,12 +110,21 @@ const MultipleChoiceEditorComponent: React.FC<{
     }
   };
 
+  const handleSave = (value: string) => {
+    updateElement(element.id, {
+      ...element,
+      properties: { ...element.properties, label: value },
+    });
+  };
+
   return (
     <div className="flex w-full flex-col gap-2">
-      <Label className="text-lg">
-        {element.properties.label}
+      <div className="flex">
+        <ClickToEdit onSave={handleSave}>
+          <Label className="text-lg">{element.properties.label}</Label>
+        </ClickToEdit>
         {element.properties.required && " *"}
-      </Label>
+      </div>
       <RadioGroup className="w-full">
         {element.properties.options.map((option, index) => (
           <div key={index} className="flex w-full items-center gap-2">
