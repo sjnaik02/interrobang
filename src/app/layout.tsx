@@ -22,7 +22,7 @@ export default function RootLayout({
         className={`${GeistSans.variable} ${GeistMono.variable} bg-background text-foreground`}
       >
         <body>{children}</body>
-        <Toaster />
+        <Toaster richColors />
       </html>
     </ClerkProvider>
   );
