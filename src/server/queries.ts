@@ -24,6 +24,7 @@ export const createSurvey = async () => {
     .insert(surveys)
     .values({
       name: "Untitled Survey",
+      title: "Untitled Survey",
       createdBy: userId,
     })
     .returning();
