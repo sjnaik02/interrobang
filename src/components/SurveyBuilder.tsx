@@ -25,7 +25,7 @@ const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
     setSelectedElement,
     title,
     setTitle,
-    name,
+    setIsPublished,
     setName,
     setSurveyId,
   } = useSurveyBuilder();
@@ -34,6 +34,7 @@ const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
     if (isReady) return;
     setTitle(survey.title);
     setName(survey.name);
+    setIsPublished(survey.isPublished || false);
     setSurveyId(survey.id);
     if (survey.questions && survey.questions.length > 0) {
       setElements(survey.questions);
