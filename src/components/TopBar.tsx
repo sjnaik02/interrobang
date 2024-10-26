@@ -16,6 +16,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
 import { Save, Eye, Send, Plus, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
@@ -30,6 +31,7 @@ const TopBar = () => {
     title,
     name: surveyName,
     setName,
+    isPublished,
   } = useSurveyBuilder();
 
   const handleSave = async () => {
@@ -65,6 +67,11 @@ const TopBar = () => {
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>
+        <Badge
+          className={`ml-2 ${isPublished ? "bg-green-400 hover:bg-green-400" : "bg-yellow-400 hover:bg-yellow-400"} text-black`}
+        >
+          {isPublished ? "Published" : "Draft"}
+        </Badge>
         <Separator orientation="vertical" className="my-2 h-6" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
