@@ -27,12 +27,14 @@ const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
     setTitle,
     name,
     setName,
+    setSurveyId,
   } = useSurveyBuilder();
 
   useEffect(() => {
     if (isReady) return;
     setTitle(survey.title);
     setName(survey.name);
+    setSurveyId(survey.id);
     if (survey.questions && survey.questions.length > 0) {
       setElements(survey.questions);
     }
@@ -44,7 +46,7 @@ const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
       className="flex min-h-screen flex-col gap-4"
       onClick={() => setSelectedElement(null)}
     >
-      <TopBar name={name} />
+      <TopBar />
       <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
         <ClickToEdit onSave={(value) => setTitle(value)} className="text-2xl">
           <h1>{title}</h1>

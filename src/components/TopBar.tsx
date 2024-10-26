@@ -20,15 +20,32 @@ import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
 import { Save, Eye, Send, Plus, LayoutDashboard } from "lucide-react";
 import { toast } from "sonner";
 import ClickToEdit from "./ClickToEdit";
+import { saveChangesToSurvey } from "@/server/queries";
 
-const TopBar = ({ name }: { name: string | undefined }) => {
+const TopBar = () => {
   const {
     elements,
+    surveyId,
     addElement,
     title,
     name: surveyName,
     setName,
   } = useSurveyBuilder();
+
+  const handleSave = async () => {
+    try {
+      await saveChangesToSurvey({
+        updatedAt: new Date(),
+        id: surveyId,
+        title,
+        name: surveyName,
+        questions: elements,
+      });
+      toast.success(`Saved "${title}" as "${surveyName}"`);
+    } catch (error) {
+      toast.error("Failed to save changes");
+    }
+  };
   return (
     <div className="flex w-full items-center justify-between border-b border-gray-200 py-2 font-mono">
       <div className="flex items-center gap-2">
@@ -77,9 +94,8 @@ const TopBar = ({ name }: { name: string | undefined }) => {
           variant="outline"
           className="px-2 py-1 text-sm"
           size="sm"
-          onClick={() => {
-            const elementsString = JSON.stringify(elements, null, 2);
-            console.log(elementsString);
+          onClick={async () => {
+            await handleSave();
             toast.success(`Saved "${title}" as "${surveyName}"`);
           }}
         >

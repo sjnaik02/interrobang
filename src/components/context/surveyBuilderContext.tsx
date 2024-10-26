@@ -7,6 +7,8 @@ type SurveyBuilderContextType = {
   elements: SurveyElementInstance[];
   title: string;
   setTitle: Dispatch<SetStateAction<string>>;
+  surveyId: string;
+  setSurveyId: Dispatch<SetStateAction<string>>;
   name: string;
   setName: Dispatch<SetStateAction<string>>;
   setElements: Dispatch<SetStateAction<SurveyElementInstance[]>>;
@@ -33,7 +35,7 @@ export const SurveyBuilderContextProvider: React.FC<{
     useState<SurveyElementInstance | null>(null);
   const [title, setTitle] = useState("");
   const [name, setName] = useState("");
-
+  const [surveyId, setSurveyId] = useState("");
   const addElement = (idx: number, element: SurveyElementInstance) => {
     setElements((prev) => [...prev.slice(0, idx), element, ...prev.slice(idx)]);
   };
@@ -75,6 +77,8 @@ export const SurveyBuilderContextProvider: React.FC<{
         setTitle,
         name,
         setName,
+        surveyId,
+        setSurveyId,
       }}
     >
       {children}
