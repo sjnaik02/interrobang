@@ -14,6 +14,7 @@ import { Survey } from "@/server/db/schema";
 
 const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
   const [isReady, setIsReady] = useState(false);
+  const [preview, setPreview] = useState(false);
 
   const {
     elements,
@@ -47,24 +48,30 @@ const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
       className="flex min-h-screen flex-col gap-4"
       onClick={() => setSelectedElement(null)}
     >
-      <TopBar />
-      <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
-        <ClickToEdit onSave={(value) => setTitle(value)} className="text-2xl">
-          <h1>{title}</h1>
-        </ClickToEdit>
-        {elements.map((element, idx) => (
-          <BuilderElementWrapper
-            element={element}
-            removeElement={removeElement}
-            updateElement={updateElement}
-            moveElement={moveElement}
-            selectedElement={selectedElement}
-            setSelectedElement={setSelectedElement}
-            idx={idx}
-            length={elements.length}
-          />
-        ))}
-      </div>
+      <TopBar preview={preview} setPreview={setPreview} />
+      {preview ? (
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+          <SurveyPreview />
+        </div>
+      ) : (
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+          <ClickToEdit onSave={(value) => setTitle(value)} className="text-2xl">
+            <h1>{title}</h1>
+          </ClickToEdit>
+          {elements.map((element, idx) => (
+            <BuilderElementWrapper
+              element={element}
+              removeElement={removeElement}
+              updateElement={updateElement}
+              moveElement={moveElement}
+              selectedElement={selectedElement}
+              setSelectedElement={setSelectedElement}
+              idx={idx}
+              length={elements.length}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -164,5 +171,22 @@ const BuilderElementWrapper: React.FC<{
         )}
       </div>
     </div>
+  );
+};
+
+const SurveyPreview = () => {
+  const { title, elements } = useSurveyBuilder();
+  return (
+    <>
+      <h1 className="text-2xl">{title}</h1>
+      {elements.map((element, idx) => (
+        <div key={idx + element.type} className="flex w-full">
+          <p className="mr-2 text-lg">{idx + 1}. </p>
+          {SurveyElements[element.type].surveyComponent({
+            elementInstance: element,
+          })}
+        </div>
+      ))}
+    </>
   );
 };

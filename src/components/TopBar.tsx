@@ -23,7 +23,13 @@ import { toast } from "sonner";
 import ClickToEdit from "./ClickToEdit";
 import { saveChangesToSurvey } from "@/server/queries";
 
-const TopBar = () => {
+const TopBar = ({
+  preview,
+  setPreview,
+}: {
+  preview: boolean;
+  setPreview: (preview: boolean) => void;
+}) => {
   const {
     elements,
     surveyId,
@@ -113,7 +119,7 @@ const TopBar = () => {
           variant="outline"
           className="px-2 py-1 text-sm"
           size="sm"
-          onClick={() => toast.success("Preview!")}
+          onClick={() => setPreview(!preview)}
         >
           <Eye className="mr-1 h-4 w-4" />
           Preview

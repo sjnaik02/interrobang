@@ -119,11 +119,13 @@ const MultipleChoiceEditorComponent: React.FC<{
 
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className="flex">
+      <div className="">
         <ClickToEdit onSave={handleSave}>
           <Label className="text-lg">{element.properties.label}</Label>
         </ClickToEdit>
-        {element.properties.required && " *"}
+        {element.properties.required ? (
+          <p className="px-2 font-mono text-sm text-red-500">Required</p>
+        ) : null}
       </div>
       <RadioGroup className="w-full" disabled={true}>
         {element.properties.options.map((option, index) => (
@@ -174,7 +176,46 @@ const MultipleChoiceEditorComponent: React.FC<{
 const MultipleChoiceSurveyComponent: React.FC<{
   elementInstance: SurveyElementInstance;
 }> = ({ elementInstance }) => {
-  return <div>MultipleChoiceSurveyComponent</div>;
+  const [selectedValue, setSelectedValue] = useState<string | null>(null);
+  const element = elementInstance as CustomInstance;
+
+  const handleClick = (value: string) => {
+    if (selectedValue === value) {
+      setSelectedValue(null);
+    } else {
+      setSelectedValue(value);
+    }
+  };
+  return (
+    <div>
+      <h2 className="text-lg">
+        {element.properties.label}
+        {element.properties.required && " *"}
+      </h2>
+      <RadioGroup className="mt-4">
+        {element.properties.options.map((option, index) => (
+          <div
+            key={index}
+            className="flex w-full items-center gap-2 border border-transparent px-2 hover:border hover:border-dashed hover:border-muted-foreground"
+          >
+            <RadioGroupItem
+              key={index}
+              value={option}
+              id={`option-${index}`}
+              checked={selectedValue === option}
+              onClick={() => handleClick(option)}
+            />
+            <Label
+              htmlFor={`option-${index}`}
+              className="w-full cursor-pointer py-2 text-base font-normal"
+            >
+              {option}
+            </Label>
+          </div>
+        ))}
+      </RadioGroup>
+    </div>
+  );
 };
 
 export const MultipleChoice: SurveyElement = {

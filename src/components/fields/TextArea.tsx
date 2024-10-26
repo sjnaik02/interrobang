@@ -43,11 +43,13 @@ const TextAreaEditorComponent: React.FC<{
   };
   return (
     <div className="flex w-full flex-col gap-2">
-      <div className="flex">
+      <div className="">
         <ClickToEdit onSave={handleSave}>
           <Label className="text-lg">{label}</Label>
         </ClickToEdit>
-        {required && "*"}
+        {element.properties.required ? (
+          <p className="px-2 font-mono text-sm text-red-500">Required</p>
+        ) : null}
       </div>
       <Textarea placeholder={placeholder} readOnly id={elementInstance.id} />
     </div>
@@ -57,7 +59,21 @@ const TextAreaEditorComponent: React.FC<{
 const TextAreaSurveyComponent: React.FC<{
   elementInstance: SurveyElementInstance;
 }> = ({ elementInstance }) => {
-  return <div>TextAreaSurveyComponent</div>;
+  const element = elementInstance as CustomInstance;
+  const { label, placeholder, required } = element.properties;
+  return (
+    <div className="w-full">
+      <h2 className="text-lg">
+        {label}
+        {required && " *"}
+      </h2>
+      <Textarea
+        placeholder={placeholder}
+        id={elementInstance.id}
+        className="mt-4 w-full"
+      />
+    </div>
+  );
 };
 
 export const TextArea: SurveyElement = {
