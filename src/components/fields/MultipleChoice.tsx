@@ -12,6 +12,7 @@ import { Input } from "../ui/input";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
 import { CircleX, CirclePlus, CheckCircle } from "lucide-react";
 import ClickToEdit from "../ClickToEdit";
+import { FormItem, FormLabel, FormControl, FormMessage } from "../ui/form";
 
 const type: ElementType = "MultipleChoice";
 
@@ -173,7 +174,7 @@ const MultipleChoiceEditorComponent: React.FC<{
   );
 };
 
-const MultipleChoiceSurveyComponent: React.FC<{
+const MultipleChoicePreviewComponent: React.FC<{
   elementInstance: SurveyElementInstance;
 }> = ({ elementInstance }) => {
   const [selectedValue, setSelectedValue] = useState<string | null>(null);
@@ -218,11 +219,65 @@ const MultipleChoiceSurveyComponent: React.FC<{
   );
 };
 
+// Multiple Choice Survey Component
+const MultipleChoiceSurveyComponent: React.FC<{
+  elementInstance: SurveyElementInstance;
+  field: any;
+  index: number;
+}> = ({ elementInstance, field, index }) => {
+  const element = elementInstance as CustomInstance;
+
+  return (
+    <FormItem>
+      <FormLabel className="text-xl font-normal">
+        {index + 1}. {element.properties.label}
+        {element.properties.required && " *"}
+      </FormLabel>
+      <FormControl>
+        <RadioGroup
+          onValueChange={field.onChange}
+          defaultValue={field.value}
+          className="mt-4"
+        >
+          {element.properties.options.map((option, index) => (
+            <div
+              key={index}
+              className="flex w-full items-center gap-2 border border-transparent px-2 hover:border hover:border-dashed hover:border-muted-foreground"
+            >
+              <RadioGroupItem value={option} id={`option-${index}`} />
+              <Label
+                htmlFor={`option-${index}`}
+                className="w-full cursor-pointer py-2 text-lg font-normal"
+              >
+                {option}
+              </Label>
+            </div>
+          ))}
+        </RadioGroup>
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  );
+};
+
 export const MultipleChoice: SurveyElement = {
   name: "Multiple Choice",
   icon: CheckCircle,
   type,
   construct: (id) => ({ id, type, properties }),
+  getFormSchema: (element: SurveyElementInstance) => {
+    const typedElement = element as CustomInstance;
+
+    // If required, must pick one of the options
+    return typedElement.properties.required
+      ? z.enum(typedElement.properties.options as [string, ...string[]], {
+          required_error: "This question is required",
+        })
+      : z
+          .enum(typedElement.properties.options as [string, ...string[]])
+          .optional();
+  },
+  previewComponent: MultipleChoicePreviewComponent,
   surveyComponent: MultipleChoiceSurveyComponent,
   editorComponent: MultipleChoiceEditorComponent,
   validate: (surveyElement, value) => true,

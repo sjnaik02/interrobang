@@ -10,6 +10,7 @@ import useSurveyBuilder from "../hooks/useSurveyBuilder";
 
 import { Textarea } from "../ui/textarea";
 import { Label } from "../ui/label";
+import { FormItem, FormLabel, FormControl, FormMessage } from "../ui/form";
 
 const type: ElementType = "TextArea";
 const properties = {
@@ -56,7 +57,7 @@ const TextAreaEditorComponent: React.FC<{
   );
 };
 
-const TextAreaSurveyComponent: React.FC<{
+const TextAreaPreviewComponent: React.FC<{
   elementInstance: SurveyElementInstance;
 }> = ({ elementInstance }) => {
   const element = elementInstance as CustomInstance;
@@ -76,6 +77,32 @@ const TextAreaSurveyComponent: React.FC<{
   );
 };
 
+// Text Area Survey Component
+const TextAreaSurveyComponent: React.FC<{
+  elementInstance: SurveyElementInstance;
+  field: any;
+  index: number;
+}> = ({ elementInstance, field, index }) => {
+  const element = elementInstance as CustomInstance;
+
+  return (
+    <FormItem className="space-y-4">
+      <FormLabel className="text-xl font-normal">
+        {index + 1}. {element.properties.label}
+        {element.properties.required && " *"}
+      </FormLabel>
+      <FormControl>
+        <Textarea
+          placeholder={element.properties.placeholder}
+          {...field}
+          className="w-full text-lg placeholder:text-lg"
+        />
+      </FormControl>
+      <FormMessage />
+    </FormItem>
+  );
+};
+
 export const TextArea: SurveyElement = {
   type,
   name: "Long Answer",
@@ -85,7 +112,16 @@ export const TextArea: SurveyElement = {
     type,
     properties,
   }),
+  getFormSchema: (element: SurveyElementInstance) => {
+    const typedElement = element as CustomInstance;
+
+    // If required, must have some text
+    return typedElement.properties.required
+      ? z.string().min(1, "This question is required")
+      : z.string().optional();
+  },
   editorComponent: TextAreaEditorComponent,
+  previewComponent: TextAreaPreviewComponent,
   surveyComponent: TextAreaSurveyComponent,
   validate: (surveyElement: SurveyElementInstance, value: string) => {
     const element = surveyElement as CustomInstance;
