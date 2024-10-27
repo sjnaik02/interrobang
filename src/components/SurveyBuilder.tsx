@@ -6,11 +6,19 @@ import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { cn } from "@/lib/utils";
 import { SurveyElements, SurveyElementInstance } from "./SurveyElement";
-import { Trash, ChevronUp, ChevronDown } from "lucide-react";
+import {
+  Trash,
+  ChevronUp,
+  ChevronDown,
+  Link as LinkIcon,
+  Copy,
+} from "lucide-react";
+import Link from "next/link";
 import { Switch } from "./ui/switch";
 import ClickToEdit from "./ClickToEdit";
 import TopBar from "./TopBar";
 import { Survey } from "@/server/db/schema";
+import { toast } from "sonner";
 
 const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
   const [isReady, setIsReady] = useState(false);
@@ -26,6 +34,7 @@ const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
     setSelectedElement,
     title,
     setTitle,
+    isPublished,
     setIsPublished,
     setName,
     setSurveyId,
@@ -52,6 +61,34 @@ const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
       onClick={() => setSelectedElement(null)}
     >
       <TopBar preview={preview} setPreview={setPreview} />
+      {/* if published, display link to access survey with a copy button */}
+      {isPublished ? (
+        <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-2 rounded-md border border-muted-foreground pl-2">
+          <span className="inline-block whitespace-nowrap font-mono">
+            Survey Link:{" "}
+          </span>
+          <Link
+            href={`/survey/${survey.id}`}
+            className="inline-block truncate whitespace-nowrap font-mono text-black hover:text-muted-foreground"
+          >
+            {`${window.location.origin}/survey/${survey.id}`}
+          </Link>
+
+          <Button
+            onClick={() => {
+              navigator.clipboard.writeText(
+                `${window.location.origin}/survey/${survey.id}`,
+              );
+              toast.success("Copied survey link to clipboard");
+            }}
+            size="sm"
+            className="rounded-l-none"
+          >
+            <Copy className="mr-1 h-4 w-4" />
+            Copy Link
+          </Button>
+        </div>
+      ) : null}
       {preview ? (
         <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
           <SurveyPreview />
@@ -185,7 +222,7 @@ const SurveyPreview = () => {
       {elements.map((element, idx) => (
         <div key={idx + element.type} className="flex w-full">
           <p className="mr-2 text-lg">{idx + 1}. </p>
-          {SurveyElements[element.type].surveyComponent({
+          {SurveyElements[element.type].previewComponent({
             elementInstance: element,
           })}
         </div>
