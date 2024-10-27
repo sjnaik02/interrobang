@@ -1,4 +1,6 @@
 "use client";
+import randomId from "@/lib/randomId";
+import { SurveyElements } from "@/components/SurveyElement";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -6,8 +8,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Separator } from "@/components/ui/separator";
-import { SurveyElements } from "@/components/SurveyElement";
-import randomId from "@/lib/randomId";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,11 +17,22 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { toast } from "sonner";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
 import { Save, Eye, Send, Plus, LayoutDashboard } from "lucide-react";
-import { toast } from "sonner";
 import ClickToEdit from "./ClickToEdit";
-import { saveChangesToSurvey } from "@/server/queries";
+import { saveChangesToSurvey, publishSurvey } from "@/server/queries";
 
 const TopBar = ({
   preview,
@@ -81,7 +92,11 @@ const TopBar = ({
         <Separator orientation="vertical" className="my-2 h-6" />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button className="px-2 py-1 text-sm" size="sm">
+            <Button
+              className="px-2 py-1 text-sm"
+              size="sm"
+              disabled={isPublished}
+            >
               <Plus className="mr-1 h-4 w-4" />
               Add Element
             </Button>
@@ -107,6 +122,7 @@ const TopBar = ({
           variant="outline"
           className="px-2 py-1 text-sm"
           size="sm"
+          disabled={isPublished}
           onClick={async () => {
             await handleSave();
             toast.success(`Saved "${title}" as "${surveyName}"`);
@@ -120,21 +136,63 @@ const TopBar = ({
           className="px-2 py-1 text-sm"
           size="sm"
           onClick={() => setPreview(!preview)}
+          disabled={isPublished}
         >
           <Eye className="mr-1 h-4 w-4" />
           Preview
         </Button>
-        <Button
-          className="bg-gradient-to-r from-red-500 to-blue-500 px-2 py-1 text-sm hover:from-red-600 hover:to-blue-600"
-          size="sm"
-          onClick={() => toast.success("Published!")}
-        >
-          <Send className="mr-1 h-4 w-4" />
-          Publish
-        </Button>
+        <PublishSurveyButton surveyId={surveyId} />
       </div>
     </div>
   );
 };
 
 export default TopBar;
+
+const PublishSurveyButton = ({ surveyId }: { surveyId: string }) => {
+  const { setIsPublished, isPublished } = useSurveyBuilder();
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button
+          className="bg-gradient-to-r from-red-500 to-blue-500 px-2 py-1 text-sm hover:from-red-600 hover:to-blue-600"
+          size="sm"
+          disabled={isPublished}
+        >
+          <Send className="mr-1 h-4 w-4" />
+          Publish
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you sure you want to publish?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Publishing this survey will make it available to respondents. This
+            action cannot be undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction asChild>
+            <Button
+              className="bg-gradient-to-r from-red-500 to-blue-500 px-2 py-1 text-sm hover:from-red-600 hover:to-blue-600"
+              size="sm"
+              onClick={async () => {
+                const publishedSurvey = await publishSurvey(surveyId);
+                if (!publishedSurvey) {
+                  toast.error("Failed to publish survey");
+                  return;
+                }
+                setIsPublished(publishedSurvey.isPublished ?? false);
+                toast.success(`Published "${publishedSurvey.title}"`);
+              }}
+            >
+              <Send className="mr-1 h-4 w-4" />
+              Publish
+            </Button>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};

@@ -40,6 +40,9 @@ const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
     if (survey.questions && survey.questions.length > 0) {
       setElements(survey.questions);
     }
+    if (survey.isPublished) {
+      setPreview(true);
+    }
     setIsReady(true);
   }, []);
 

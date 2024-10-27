@@ -72,3 +72,20 @@ export const saveChangesToSurvey = async ({
     throw new Error("Failed to save changes");
   }
 };
+
+export const publishSurvey = async (id: string) => {
+  try {
+    const updatedSurvey = await db
+      .update(surveys)
+      .set({
+        isPublished: true,
+        updatedAt: new Date(),
+      })
+      .where(eq(surveys.id, id))
+      .returning();
+    return updatedSurvey[0];
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to publish survey");
+  }
+};
