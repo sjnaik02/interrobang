@@ -1,5 +1,5 @@
 import { getSurveyFromId } from "@/server/queries";
-import { submitSurvey, publishSurvey } from "@/app/actions/survey";
+import { submitSurvey } from "@/app/actions/survey";
 import { notFound } from "next/navigation";
 import SurveySubmitPage from "@/components/SurveySubmitPage";
 import { z } from "zod";

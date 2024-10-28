@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { SurveyElementInstance } from "@/components/SurveyElement";
+import { type SurveyElementInstance } from "@/components/SurveyElement";
 import {
   index,
   jsonb,

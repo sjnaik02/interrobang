@@ -1,6 +1,6 @@
 "use server";
 
-import { SurveyElementInstance } from "@/components/SurveyElement";
+import type { SurveyElementInstance } from "@/components/SurveyElement";
 import { db } from "@/server/db";
 import { responses, surveys } from "@/server/db/schema";
 import { auth } from "@clerk/nextjs/server";

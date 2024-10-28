@@ -15,7 +15,7 @@ export default function Component() {
           <Skeleton className="h-6 w-16" />
         </div>
 
-        {[...Array(3)].map((_, index) => (
+        {[1, 2, 3].map((_, index: number) => (
           <div
             key={index + new Date().toDateString()}
             className="flex items-center justify-between border-t py-4"

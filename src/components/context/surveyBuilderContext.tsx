@@ -1,7 +1,12 @@
 "use client";
 
-import { createContext, Dispatch, SetStateAction, useState } from "react";
-import { SurveyElementInstance } from "../SurveyElement";
+import {
+  createContext,
+  type Dispatch,
+  type SetStateAction,
+  useState,
+} from "react";
+import { type SurveyElementInstance } from "../SurveyElement";
 
 type SurveyBuilderContextType = {
   elements: SurveyElementInstance[];

@@ -3,7 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { BarChart, Home, Pen } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { CreateSurveyButton } from "./CreateSurveyButton";
-import { CreateSurveyType } from "@/app/actions/survey";
+import type { CreateSurveyType } from "@/app/actions/survey";
 
 export const DashboardSidebar = async ({
   createSurvey,

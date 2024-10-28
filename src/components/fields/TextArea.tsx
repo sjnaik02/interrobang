@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import * as z from "zod";
 import {
-  SurveyElementInstance,
-  SurveyElement,
-  ElementType,
+  type SurveyElementInstance,
+  type SurveyElement,
+  type ElementType,
 } from "../SurveyElement";
 import { Text } from "lucide-react";
 import ClickToEdit from "../ClickToEdit";
@@ -123,11 +125,4 @@ export const TextArea: SurveyElement = {
   editorComponent: TextAreaEditorComponent,
   previewComponent: TextAreaPreviewComponent,
   surveyComponent: TextAreaSurveyComponent,
-  validate: (surveyElement: SurveyElementInstance, value: string) => {
-    const element = surveyElement as CustomInstance;
-    if (element.properties.required) {
-      return value.length > 0;
-    }
-    return true;
-  },
 };

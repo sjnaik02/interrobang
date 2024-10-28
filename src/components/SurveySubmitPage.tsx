@@ -1,6 +1,6 @@
 "use client";
-import { Survey } from "@/server/db/schema";
-import { SurveyElementInstance, SurveyElements } from "./SurveyElement";
+import { type Survey } from "@/server/db/schema";
+import { type SurveyElementInstance, SurveyElements } from "./SurveyElement";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Form, FormField } from "@/components/ui/form";
@@ -27,15 +27,13 @@ const SurveySubmitPage = ({
 
     elements.forEach((element: SurveyElementInstance) => {
       formFields[element.id] =
-        SurveyElements[
-          element.type as keyof typeof SurveyElements
-        ].getFormSchema(element);
+        SurveyElements[element.type].getFormSchema(element);
     });
 
     return z.object(formFields);
   };
 
-  const formSchema = generateFormSchema(survey.questions || []);
+  const formSchema = generateFormSchema(survey.questions ?? []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -46,6 +44,7 @@ const SurveySubmitPage = ({
     try {
       await submitSurvey(survey.id, data);
       toast.success("Survey submitted successfully");
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Failed to submit survey");
     } finally {
@@ -65,9 +64,7 @@ const SurveySubmitPage = ({
                 control={form.control}
                 name={element.id}
                 render={({ field }) =>
-                  SurveyElements[
-                    element.type as keyof typeof SurveyElements
-                  ].surveyComponent({
+                  SurveyElements[element.type].surveyComponent({
                     elementInstance: element,
                     field,
                     index: idx,
@@ -75,7 +72,13 @@ const SurveySubmitPage = ({
                 }
               />
             ))}
-            <Button type="submit">Submit</Button>
+            <Button type="submit" disabled={submitting}>
+              {submitting ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Submit"
+              )}
+            </Button>
           </form>
         </Form>
       </div>

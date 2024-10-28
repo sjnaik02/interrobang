@@ -5,7 +5,7 @@ import useSurveyBuilder from "./hooks/useSurveyBuilder";
 import { Button } from "./ui/button";
 import { Label } from "./ui/label";
 import { cn } from "@/lib/utils";
-import { SurveyElements, SurveyElementInstance } from "./SurveyElement";
+import { SurveyElements, type SurveyElementInstance } from "./SurveyElement";
 import {
   Trash,
   ChevronUp,
@@ -17,11 +17,11 @@ import Link from "next/link";
 import { Switch } from "./ui/switch";
 import ClickToEdit from "./ClickToEdit";
 import TopBar from "./TopBar";
-import { Survey } from "@/server/db/schema";
+import { type Survey } from "@/server/db/schema";
 import { toast } from "sonner";
 import {
-  PublishSurveyType,
-  SaveChangesToSurveyType,
+  type PublishSurveyType,
+  type SaveChangesToSurveyType,
 } from "@/app/actions/survey";
 
 const SurveyBuilder: React.FC<{
@@ -52,7 +52,7 @@ const SurveyBuilder: React.FC<{
     if (isReady) return;
     setTitle(survey.title);
     setName(survey.name);
-    setIsPublished(survey.isPublished || false);
+    setIsPublished(survey.isPublished ?? false);
     setSurveyId(survey.id);
     if (survey.questions && survey.questions.length > 0) {
       setElements(survey.questions);
@@ -61,6 +61,7 @@ const SurveyBuilder: React.FC<{
       setPreview(true);
     }
     setIsReady(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -78,6 +79,7 @@ const SurveyBuilder: React.FC<{
       {isPublished ? (
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-2 rounded-md border border-muted-foreground pl-2">
           <span className="inline-block whitespace-nowrap font-mono">
+            <LinkIcon className="mr-1 h-4 w-4" />
             Survey Link:{" "}
           </span>
           <Link
@@ -88,8 +90,8 @@ const SurveyBuilder: React.FC<{
           </Link>
 
           <Button
-            onClick={() => {
-              navigator.clipboard.writeText(
+            onClick={async () => {
+              await navigator.clipboard.writeText(
                 `${window.location.origin}/survey/${survey.id}`,
               );
               toast.success("Copied survey link to clipboard");
@@ -113,6 +115,7 @@ const SurveyBuilder: React.FC<{
           </ClickToEdit>
           {elements.map((element, idx) => (
             <BuilderElementWrapper
+              key={element.id}
               element={element}
               removeElement={removeElement}
               updateElement={updateElement}
@@ -207,6 +210,7 @@ const BuilderElementWrapper: React.FC<{
               </Label>
               <Switch
                 id="required"
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 checked={element.properties?.required}
                 onCheckedChange={(checked) => {
                   updateElement(element.id, {

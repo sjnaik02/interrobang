@@ -1,9 +1,4 @@
-import {
-  saveChangesToSurvey,
-  SaveChangesToSurveyType,
-  publishSurvey,
-  PublishSurveyType,
-} from "@/app/actions/survey";
+import { saveChangesToSurvey, publishSurvey } from "@/app/actions/survey";
 import SurveyBuilder from "@/components/SurveyBuilder";
 import { getSurveyFromId } from "@/server/queries";
 

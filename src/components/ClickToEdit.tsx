@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import React, { useState, useRef, useEffect } from "react";
 
 type ClickToEditProps = {

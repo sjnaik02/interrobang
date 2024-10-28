@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import {
-  SurveyElementInstance,
-  SurveyElement,
-  ElementType,
+  type SurveyElementInstance,
+  type SurveyElement,
+  type ElementType,
 } from "../SurveyElement";
 import * as z from "zod";
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group";
@@ -16,6 +18,7 @@ import { FormItem, FormLabel, FormControl, FormMessage } from "../ui/form";
 
 const type: ElementType = "MultipleChoice";
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const propertiesSchema = z.object({
   label: z.string(),
   required: z.boolean(),
@@ -47,7 +50,7 @@ const MultipleChoiceEditorComponent: React.FC<{
     }
   }, [editingIndex]);
 
-  const addOption = (focus: boolean = false) => {
+  const addOption = (focus = false) => {
     const newOptions = [...element.properties.options, ""];
     updateElement(element.id, {
       ...element,
@@ -69,7 +72,7 @@ const MultipleChoiceEditorComponent: React.FC<{
 
   const startEditing = (index: number) => {
     setEditingIndex(index);
-    setEditingValue(element.properties.options[index] || "");
+    setEditingValue(element.properties.options[index] ?? "");
   };
 
   const saveEdit = () => {
@@ -106,7 +109,7 @@ const MultipleChoiceEditorComponent: React.FC<{
     } else if (e.key === "Escape") {
       cancelEdit();
       if (editingValue === "") {
-        removeOption(editingIndex || 0);
+        removeOption(editingIndex ?? 0);
       }
     }
   };
@@ -222,6 +225,7 @@ const MultipleChoicePreviewComponent: React.FC<{
 // Multiple Choice Survey Component
 const MultipleChoiceSurveyComponent: React.FC<{
   elementInstance: SurveyElementInstance;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   field: any;
   index: number;
 }> = ({ elementInstance, field, index }) => {
@@ -280,5 +284,4 @@ export const MultipleChoice: SurveyElement = {
   previewComponent: MultipleChoicePreviewComponent,
   surveyComponent: MultipleChoiceSurveyComponent,
   editorComponent: MultipleChoiceEditorComponent,
-  validate: (surveyElement, value) => true,
 };

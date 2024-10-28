@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { SurveyElementInstance } from "@/components/SurveyElement";
+import type { SurveyElementInstance } from "@/components/SurveyElement";
 
 export const CreateSurveyButton = ({
   createSurvey,

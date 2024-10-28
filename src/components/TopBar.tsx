@@ -33,8 +33,8 @@ import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
 import { Save, Eye, Send, Plus, LayoutDashboard } from "lucide-react";
 import ClickToEdit from "./ClickToEdit";
 import {
-  PublishSurveyType,
-  SaveChangesToSurveyType,
+  type PublishSurveyType,
+  type SaveChangesToSurveyType,
 } from "@/app/actions/survey";
 
 const TopBar = ({
@@ -68,6 +68,7 @@ const TopBar = ({
         questions: elements,
       });
       toast.success(`Saved "${title}" as "${surveyName}"`);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Failed to save changes");
     }

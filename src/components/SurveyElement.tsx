@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { TextArea } from "./fields/TextArea";
 import { MultipleChoice } from "./fields/MultipleChoice";
-import { LucideIcon } from "lucide-react";
-import { z } from "zod";
+import { type LucideIcon } from "lucide-react";
+import { type z } from "zod";
 export type ElementType = "TextArea" | "MultipleChoice";
 
 export type SubmitFunction = (key: string, value: string) => void;
@@ -23,7 +24,6 @@ export type SurveyElement = {
     index: number;
   }>;
   getFormSchema: (element: SurveyElementInstance) => z.ZodType;
-  validate: (surveyElement: SurveyElementInstance, value: string) => boolean;
 };
 
 export type SurveyElementInstance = {

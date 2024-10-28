@@ -8,9 +8,8 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
-import { ArchiveSurveyType } from "@/app/actions/survey";
+import type { ArchiveSurveyType } from "@/app/actions/survey";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
 
 const SurveyActionsDropdown = ({
   id,

@@ -1,10 +1,9 @@
 import "server-only";
 
-import { responses, surveys } from "@/server/db/schema";
+import { surveys } from "@/server/db/schema";
 import { db } from "@/server/db";
 import { eq, desc } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
-import { SurveyElementInstance } from "@/components/SurveyElement";
 
 export const getSurveyFromId = async (id: string) => {
   const userId = auth().userId;
