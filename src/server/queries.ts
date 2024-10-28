@@ -6,10 +6,6 @@ import { eq, desc } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 
 export const getSurveyFromId = async (id: string) => {
-  const userId = auth().userId;
-  if (!userId) {
-    throw new Error("Unauthorized");
-  }
   const survey = await db.query.surveys.findFirst({
     where: eq(surveys.id, id),
   });
