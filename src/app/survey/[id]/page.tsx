@@ -1,4 +1,5 @@
 import { getSurveyFromId } from "@/server/queries";
+import { submitSurvey, publishSurvey } from "@/app/actions/survey";
 import { notFound } from "next/navigation";
 import SurveySubmitPage from "@/components/SurveySubmitPage";
 import { z } from "zod";
@@ -21,5 +22,5 @@ export default async function SurveyPage({
     notFound();
   }
 
-  return <SurveySubmitPage survey={survey} />;
+  return <SurveySubmitPage survey={survey} submitSurvey={submitSurvey} />;
 }

@@ -3,10 +3,28 @@
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { createSurvey } from "@/server/queries";
 import { useState } from "react";
+import { SurveyElementInstance } from "@/components/SurveyElement";
 
-export const CreateFormButton = () => {
+export const CreateSurveyButton = ({
+  createSurvey,
+}: {
+  createSurvey: () => Promise<
+    | {
+        id: string;
+        name: string;
+        title: string;
+        questions: SurveyElementInstance[] | null;
+        isPublished: boolean | null;
+        isArchived: boolean | null;
+        createdBy: string | null;
+        responseCount: number | null;
+        createdAt: Date;
+        updatedAt: Date | null;
+      }
+    | undefined
+  >;
+}) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const handleCreateForm = async () => {

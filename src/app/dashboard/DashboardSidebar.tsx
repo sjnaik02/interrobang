@@ -1,10 +1,15 @@
 import { NavLink } from "@/app/_components/NavLink";
 import { Separator } from "@/components/ui/separator";
-import { BarChart, Home, Pen, PlusCircle } from "lucide-react";
+import { BarChart, Home, Pen } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
-import { CreateFormButton } from "./CreateSurveyButton";
+import { CreateSurveyButton } from "./CreateSurveyButton";
+import { CreateSurveyType } from "@/app/actions/survey";
 
-export const DashboardSidebar = async () => {
+export const DashboardSidebar = async ({
+  createSurvey,
+}: {
+  createSurvey: CreateSurveyType;
+}) => {
   return (
     <aside className="flex h-full w-64">
       <div className="flex h-full w-full flex-col gap-4 p-4">
@@ -22,7 +27,7 @@ export const DashboardSidebar = async () => {
             Visualise
           </NavLink>
         </nav>
-        <CreateFormButton />
+        <CreateSurveyButton createSurvey={createSurvey} />
         <Separator />
         <div className="mt-auto flex items-center">
           <UserButton />

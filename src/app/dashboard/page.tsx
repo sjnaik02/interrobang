@@ -9,9 +9,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, MoreHorizontal } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { archiveSurvey } from "@/app/actions/survey";
+
+import SurveyActionsDropdown from "./SurveyActionsDropdown";
 
 export default async function DashboardPage() {
   const user = await currentUser();
@@ -37,44 +39,49 @@ export default async function DashboardPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {surveys.map((survey) => (
-            <TableRow key={survey.id}>
-              <TableCell>
-                <Link
-                  href={`/survey/create/${survey.id}`}
-                  className="flex w-full items-center gap-2 hover:underline"
-                >
-                  {survey.name}
-                  <ExternalLink className="h-4 w-4" />
-                  {new Date().getTime() - new Date(survey.createdAt).getTime() <
-                    1000 * 60 * 60 * 12 && (
-                    <Badge className="self-end bg-green-400 text-black no-underline hover:bg-green-300">
-                      New
-                    </Badge>
-                  )}
-                </Link>
-              </TableCell>
-              <TableCell>
-                <Badge
-                  className={`${survey.isPublished ? "bg-green-400 hover:bg-green-400" : "bg-yellow-400 hover:bg-yellow-400"} text-black`}
-                >
-                  {survey.isPublished ? "Published" : "Draft"}
-                </Badge>
-              </TableCell>
-              <TableCell className="truncate">{survey.title}</TableCell>
-              <TableCell className="text-sm">
-                {new Date(survey.createdAt).toLocaleDateString()}
-              </TableCell>
-              <TableCell className="text-right tabular-nums">
-                {survey.responseCount}
-              </TableCell>
-              <TableCell className="text-right">
-                <Button variant="ghost" size="icon">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </TableCell>
-            </TableRow>
-          ))}
+          {/* map all non-archived surveys */}
+          {surveys
+            .filter((survey) => !survey.isArchived)
+            .map((survey) => (
+              <TableRow key={survey.id}>
+                <TableCell>
+                  <Link
+                    href={`/survey/create/${survey.id}`}
+                    className="flex w-full items-center gap-2 hover:underline"
+                  >
+                    {survey.name}
+                    <ExternalLink className="h-4 w-4" />
+                    {new Date().getTime() -
+                      new Date(survey.createdAt).getTime() <
+                      1000 * 60 * 60 * 12 && (
+                      <Badge className="self-end bg-green-400 text-black no-underline hover:bg-green-300">
+                        New
+                      </Badge>
+                    )}
+                  </Link>
+                </TableCell>
+                <TableCell>
+                  <Badge
+                    className={`${survey.isPublished ? "bg-green-400 hover:bg-green-400" : "bg-yellow-400 hover:bg-yellow-400"} text-black`}
+                  >
+                    {survey.isPublished ? "Published" : "Draft"}
+                  </Badge>
+                </TableCell>
+                <TableCell className="truncate">{survey.title}</TableCell>
+                <TableCell className="text-sm">
+                  {new Date(survey.createdAt).toLocaleDateString()}
+                </TableCell>
+                <TableCell className="text-right tabular-nums">
+                  {survey.responseCount}
+                </TableCell>
+                <TableCell className="text-right">
+                  <SurveyActionsDropdown
+                    id={survey.id}
+                    archiveSurvey={archiveSurvey}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
         </TableBody>
       </Table>
     </div>

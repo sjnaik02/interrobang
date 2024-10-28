@@ -19,8 +19,16 @@ import ClickToEdit from "./ClickToEdit";
 import TopBar from "./TopBar";
 import { Survey } from "@/server/db/schema";
 import { toast } from "sonner";
+import {
+  PublishSurveyType,
+  SaveChangesToSurveyType,
+} from "@/app/actions/survey";
 
-const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
+const SurveyBuilder: React.FC<{
+  survey: Survey;
+  saveChanges: SaveChangesToSurveyType;
+  publishSurvey: PublishSurveyType;
+}> = ({ survey, saveChanges, publishSurvey }) => {
   const [isReady, setIsReady] = useState(false);
   const [preview, setPreview] = useState(false);
 
@@ -60,7 +68,12 @@ const SurveyBuilder: React.FC<{ survey: Survey }> = ({ survey }) => {
       className="flex min-h-screen flex-col gap-4"
       onClick={() => setSelectedElement(null)}
     >
-      <TopBar preview={preview} setPreview={setPreview} />
+      <TopBar
+        preview={preview}
+        setPreview={setPreview}
+        saveChanges={saveChanges}
+        publishSurvey={publishSurvey}
+      />
       {/* if published, display link to access survey with a copy button */}
       {isPublished ? (
         <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-2 rounded-md border border-muted-foreground pl-2">

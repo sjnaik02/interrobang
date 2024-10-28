@@ -32,14 +32,21 @@ import { toast } from "sonner";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
 import { Save, Eye, Send, Plus, LayoutDashboard } from "lucide-react";
 import ClickToEdit from "./ClickToEdit";
-import { saveChangesToSurvey, publishSurvey } from "@/server/queries";
+import {
+  PublishSurveyType,
+  SaveChangesToSurveyType,
+} from "@/app/actions/survey";
 
 const TopBar = ({
   preview,
   setPreview,
+  saveChanges,
+  publishSurvey,
 }: {
   preview: boolean;
   setPreview: (preview: boolean) => void;
+  saveChanges: SaveChangesToSurveyType;
+  publishSurvey: PublishSurveyType;
 }) => {
   const {
     elements,
@@ -53,7 +60,7 @@ const TopBar = ({
 
   const handleSave = async () => {
     try {
-      await saveChangesToSurvey({
+      await saveChanges({
         updatedAt: new Date(),
         id: surveyId,
         title,
@@ -65,6 +72,7 @@ const TopBar = ({
       toast.error("Failed to save changes");
     }
   };
+
   return (
     <div className="flex w-full items-center justify-between border-b border-gray-200 py-2 font-mono">
       <div className="flex items-center gap-2">
@@ -141,7 +149,11 @@ const TopBar = ({
           <Eye className="mr-1 h-4 w-4" />
           Preview
         </Button>
-        <PublishSurveyButton surveyId={surveyId} />
+        <PublishSurveyButton
+          surveyId={surveyId}
+          publishSurvey={publishSurvey}
+          saveChanges={saveChanges}
+        />
       </div>
     </div>
   );
@@ -149,8 +161,38 @@ const TopBar = ({
 
 export default TopBar;
 
-const PublishSurveyButton = ({ surveyId }: { surveyId: string }) => {
-  const { setIsPublished, isPublished } = useSurveyBuilder();
+const PublishSurveyButton = ({
+  surveyId,
+  publishSurvey,
+  saveChanges,
+}: {
+  surveyId: string;
+  publishSurvey: PublishSurveyType;
+  saveChanges: SaveChangesToSurveyType;
+}) => {
+  const {
+    setIsPublished,
+    isPublished,
+    title,
+    name: surveyName,
+    elements,
+  } = useSurveyBuilder();
+  const handlePublish = async () => {
+    await saveChanges({
+      updatedAt: new Date(),
+      id: surveyId,
+      title,
+      name: surveyName,
+      questions: elements,
+    });
+    const publishedSurvey = await publishSurvey(surveyId);
+    if (!publishedSurvey) {
+      toast.error("Failed to publish survey");
+    } else {
+      setIsPublished(publishedSurvey.isPublished ?? false);
+      toast.success(`Published "${publishedSurvey.title}"`);
+    }
+  };
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -177,15 +219,7 @@ const PublishSurveyButton = ({ surveyId }: { surveyId: string }) => {
             <Button
               className="bg-gradient-to-r from-red-500 to-blue-500 px-2 py-1 text-sm hover:from-red-600 hover:to-blue-600"
               size="sm"
-              onClick={async () => {
-                const publishedSurvey = await publishSurvey(surveyId);
-                if (!publishedSurvey) {
-                  toast.error("Failed to publish survey");
-                  return;
-                }
-                setIsPublished(publishedSurvey.isPublished ?? false);
-                toast.success(`Published "${publishedSurvey.title}"`);
-              }}
+              onClick={handlePublish}
             >
               <Send className="mr-1 h-4 w-4" />
               Publish

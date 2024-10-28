@@ -8,23 +8,30 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import Link from "next/link";
-import { Home } from "lucide-react";
+import { Home, Loader2 } from "lucide-react";
+import { useState } from "react";
 
-const SurveySubmitPage = ({ survey }: { survey: Survey }) => {
+const SurveySubmitPage = ({
+  survey,
+  submitSurvey,
+}: {
+  survey: Survey;
+  submitSurvey: (
+    id: string,
+    answers: Record<string, string>,
+  ) => Promise<boolean>;
+}) => {
+  const [submitting, setSubmitting] = useState(false);
   const generateFormSchema = (elements: SurveyElementInstance[]) => {
-    // Empty object to store our rules
     const formFields: Record<string, z.ZodType> = {};
 
-    // For each question in our survey...
     elements.forEach((element: SurveyElementInstance) => {
-      // Ask that question type how it should be validated
       formFields[element.id] =
         SurveyElements[
           element.type as keyof typeof SurveyElements
         ].getFormSchema(element);
     });
 
-    // Return one big schema with all our rules!
     return z.object(formFields);
   };
 
@@ -34,15 +41,16 @@ const SurveySubmitPage = ({ survey }: { survey: Survey }) => {
     resolver: zodResolver(formSchema),
   });
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
-    toast.info(
-      <pre className="mt-2 h-fit w-[340px] rounded-md bg-slate-950 p-4">
-        <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-      </pre>,
-    );
-
-    // You'll probably want to send this to your API eventually
-    console.log("Survey response:", data);
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
+    setSubmitting(true);
+    try {
+      await submitSurvey(survey.id, data);
+      toast.success("Survey submitted successfully");
+    } catch (error) {
+      toast.error("Failed to submit survey");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

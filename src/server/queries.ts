@@ -1,7 +1,8 @@
-"use server";
-import { Survey, surveys } from "@/server/db/schema";
+import "server-only";
+
+import { responses, surveys } from "@/server/db/schema";
 import { db } from "@/server/db";
-import { eq } from "drizzle-orm";
+import { eq, desc } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { SurveyElementInstance } from "@/components/SurveyElement";
 
@@ -16,76 +17,23 @@ export const getSurveyFromId = async (id: string) => {
   return survey;
 };
 
-export const createSurvey = async () => {
-  const userId = auth().userId;
-  if (!userId) {
-    throw new Error("Unauthorized");
-  }
-  const newSurvey = await db
-    .insert(surveys)
-    .values({
-      name: "Untitled Survey",
-      title: "Untitled Survey",
-      createdBy: userId,
-    })
-    .returning();
-  return newSurvey[0];
-};
-
 export const getAllSurveys = async () => {
   const userId = auth().userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
-  const allSurveys = await db.select().from(surveys);
+  const allSurveys = await db
+    .select({
+      id: surveys.id,
+      name: surveys.name,
+      title: surveys.title,
+      createdAt: surveys.createdAt,
+      updatedAt: surveys.updatedAt,
+      responseCount: surveys.responseCount,
+      isPublished: surveys.isPublished,
+      isArchived: surveys.isArchived,
+    })
+    .from(surveys)
+    .orderBy(desc(surveys.createdAt));
   return allSurveys;
-};
-
-//save changes
-
-export const saveChangesToSurvey = async ({
-  id,
-  title,
-  name,
-  questions,
-  updatedAt,
-}: {
-  id: string;
-  title: string;
-  name: string;
-  questions: SurveyElementInstance[];
-  updatedAt: Date;
-}) => {
-  try {
-    const updatedSurvey = await db
-      .update(surveys)
-      .set({
-        title: title,
-        name: name,
-        questions: questions,
-        updatedAt: updatedAt,
-      })
-      .where(eq(surveys.id, id));
-    return updatedSurvey;
-  } catch (error) {
-    console.error(error);
-    throw new Error("Failed to save changes");
-  }
-};
-
-export const publishSurvey = async (id: string) => {
-  try {
-    const updatedSurvey = await db
-      .update(surveys)
-      .set({
-        isPublished: true,
-        updatedAt: new Date(),
-      })
-      .where(eq(surveys.id, id))
-      .returning();
-    return updatedSurvey[0];
-  } catch (error) {
-    console.error(error);
-    throw new Error("Failed to publish survey");
-  }
 };
