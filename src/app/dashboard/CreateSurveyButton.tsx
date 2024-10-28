@@ -25,7 +25,7 @@ export const CreateFormButton = () => {
         Create Survey
       </Button>
       {loading && (
-        <div className="absolute flex h-full w-full items-center justify-center bg-white">
+        <div className="absolute z-10 flex h-full w-full items-center justify-center bg-white">
           <Loader2 className="h-4 w-4 animate-spin" />
         </div>
       )}
