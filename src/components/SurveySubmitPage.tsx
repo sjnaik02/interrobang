@@ -57,7 +57,7 @@ const SurveySubmitPage = ({
   }
 
   //unpublished, archived, or no questions
-  if (survey.questions?.length === 0) {
+  if (survey.questions?.length === 0 || !survey.questions) {
     notFound();
     return null;
   }
@@ -103,7 +103,7 @@ const SurveySubmitPage = ({
         <h1 className="mb-8 mt-24 text-3xl font-semibold">{survey.title}</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {survey.questions?.map((element, idx) => (
+            {survey.questions.map((element, idx) => (
               <FormField
                 key={element.id}
                 control={form.control}
