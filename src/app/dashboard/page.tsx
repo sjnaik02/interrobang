@@ -1,5 +1,5 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { getLastXSurveys, getAllResponses } from "@/server/queries";
+import { getSurveys, getAllResponses } from "@/server/queries";
 import Link from "next/link";
 import {
   Table,
@@ -19,7 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function DashboardPage() {
   const user = await currentUser();
-  const surveys = await getLastXSurveys(7);
+  const surveys = await getSurveys(0, 7);
   const responses = await getAllResponses();
   return (
     <div className="flex w-full flex-col gap-2 p-4">

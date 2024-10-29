@@ -2,7 +2,7 @@ import "server-only";
 
 import { responses, surveys } from "@/server/db/schema";
 import { db } from "@/server/db";
-import { eq, desc, gte } from "drizzle-orm";
+import { eq, desc, gte, sql } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { cache } from "react";
 
@@ -13,12 +13,12 @@ export const getSurveyFromId = cache(async (id: string) => {
   return survey;
 });
 
-export const getLastXSurveys = cache(async (x: number) => {
+export const getSurveys = cache(async (skip: number, take: number) => {
   const userId = auth().userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
-  const allSurveys = await db
+  const receivedSurveys = await db
     .select({
       id: surveys.id,
       name: surveys.name,
@@ -31,8 +31,9 @@ export const getLastXSurveys = cache(async (x: number) => {
     })
     .from(surveys)
     .orderBy(desc(surveys.createdAt))
-    .limit(x);
-  return allSurveys;
+    .offset(skip)
+    .limit(take);
+  return receivedSurveys;
 });
 
 export const getResponsesFromSurveyId = cache(async (id: string) => {
@@ -60,4 +61,19 @@ export const getAllResponses = cache(async () => {
   });
 
   return allResponses;
+});
+
+export const getTotalSurveyCount = cache(async () => {
+  const userId = auth().userId;
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+
+  const [result] = await db
+    .select({
+      count: sql<number>`count(*)`,
+    })
+    .from(surveys);
+
+  return result?.count ?? 0;
 });
