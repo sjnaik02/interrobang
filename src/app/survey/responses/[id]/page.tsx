@@ -7,6 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import TopNav from "./TopNav";
 
 const SurveyResponsesPage = async ({ params }: { params: { id: string } }) => {
   const survey = await getSurveyFromId(params.id);
@@ -17,9 +18,15 @@ const SurveyResponsesPage = async ({ params }: { params: { id: string } }) => {
 
   return (
     <div className="flex min-h-screen w-full flex-col p-4">
-      <TopNav />
-      SurveyResponsesPage: {survey.title}
-      <Table>
+      <TopNav
+        surveyName={survey.name}
+        isPublished={survey.isPublished ?? false}
+      />
+      <h1 className="mt-8 text-2xl">
+        Responses for:{" "}
+        <span className="underline underline-offset-4">{survey.title}</span>
+      </h1>
+      <Table className="mt-4">
         <TableHeader>
           <TableRow>
             <TableHead>Sr. No</TableHead>
@@ -48,11 +55,3 @@ const SurveyResponsesPage = async ({ params }: { params: { id: string } }) => {
 };
 
 export default SurveyResponsesPage;
-
-const TopNav = () => {
-  return (
-    <div className="flex w-full items-center justify-between">
-      This is a placeholder for the top nav
-    </div>
-  );
-};
