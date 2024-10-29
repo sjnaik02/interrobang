@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import Link from "next/link";
 import { Home, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { notFound } from "next/navigation";
 
 const SurveySubmitPage = ({
   survey,
@@ -23,7 +24,6 @@ const SurveySubmitPage = ({
 }) => {
   const [submitting, setSubmitting] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
-
   const generateFormSchema = (elements: SurveyElementInstance[]) => {
     const formFields: Record<string, z.ZodType> = {};
 
@@ -54,6 +54,22 @@ const SurveySubmitPage = ({
   // If already submitted, show thank you
   if (hasSubmitted) {
     return <ThankYouPage survey={survey} />;
+  }
+
+  //unpublished, archived, or no questions
+  if (survey.questions?.length === 0) {
+    notFound();
+    return null;
+  }
+
+  if (survey.isPublished === false) {
+    notFound();
+    return null;
+  }
+
+  if (survey.isArchived === true) {
+    notFound();
+    return null;
   }
 
   const onSubmit = async (data: z.infer<typeof formSchema>) => {
