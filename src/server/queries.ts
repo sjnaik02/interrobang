@@ -2,7 +2,7 @@ import "server-only";
 
 import { responses, surveys } from "@/server/db/schema";
 import { db } from "@/server/db";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, gte } from "drizzle-orm";
 import { auth } from "@clerk/nextjs/server";
 import { cache } from "react";
 
@@ -13,7 +13,7 @@ export const getSurveyFromId = cache(async (id: string) => {
   return survey;
 });
 
-export const getAllSurveys = cache(async () => {
+export const getLastXSurveys = cache(async (x: number) => {
   const userId = auth().userId;
   if (!userId) {
     throw new Error("Unauthorized");
@@ -30,13 +30,34 @@ export const getAllSurveys = cache(async () => {
       isArchived: surveys.isArchived,
     })
     .from(surveys)
-    .orderBy(desc(surveys.createdAt));
+    .orderBy(desc(surveys.createdAt))
+    .limit(x);
   return allSurveys;
 });
 
 export const getResponsesFromSurveyId = cache(async (id: string) => {
+  const userId = auth().userId;
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
   const res = await db.query.responses.findMany({
     where: eq(responses.surveyId, id),
   });
   return res;
+});
+
+export const getAllResponses = cache(async () => {
+  const userId = auth().userId;
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  // get all responses for all surveys for the last 30 days
+  const allResponses = await db.query.responses.findMany({
+    where: gte(
+      responses.createdAt,
+      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+    ),
+  });
+
+  return allResponses;
 });
