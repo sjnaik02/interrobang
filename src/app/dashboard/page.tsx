@@ -10,10 +10,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, MessageSquareQuote } from "lucide-react";
 import { archiveSurvey } from "@/app/actions/survey";
 
 import SurveyActionsDropdown from "./SurveyActionsDropdown";
+import { Button } from "@/components/ui/button";
 
 export default async function DashboardPage() {
   const user = await currentUser();
@@ -35,6 +36,7 @@ export default async function DashboardPage() {
             <TableHead>Title</TableHead>
             <TableHead>Created At</TableHead>
             <TableHead className="text-right">Responses</TableHead>
+            <TableHead className=""></TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -73,6 +75,16 @@ export default async function DashboardPage() {
                 </TableCell>
                 <TableCell className="text-right tabular-nums">
                   {survey.responseCount}
+                </TableCell>
+                <TableCell className="text-right">
+                  <Button variant="ghost" size="icon" asChild>
+                    <Link
+                      href={`/survey/responses/${survey.id}`}
+                      className="flex items-center gap-2 hover:underline"
+                    >
+                      <MessageSquareQuote className="h-6 w-6" />
+                    </Link>
+                  </Button>
                 </TableCell>
                 <TableCell className="text-right">
                   <SurveyActionsDropdown

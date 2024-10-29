@@ -11,6 +11,8 @@ import {
   integer,
 } from "drizzle-orm/pg-core";
 
+type SurveyResponse = Record<string, string | string[]>;
+
 export const createTable = pgTableCreator((name) => `interrobang_${name}`);
 
 export const surveys = createTable("survey", {
@@ -35,7 +37,7 @@ export const responses = createTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     surveyId: uuid("survey_id").references(() => surveys.id),
-    responses: jsonb("responses").default([]),
+    responses: jsonb("responses").$type<SurveyResponse>(),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
