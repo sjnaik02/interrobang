@@ -31,7 +31,7 @@ const properties = {
   options: ["Option 1"],
 };
 
-type CustomInstance = SurveyElementInstance & {
+export type CustomInstance = SurveyElementInstance & {
   properties: z.infer<typeof propertiesSchema>;
 };
 
