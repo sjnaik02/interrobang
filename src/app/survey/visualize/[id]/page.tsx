@@ -42,8 +42,6 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
     return <div>No multiple choice questions found</div>;
   }
 
-  // No need for type assertion or additional check since
-  // getMultipleChoiceQuestions already returns MultipleChoiceInstance[]
   const firstQuestion = mcQuestions[0];
   if (!firstQuestion) {
     throw new Error("No multiple choice questions found");
@@ -52,16 +50,23 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
   const processedData = processQuestionResponses(firstQuestion.id, responses);
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex min-h-screen flex-col px-4">
       <TopNav
         surveyName={survey.name}
         isPublished={survey.isPublished ?? false}
+        surveyId={survey.id}
       />
-      <Visualizer
-        questionLabel={firstQuestion.properties.label}
-        options={firstQuestion.properties.options}
-        answers={processedData.answers}
-      />
+      <main className="container mx-auto">
+        <h1 className="mb-4 mt-8 text-2xl">
+          Visualize Responses for{" "}
+          <span className="underline underline-offset-4">{survey.title}</span>
+        </h1>
+        <Visualizer
+          questionLabel={firstQuestion.properties.label}
+          options={firstQuestion.properties.options}
+          answers={processedData.answers}
+        />
+      </main>
     </div>
   );
 };

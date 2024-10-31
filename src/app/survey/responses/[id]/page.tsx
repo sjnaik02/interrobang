@@ -17,39 +17,42 @@ const SurveyResponsesPage = async ({ params }: { params: { id: string } }) => {
   const responses = await getResponsesFromSurveyId(params.id);
 
   return (
-    <div className="flex min-h-screen w-full flex-col p-4">
+    <div className="flex min-h-screen w-full flex-col px-4">
       <TopNav
         surveyName={survey.name}
         isPublished={survey.isPublished ?? false}
+        surveyId={survey.id}
       />
-      <h1 className="mt-8 text-2xl">
-        Responses for:{" "}
-        <span className="underline underline-offset-4">{survey.title}</span>
-      </h1>
-      <Table className="mt-4">
-        <TableHeader>
-          <TableRow>
-            <TableHead>Sr. No</TableHead>
-            {survey.questions?.map((question) => (
-              <TableHead key={question.id}>
-                {question.properties?.label}
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {responses.map((response, index) => (
-            <TableRow key={response.id}>
-              <TableCell>{index + 1}</TableCell>
+      <main className="container mx-auto">
+        <h1 className="mb-4 mt-8 text-2xl">
+          Responses for:{" "}
+          <span className="underline underline-offset-4">{survey.title}</span>
+        </h1>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Sr. No</TableHead>
               {survey.questions?.map((question) => (
-                <TableCell key={question.id}>
-                  {response.responses?.[question.id]}
-                </TableCell>
+                <TableHead key={question.id}>
+                  {question.properties?.label}
+                </TableHead>
               ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {responses.map((response, index) => (
+              <TableRow key={response.id}>
+                <TableCell>{index + 1}</TableCell>
+                {survey.questions?.map((question) => (
+                  <TableCell key={question.id}>
+                    {response.responses?.[question.id]}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </main>
     </div>
   );
 };

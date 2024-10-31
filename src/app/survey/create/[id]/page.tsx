@@ -9,7 +9,7 @@ const CreateFormPage = async ({ params }: { params: { id: string } }) => {
   }
 
   return (
-    <main className="container mx-auto flex flex-col gap-4 p-4">
+    <main className="mx-auto flex flex-col gap-4 px-4">
       <SurveyBuilder
         survey={survey}
         saveChanges={saveChangesToSurvey}

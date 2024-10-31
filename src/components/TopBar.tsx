@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
+import TopNav from "@/app/survey/responses/[id]/TopNav";
 import { Save, Eye, Send, Plus, LayoutDashboard } from "lucide-react";
 import ClickToEdit from "./ClickToEdit";
 import {
@@ -74,7 +75,13 @@ const TopBar = ({
     }
   };
 
-  return (
+  return isPublished ? (
+    <TopNav
+      surveyName={surveyName}
+      isPublished={isPublished}
+      surveyId={surveyId}
+    />
+  ) : (
     <div className="flex w-full items-center justify-between border-b border-gray-200 py-2 font-mono">
       <div className="flex items-center gap-2">
         <Breadcrumb>
