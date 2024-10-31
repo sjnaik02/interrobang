@@ -10,12 +10,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ExternalLink, MessageSquareQuote } from "lucide-react";
 import { archiveSurvey } from "@/app/actions/survey";
 import { ResponsesChart } from "./ResponsesChart";
 import SurveyActionsDropdown from "./SurveyActionsDropdown";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ExternalLink, MessageSquareQuote, BarChart } from "lucide-react";
 
 export default async function DashboardPage() {
   const user = await currentUser();
@@ -42,8 +42,9 @@ export default async function DashboardPage() {
                 <TableHead>Status</TableHead>
                 <TableHead>Title</TableHead>
                 <TableHead>Created At</TableHead>
-                <TableHead className="text-right">Responses</TableHead>
-                <TableHead className=""></TableHead>
+                <TableHead className="text-right"># of responses</TableHead>
+                <TableHead className="">Responses</TableHead>
+                <TableHead className="">Visualize</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -83,13 +84,23 @@ export default async function DashboardPage() {
                     <TableCell className="text-right tabular-nums">
                       {survey.responseCount}
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell className="text-center">
                       <Button variant="ghost" size="icon" asChild>
                         <Link
                           href={`/survey/responses/${survey.id}`}
                           className="flex items-center gap-2 hover:underline"
                         >
                           <MessageSquareQuote className="h-6 w-6" />
+                        </Link>
+                      </Button>
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Button variant="ghost" size="icon" asChild>
+                        <Link
+                          href={`/survey/visualize/${survey.id}`}
+                          className="flex items-center gap-2 hover:underline"
+                        >
+                          <BarChart className="h-6 w-6" />
                         </Link>
                       </Button>
                     </TableCell>
