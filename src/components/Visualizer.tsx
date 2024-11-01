@@ -5,12 +5,11 @@
 // components/Visualizer.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import Image from "next/image";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
   CardFooter,
@@ -30,10 +29,12 @@ import {
   LabelList,
   Text,
 } from "recharts";
+import { toPng } from "html-to-image";
 import {
   BarChart2,
   PieChart as PieChartIcon,
   BarChartHorizontal,
+  Download,
 } from "lucide-react";
 
 interface VisualizerProps {
@@ -59,10 +60,31 @@ export default function Visualizer({
   answers,
 }: VisualizerProps) {
   const [chartType, setChartType] = useState<ChartType>("vertical");
+  const ref = useRef<HTMLDivElement>(null);
+
+  const onButtonClick = useCallback(() => {
+    if (ref.current === null) {
+      return;
+    }
+
+    toPng(ref.current, {
+      cacheBust: true,
+    })
+      .then((dataUrl) => {
+        const link = document.createElement("a");
+        link.download = "new-survey-chart.png";
+        link.href = dataUrl;
+        link.click();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }, [ref]);
 
   // Process data
   const data = options.map((option, index) => {
     const count = answers.filter((answer) => answer === option).length;
+    option = option + " (" + count + ")";
     return {
       option,
       count,
@@ -109,7 +131,6 @@ export default function Visualizer({
                 dataKey="option"
                 interval={0}
                 height={60}
-                tickMargin={20}
                 tick={({ x, y, payload }) => {
                   return (
                     <Text
@@ -243,7 +264,7 @@ export default function Visualizer({
 
   return (
     <div className="flex gap-4">
-      <Card className="">
+      <Card className="w-fit" ref={ref}>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle className="mr-4">{questionLabel}</CardTitle>
           <Image
@@ -258,47 +279,34 @@ export default function Visualizer({
           <p className="text-sm text-muted-foreground">Source: Tangle</p>
         </CardFooter>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Chart</CardTitle>
-          <CardDescription>
-            Customize the chart to your liking. NOTE: Horizontal and Donut
-            charts are under development.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-x-2 whitespace-nowrap">
-            <Button
-              variant={chartType === "vertical" ? "default" : "outline"}
-              onClick={() => setChartType("vertical")}
-              size="sm"
-              className="px-2 py-1 text-sm"
-            >
-              <BarChart2 className="mr-2 h-4 w-4" />
-              Vertical
-            </Button>
-            <Button
-              variant={chartType === "horizontal" ? "default" : "outline"}
-              onClick={() => setChartType("horizontal")}
-              size="sm"
-              className="px-2 py-1 text-sm"
-            >
-              <BarChartHorizontal className="mr-2 h-4 w-4" />
-              Horizontal
-            </Button>
-            <Button
-              variant={chartType === "donut" ? "default" : "outline"}
-              onClick={() => setChartType("donut")}
-              size="sm"
-              className="px-2 py-1 text-sm"
-            >
-              <PieChartIcon className="mr-2 h-4 w-4" />
-              Pie Chart
-            </Button>
-          </div>
-          <div className="flex flex-col gap-2"></div>
-        </CardContent>
-      </Card>
+      <div className="flex flex-col justify-between gap-2 rounded-lg bg-card px-2 py-2 text-card-foreground shadow-sm">
+        <div className="flex flex-col gap-2">
+          <Button
+            variant={chartType === "vertical" ? "default" : "outline"}
+            onClick={() => setChartType("vertical")}
+            size="icon"
+          >
+            <BarChart2 className="" />
+          </Button>
+          <Button
+            variant={chartType === "horizontal" ? "default" : "outline"}
+            onClick={() => setChartType("horizontal")}
+            size="icon"
+          >
+            <BarChartHorizontal />
+          </Button>
+          <Button
+            variant={chartType === "donut" ? "default" : "outline"}
+            onClick={() => setChartType("donut")}
+            size="icon"
+          >
+            <PieChartIcon />
+          </Button>
+        </div>
+        <Button variant="default" onClick={onButtonClick} size="icon">
+          <Download />
+        </Button>
+      </div>
     </div>
   );
 }
