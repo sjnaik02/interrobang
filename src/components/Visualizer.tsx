@@ -13,8 +13,10 @@ import {
   CardHeader,
   CardTitle,
   CardFooter,
+  CardDescription,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Slider } from "@/components/ui/slider";
 import {
   BarChart,
   Bar,
@@ -60,6 +62,7 @@ export default function Visualizer({
   answers,
 }: VisualizerProps) {
   const [chartType, setChartType] = useState<ChartType>("vertical");
+  const [chartWidth, setChartWidth] = useState<number>(800);
   const ref = useRef<HTMLDivElement>(null);
 
   const onButtonClick = useCallback(() => {
@@ -89,7 +92,7 @@ export default function Visualizer({
       option,
       count,
       percentage: (count / answers.length) * 100,
-      color: CHART_COLORS[index % CHART_COLORS.length], // Cycle through colors
+      color: CHART_COLORS[index % CHART_COLORS.length] ?? CHART_COLORS[0], // Ensure color is always a string
     };
   });
 
@@ -116,7 +119,7 @@ export default function Visualizer({
     switch (chartType) {
       case "vertical":
         return (
-          <ResponsiveContainer width="100%" height={400}>
+          <ResponsiveContainer width={chartWidth} height={400}>
             <BarChart
               data={data}
               barGap={0} // Adjust gap between bars
@@ -263,50 +266,72 @@ export default function Visualizer({
   };
 
   return (
-    <div className="flex gap-4">
-      <Card className="w-fit" ref={ref}>
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="mr-4">{questionLabel}</CardTitle>
-          <Image
-            src="/tangle-gradient.png"
-            alt="tangle logo"
-            width={200}
-            height={200}
-          />
-        </CardHeader>
-        <CardContent className="flex">{renderChart()}</CardContent>
-        <CardFooter className="flex flex-row justify-between">
-          <p className="text-sm text-muted-foreground">Source: Tangle</p>
-        </CardFooter>
-      </Card>
-      <div className="flex flex-col justify-between gap-2 rounded-lg bg-card px-2 py-2 text-card-foreground shadow-sm">
-        <div className="flex flex-col gap-2">
-          <Button
-            variant={chartType === "vertical" ? "default" : "outline"}
-            onClick={() => setChartType("vertical")}
-            size="icon"
-          >
-            <BarChart2 className="" />
-          </Button>
-          <Button
-            variant={chartType === "horizontal" ? "default" : "outline"}
-            onClick={() => setChartType("horizontal")}
-            size="icon"
-          >
-            <BarChartHorizontal />
-          </Button>
-          <Button
-            variant={chartType === "donut" ? "default" : "outline"}
-            onClick={() => setChartType("donut")}
-            size="icon"
-          >
-            <PieChartIcon />
-          </Button>
-        </div>
-        <Button variant="default" onClick={onButtonClick} size="icon">
-          <Download />
-        </Button>
+    <>
+      <div className="mx-auto flex gap-4">
+        <Card style={{ width: `${chartWidth}px` }} ref={ref}>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="mr-4">{questionLabel}</CardTitle>
+            <Image
+              src="/tangle-gradient.png"
+              alt="tangle logo"
+              width={200}
+              height={200}
+            />
+          </CardHeader>
+          <CardContent className="flex">{renderChart()}</CardContent>
+          <CardFooter className="flex flex-row justify-between">
+            <p className="text-sm text-muted-foreground">Source: Tangle</p>
+          </CardFooter>
+        </Card>
+        <Card className="flex w-96 flex-col gap-2">
+          <CardHeader className="flex justify-between">
+            <CardTitle>Customize</CardTitle>
+            <CardDescription>Customize your chart</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="flex gap-2">
+              <Button
+                variant={chartType === "vertical" ? "default" : "outline"}
+                onClick={() => setChartType("vertical")}
+                size="icon"
+              >
+                <BarChart2 className="" />
+              </Button>
+              <Button
+                variant={chartType === "horizontal" ? "default" : "outline"}
+                onClick={() => setChartType("horizontal")}
+                size="icon"
+              >
+                <BarChartHorizontal />
+              </Button>
+              <Button
+                variant={chartType === "donut" ? "default" : "outline"}
+                onClick={() => setChartType("donut")}
+                size="icon"
+              >
+                <PieChartIcon />
+              </Button>
+            </div>
+            <div className="flex flex-col gap-2">
+              <p>Width</p>
+              <Slider
+                id="width"
+                value={[chartWidth]}
+                onValueChange={(e) => setChartWidth(e[0] ?? 0)}
+                defaultValue={[800]}
+                max={900}
+                min={500}
+                step={25}
+              />
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button variant="default" onClick={onButtonClick} size="icon">
+              <Download />
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
-    </div>
+    </>
   );
 }
