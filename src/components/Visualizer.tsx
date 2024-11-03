@@ -84,6 +84,7 @@ export default function Visualizer({
   const [barCategoryGap, setBarCategoryGap] = useState<number>(15);
   const ref = useRef<HTMLDivElement>(null);
   const [editableOptions, setEditableOptions] = useState<string[]>(options);
+  const [showOptions, setShowOptions] = useState<boolean>(false);
 
   const data = useMemo(() => {
     return options.map((option, index) => {
@@ -284,7 +285,7 @@ export default function Visualizer({
   return (
     <>
       <div className="mx-auto flex gap-4">
-        <Card ref={ref} className="w-full">
+        <Card className="w-full" ref={ref}>
           <div style={{ width: `${chartWidth}px` }} className="mx-auto">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="mr-4">{questionLabel}</CardTitle>
@@ -301,12 +302,12 @@ export default function Visualizer({
             </CardFooter>
           </div>
         </Card>
-        <Card className="flex w-96 flex-col gap-2">
+        <Card className="flex w-full max-w-[300px] flex-col gap-2">
           <CardHeader className="flex justify-between">
             <CardTitle>Customize</CardTitle>
             <CardDescription>Customize your chart</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="flex-grow">
             <div className="flex gap-2">
               <Button
                 variant={chartType === "vertical" ? "default" : "outline"}
@@ -331,17 +332,21 @@ export default function Visualizer({
               </Button>
             </div>
             <div className="mt-4 flex flex-col gap-2">
-              <Label>Chart width</Label>
+              <Label className="mt-2 text-sm">
+                Chart width: {chartWidth}px
+              </Label>
               <Slider
                 id="width"
                 value={[chartWidth]}
                 onValueChange={(e) => setChartWidth(e[0] ?? 0)}
-                defaultValue={[800]}
+                defaultValue={[700]}
                 max={900}
                 min={500}
                 step={25}
               />
-              <Label>Width between bars</Label>
+              <Label className="mt-2 text-sm">
+                Width between bars: {barCategoryGap}%
+              </Label>
               <Slider
                 id="barCategoryGap"
                 value={[barCategoryGap]}
@@ -351,14 +356,27 @@ export default function Visualizer({
                 min={10}
                 step={5}
               />
-              {editableOptions.map((option, idx) => (
-                <OptionInput
-                  key={idx}
-                  value={option}
-                  index={idx}
-                  onChange={handleOptionChange}
-                />
-              ))}
+
+              <div className="flex items-center gap-2 pt-4">
+                <Label>Edit labels</Label>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 px-2"
+                  onClick={() => setShowOptions((prev) => !prev)}
+                >
+                  {showOptions ? "Hide" : "Show"}
+                </Button>
+              </div>
+              {showOptions &&
+                editableOptions.map((option, idx) => (
+                  <OptionInput
+                    key={idx}
+                    value={option}
+                    index={idx}
+                    onChange={handleOptionChange}
+                  />
+                ))}
             </div>
           </CardContent>
           <CardFooter>
