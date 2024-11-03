@@ -5,8 +5,10 @@
 // components/Visualizer.tsx
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import Image from "next/image";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -47,7 +49,6 @@ interface VisualizerProps {
 
 type ChartType = "vertical" | "horizontal" | "donut";
 
-// Array of chart colors from Tailwind config
 const CHART_COLORS = [
   "hsl(var(--chart-1))",
   "hsl(var(--chart-2))",
@@ -56,6 +57,23 @@ const CHART_COLORS = [
   "hsl(var(--chart-5))",
 ];
 
+const OptionInput = ({
+  value,
+  index,
+  onChange,
+}: {
+  value: string;
+  index: number;
+  onChange: (index: number, value: string) => void;
+}) => {
+  return (
+    <div>
+      <Label>Option {index + 1}</Label>
+      <Input value={value} onChange={(e) => onChange(index, e.target.value)} />
+    </div>
+  );
+};
+
 export default function Visualizer({
   questionLabel,
   options,
@@ -63,16 +81,38 @@ export default function Visualizer({
 }: VisualizerProps) {
   const [chartType, setChartType] = useState<ChartType>("vertical");
   const [chartWidth, setChartWidth] = useState<number>(800);
+  const [barCategoryGap, setBarCategoryGap] = useState<number>(15);
   const ref = useRef<HTMLDivElement>(null);
+  const [editableOptions, setEditableOptions] = useState<string[]>(options);
+
+  const data = useMemo(() => {
+    return options.map((option, index) => {
+      const count = answers.filter((answer) => answer === option).length;
+      const displayOption = editableOptions[index] + " (" + count + ")";
+      const color =
+        CHART_COLORS[index % CHART_COLORS.length] ?? CHART_COLORS[0];
+      return {
+        option: displayOption,
+        originalOption: option,
+        count,
+        percentage: (count / answers.length) * 100,
+        color,
+      };
+    });
+  }, [options, answers, editableOptions]);
+
+  const handleOptionChange = useCallback((index: number, value: string) => {
+    setEditableOptions((prev) => {
+      const newOptions = [...prev];
+      newOptions[index] = value;
+      return newOptions;
+    });
+  }, []);
 
   const onButtonClick = useCallback(() => {
-    if (ref.current === null) {
-      return;
-    }
+    if (ref.current === null) return;
 
-    toPng(ref.current, {
-      cacheBust: true,
-    })
+    toPng(ref.current, { cacheBust: true })
       .then((dataUrl) => {
         const link = document.createElement("a");
         link.download = "new-survey-chart.png";
@@ -84,19 +124,6 @@ export default function Visualizer({
       });
   }, [ref]);
 
-  // Process data
-  const data = options.map((option, index) => {
-    const count = answers.filter((answer) => answer === option).length;
-    option = option + " (" + count + ")";
-    return {
-      option,
-      count,
-      percentage: (count / answers.length) * 100,
-      color: CHART_COLORS[index % CHART_COLORS.length] ?? CHART_COLORS[0], // Ensure color is always a string
-    };
-  });
-
-  // Shared tooltip content
   const CustomTooltip = ({ active, payload }: any) => {
     if (!active || !payload?.[0]) return null;
 
@@ -114,17 +141,13 @@ export default function Visualizer({
 
   const renderChart = () => {
     const maxPercentage = Math.max(...data.map((d) => d.percentage));
-
     const yAxisMax = Math.ceil((maxPercentage + 10) / 10) * 10;
+
     switch (chartType) {
       case "vertical":
         return (
           <ResponsiveContainer width={chartWidth} height={400}>
-            <BarChart
-              data={data}
-              barGap={0} // Adjust gap between bars
-              barCategoryGap="15%" // Adjust space between groups
-            >
+            <BarChart data={data} barGap={0} barCategoryGap={barCategoryGap}>
               <CartesianGrid
                 strokeDasharray="3 3"
                 opacity={0.1}
@@ -134,36 +157,34 @@ export default function Visualizer({
                 dataKey="option"
                 interval={0}
                 height={60}
-                tick={({ x, y, payload }) => {
-                  return (
-                    <Text
-                      x={x}
-                      y={y}
-                      width={120}
-                      textAnchor="middle"
-                      verticalAnchor="start"
-                    >
-                      {payload.value}
-                    </Text>
-                  );
-                }}
+                tick={({ x, y, payload }) => (
+                  <Text
+                    x={x}
+                    y={y}
+                    width={120}
+                    textAnchor="middle"
+                    verticalAnchor="start"
+                  >
+                    {payload.value}
+                  </Text>
+                )}
               />
               <YAxis
-                domain={[0, yAxisMax]} // Dynamic max with padding
+                domain={[0, yAxisMax]}
                 tickFormatter={(value) => `${value}%`}
                 tick={{ fill: "hsl(var(--foreground))" }}
-                dx={-10} // Pull axis labels in a bit
+                dx={-10}
               />
               <Bar dataKey="percentage" radius={[12, 12, 0, 0]}>
                 {data.map((entry) => (
-                  <Cell key={entry.option} fill={entry.color} />
+                  <Cell key={entry.originalOption} fill={entry.color} />
                 ))}
                 <LabelList
                   dataKey="percentage"
                   position="top"
                   formatter={(value: number) => `${value.toFixed(1)}%`}
                   fill="hsl(var(--foreground))"
-                  dy={-10} // Pull percentage up a bit
+                  dy={-10}
                 />
                 <LabelList
                   dataKey="count"
@@ -184,14 +205,9 @@ export default function Visualizer({
             <BarChart
               data={data}
               layout="vertical"
-              margin={{
-                top: 20,
-                right: 20,
-                left: 20,
-                bottom: 20,
-              }}
-              barGap={0} // Adjust gap between bars
-              barCategoryGap="15%" // Adjust space between groups
+              margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
+              barGap={0}
+              barCategoryGap="15%"
             >
               <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
               <XAxis
@@ -209,7 +225,7 @@ export default function Visualizer({
               <Tooltip content={CustomTooltip} />
               <Bar dataKey="percentage" radius={[0, 4, 4, 0]}>
                 {data.map((entry) => (
-                  <Cell key={entry.option} fill={entry.color} />
+                  <Cell key={entry.originalOption} fill={entry.color} />
                 ))}
                 <LabelList
                   dataKey="count"
@@ -241,7 +257,7 @@ export default function Visualizer({
                 paddingAngle={2}
               >
                 {data.map((entry) => (
-                  <Cell key={entry.option} fill={entry.color} />
+                  <Cell key={entry.originalOption} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip content={CustomTooltip} />
@@ -268,20 +284,22 @@ export default function Visualizer({
   return (
     <>
       <div className="mx-auto flex gap-4">
-        <Card style={{ width: `${chartWidth}px` }} ref={ref}>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle className="mr-4">{questionLabel}</CardTitle>
-            <Image
-              src="/tangle-gradient.png"
-              alt="tangle logo"
-              width={200}
-              height={200}
-            />
-          </CardHeader>
-          <CardContent className="flex">{renderChart()}</CardContent>
-          <CardFooter className="flex flex-row justify-between">
-            <p className="text-sm text-muted-foreground">Source: Tangle</p>
-          </CardFooter>
+        <Card ref={ref} className="w-full">
+          <div style={{ width: `${chartWidth}px` }} className="mx-auto">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="mr-4">{questionLabel}</CardTitle>
+              <Image
+                src="/tangle-gradient.png"
+                alt="tangle logo"
+                width={200}
+                height={200}
+              />
+            </CardHeader>
+            <CardContent className="flex">{renderChart()}</CardContent>
+            <CardFooter className="flex flex-row justify-between">
+              <p className="text-sm text-muted-foreground">Source: Tangle</p>
+            </CardFooter>
+          </div>
         </Card>
         <Card className="flex w-96 flex-col gap-2">
           <CardHeader className="flex justify-between">
@@ -312,8 +330,8 @@ export default function Visualizer({
                 <PieChartIcon />
               </Button>
             </div>
-            <div className="flex flex-col gap-2">
-              <p>Width</p>
+            <div className="mt-4 flex flex-col gap-2">
+              <Label>Chart width</Label>
               <Slider
                 id="width"
                 value={[chartWidth]}
@@ -323,6 +341,24 @@ export default function Visualizer({
                 min={500}
                 step={25}
               />
+              <Label>Width between bars</Label>
+              <Slider
+                id="barCategoryGap"
+                value={[barCategoryGap]}
+                onValueChange={(e) => setBarCategoryGap(e[0] ?? 0)}
+                defaultValue={[15]}
+                max={50}
+                min={10}
+                step={5}
+              />
+              {editableOptions.map((option, idx) => (
+                <OptionInput
+                  key={idx}
+                  value={option}
+                  index={idx}
+                  onChange={handleOptionChange}
+                />
+              ))}
             </div>
           </CardContent>
           <CardFooter>
