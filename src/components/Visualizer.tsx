@@ -285,8 +285,12 @@ export default function Visualizer({
   return (
     <>
       <div className="mx-auto flex gap-4">
-        <Card className="w-full" ref={ref}>
-          <div style={{ width: `${chartWidth}px` }} className="mx-auto">
+        <Card className="flex w-full justify-center">
+          <div
+            style={{ width: `${chartWidth}px` }}
+            ref={ref}
+            className="bg-card"
+          >
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="mr-4">{questionLabel}</CardTitle>
               <Image
