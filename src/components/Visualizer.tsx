@@ -289,7 +289,7 @@ export default function Visualizer({
           <div
             style={{ width: `${chartWidth}px` }}
             ref={ref}
-            className="bg-card"
+            className="h-fit bg-card"
           >
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="mr-4">{questionLabel}</CardTitle>
