@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
@@ -123,6 +125,61 @@ const OptionInput = ({
   );
 };
 
+const BarChartComponent = ({
+  data,
+  chartWidth,
+  barCategoryGap,
+}: {
+  data: any[];
+  chartWidth: number;
+  barCategoryGap: number;
+}) => {
+  const maxPercentage = Math.max(...data.map((d) => d.percentage));
+  const yAxisMax = Math.ceil((maxPercentage + 10) / 10) * 10;
+
+  return (
+    <ResponsiveContainer width={chartWidth} height={400}>
+      <BarChart data={data} barGap={0} barCategoryGap={barCategoryGap}>
+        <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
+        <XAxis
+          dataKey="option"
+          interval={0}
+          height={60}
+          tick={({ x, y, payload }) => (
+            <Text
+              x={x}
+              y={y}
+              width={120}
+              textAnchor="middle"
+              verticalAnchor="start"
+            >
+              {payload.value}
+            </Text>
+          )}
+        />
+        <YAxis
+          domain={[0, yAxisMax]}
+          tickFormatter={(value) => `${value}%`}
+          tick={{ fill: "hsl(var(--foreground))" }}
+          dx={-10}
+        />
+        <Bar dataKey="percentage" radius={[12, 12, 0, 0]}>
+          {data.map((entry) => (
+            <Cell key={entry.originalOption} fill={entry.color} />
+          ))}
+          <LabelList
+            dataKey="percentage"
+            position="top"
+            formatter={(value: number) => `${value.toFixed(1)}%`}
+            fill="hsl(var(--foreground))"
+            dy={-10}
+          />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+};
+
 export default function Visualizer({
   questionLabel,
   options,
@@ -182,53 +239,6 @@ export default function Visualizer({
       });
   }, [ref]);
 
-  const renderBarChart = () => {
-    const maxPercentage = Math.max(...data.map((d) => d.percentage));
-    const yAxisMax = Math.ceil((maxPercentage + 10) / 10) * 10;
-
-    return (
-      <ResponsiveContainer width={chartWidth} height={400}>
-        <BarChart data={data} barGap={0} barCategoryGap={barCategoryGap}>
-          <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
-          <XAxis
-            dataKey="option"
-            interval={0}
-            height={60}
-            tick={({ x, y, payload }) => (
-              <Text
-                x={x}
-                y={y}
-                width={120}
-                textAnchor="middle"
-                verticalAnchor="start"
-              >
-                {payload.value}
-              </Text>
-            )}
-          />
-          <YAxis
-            domain={[0, yAxisMax]}
-            tickFormatter={(value) => `${value}%`}
-            tick={{ fill: "hsl(var(--foreground))" }}
-            dx={-10}
-          />
-          <Bar dataKey="percentage" radius={[12, 12, 0, 0]}>
-            {data.map((entry) => (
-              <Cell key={entry.originalOption} fill={entry.color} />
-            ))}
-            <LabelList
-              dataKey="percentage"
-              position="top"
-              formatter={(value: number) => `${value.toFixed(1)}%`}
-              fill="hsl(var(--foreground))"
-              dy={-10}
-            />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
-    );
-  };
-
   return (
     <>
       <div className="mx-auto flex gap-4">
@@ -247,7 +257,13 @@ export default function Visualizer({
                 height={200}
               />
             </CardHeader>
-            <CardContent className="flex">{renderBarChart()}</CardContent>
+            <CardContent className="flex">
+              <BarChartComponent
+                data={data}
+                chartWidth={chartWidth}
+                barCategoryGap={barCategoryGap}
+              />
+            </CardContent>
             <CardFooter className="flex flex-row justify-between">
               <p className="text-sm text-muted-foreground">Source: Tangle</p>
             </CardFooter>
