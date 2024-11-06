@@ -22,24 +22,22 @@ import { Slider } from "@/components/ui/slider";
 import {
   BarChart,
   Bar,
-  PieChart,
-  Pie,
   Cell,
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
   ResponsiveContainer,
   LabelList,
   Text,
 } from "recharts";
 import { toPng } from "html-to-image";
 import {
-  BarChart2,
-  PieChart as PieChartIcon,
-  BarChartHorizontal,
-  Download,
-} from "lucide-react";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Download } from "lucide-react";
 
 interface VisualizerProps {
   questionLabel: string;
@@ -47,29 +45,80 @@ interface VisualizerProps {
   answers: string[];
 }
 
-type ChartType = "vertical" | "horizontal" | "donut";
-
 const CHART_COLORS = [
   "hsl(var(--chart-1))",
   "hsl(var(--chart-2))",
   "hsl(var(--chart-3))",
   "hsl(var(--chart-4))",
   "hsl(var(--chart-5))",
+  "hsl(var(--chart-6))",
+  "hsl(var(--chart-7))",
+  "hsl(var(--chart-8))",
+  "hsl(var(--chart-9))",
+  "hsl(var(--chart-10))",
+  "hsl(var(--chart-11))",
+  "hsl(var(--chart-12))",
+  "hsl(var(--chart-13))",
+  "hsl(var(--chart-14))",
+  "hsl(var(--chart-15))",
+  "hsl(var(--chart-16))",
 ];
+
+const ColorPicker = ({
+  color,
+  onColorChange,
+}: {
+  color: string;
+  onColorChange: (color: string) => void;
+}) => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <div
+          style={{ backgroundColor: color }}
+          className="h-8 w-8 rounded-md border-2 border-black"
+        />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="grid grid-cols-4 gap-1">
+        {CHART_COLORS.map((chartColor, i) => (
+          <DropdownMenuItem
+            key={i}
+            className="flex aspect-square items-center justify-center border-2 border-black"
+            style={{ backgroundColor: chartColor }}
+            onClick={() => onColorChange(chartColor)}
+          />
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
 
 const OptionInput = ({
   value,
   index,
   onChange,
+  color,
+  onColorChange,
 }: {
   value: string;
   index: number;
   onChange: (index: number, value: string) => void;
+  color: string;
+  onColorChange: (index: number, color: string) => void;
 }) => {
   return (
-    <div>
+    <div className="space-y-2">
       <Label>Option {index + 1}</Label>
-      <Input value={value} onChange={(e) => onChange(index, e.target.value)} />
+      <div className="flex items-center gap-2">
+        <ColorPicker
+          color={color}
+          onColorChange={(color) => onColorChange(index, color)}
+        />
+        <Input
+          value={value}
+          onChange={(e) => onChange(index, e.target.value)}
+        />
+      </div>
     </div>
   );
 };
@@ -79,34 +128,42 @@ export default function Visualizer({
   options,
   answers,
 }: VisualizerProps) {
-  const [chartType, setChartType] = useState<ChartType>("vertical");
   const [chartWidth, setChartWidth] = useState<number>(800);
   const [barCategoryGap, setBarCategoryGap] = useState<number>(15);
   const ref = useRef<HTMLDivElement>(null);
   const [editableOptions, setEditableOptions] = useState<string[]>(options);
   const [showOptions, setShowOptions] = useState<boolean>(false);
+  const [optionColors, setOptionColors] = useState<string[]>(
+    options.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]) as string[],
+  );
 
   const data = useMemo(() => {
     return options.map((option, index) => {
       const count = answers.filter((answer) => answer === option).length;
       const displayOption = editableOptions[index] + " (" + count + ")";
-      const color =
-        CHART_COLORS[index % CHART_COLORS.length] ?? CHART_COLORS[0];
       return {
         option: displayOption,
         originalOption: option,
         count,
         percentage: (count / answers.length) * 100,
-        color,
+        color: optionColors[index],
       };
     });
-  }, [options, answers, editableOptions]);
+  }, [options, answers, editableOptions, optionColors]);
 
   const handleOptionChange = useCallback((index: number, value: string) => {
     setEditableOptions((prev) => {
       const newOptions = [...prev];
       newOptions[index] = value;
       return newOptions;
+    });
+  }, []);
+
+  const handleColorChange = useCallback((index: number, color: string) => {
+    setOptionColors((prev) => {
+      const newColors = [...prev];
+      newColors[index] = color;
+      return newColors;
     });
   }, []);
 
@@ -125,161 +182,51 @@ export default function Visualizer({
       });
   }, [ref]);
 
-  const CustomTooltip = ({ active, payload }: any) => {
-    if (!active || !payload?.[0]) return null;
-
-    const data = payload[0].payload;
-    return (
-      <div className="rounded-lg border bg-background p-2 shadow-lg">
-        <p className="font-medium">{data.option}</p>
-        <p>{data.percentage.toFixed(1)}%</p>
-        <p className="text-sm text-muted-foreground">
-          ({data.count} responses)
-        </p>
-      </div>
-    );
-  };
-
-  const renderChart = () => {
+  const renderBarChart = () => {
     const maxPercentage = Math.max(...data.map((d) => d.percentage));
     const yAxisMax = Math.ceil((maxPercentage + 10) / 10) * 10;
 
-    switch (chartType) {
-      case "vertical":
-        return (
-          <ResponsiveContainer width={chartWidth} height={400}>
-            <BarChart data={data} barGap={0} barCategoryGap={barCategoryGap}>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                opacity={0.1}
-                vertical={false}
-              />
-              <XAxis
-                dataKey="option"
-                interval={0}
-                height={60}
-                tick={({ x, y, payload }) => (
-                  <Text
-                    x={x}
-                    y={y}
-                    width={120}
-                    textAnchor="middle"
-                    verticalAnchor="start"
-                  >
-                    {payload.value}
-                  </Text>
-                )}
-              />
-              <YAxis
-                domain={[0, yAxisMax]}
-                tickFormatter={(value) => `${value}%`}
-                tick={{ fill: "hsl(var(--foreground))" }}
-                dx={-10}
-              />
-              <Bar dataKey="percentage" radius={[12, 12, 0, 0]}>
-                {data.map((entry) => (
-                  <Cell key={entry.originalOption} fill={entry.color} />
-                ))}
-                <LabelList
-                  dataKey="percentage"
-                  position="top"
-                  formatter={(value: number) => `${value.toFixed(1)}%`}
-                  fill="hsl(var(--foreground))"
-                  dy={-10}
-                />
-                <LabelList
-                  dataKey="count"
-                  height={30}
-                  dy={-10}
-                  position="insideBottom"
-                  formatter={(value: number) => `(${value})`}
-                  fill="hsl(var(--background))"
-                />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        );
-
-      case "horizontal":
-        return (
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              data={data}
-              layout="vertical"
-              margin={{ top: 20, right: 20, left: 20, bottom: 20 }}
-              barGap={0}
-              barCategoryGap="15%"
-            >
-              <CartesianGrid strokeDasharray="3 3" opacity={0.1} />
-              <XAxis
-                type="number"
-                domain={[0, 100]}
-                tickFormatter={(value) => `${value}%`}
-                tick={{ fill: "hsl(var(--foreground))" }}
-              />
-              <YAxis
-                type="category"
-                dataKey="option"
-                width={150}
-                tick={{ fill: "hsl(var(--foreground))" }}
-              />
-              <Tooltip content={CustomTooltip} />
-              <Bar dataKey="percentage" radius={[0, 4, 4, 0]}>
-                {data.map((entry) => (
-                  <Cell key={entry.originalOption} fill={entry.color} />
-                ))}
-                <LabelList
-                  dataKey="count"
-                  position="center"
-                  formatter={(value: number) => `(${value})`}
-                  fill="hsl(var(--background))"
-                />
-                <LabelList
-                  dataKey="percentage"
-                  position="right"
-                  formatter={(value: number) => `${value.toFixed(1)}%`}
-                  fill="hsl(var(--foreground))"
-                />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        );
-
-      case "donut":
-        return (
-          <ResponsiveContainer width="100%" height={400}>
-            <PieChart>
-              <Pie
-                data={data}
-                dataKey="percentage"
-                nameKey="option"
-                innerRadius="60%"
-                outerRadius="80%"
-                paddingAngle={2}
-              >
-                {data.map((entry) => (
-                  <Cell key={entry.originalOption} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip content={CustomTooltip} />
-              <text
-                x="50%"
-                y="50%"
+    return (
+      <ResponsiveContainer width={chartWidth} height={400}>
+        <BarChart data={data} barGap={0} barCategoryGap={barCategoryGap}>
+          <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
+          <XAxis
+            dataKey="option"
+            interval={0}
+            height={60}
+            tick={({ x, y, payload }) => (
+              <Text
+                x={x}
+                y={y}
+                width={120}
                 textAnchor="middle"
-                dominantBaseline="middle"
-                fill="hsl(var(--foreground))"
+                verticalAnchor="start"
               >
-                <tspan x="50%" dy="-0.6em" className="text-lg font-bold">
-                  {answers.length}
-                </tspan>
-                <tspan x="50%" dy="1.2em" className="text-sm">
-                  responses
-                </tspan>
-              </text>
-            </PieChart>
-          </ResponsiveContainer>
-        );
-    }
+                {payload.value}
+              </Text>
+            )}
+          />
+          <YAxis
+            domain={[0, yAxisMax]}
+            tickFormatter={(value) => `${value}%`}
+            tick={{ fill: "hsl(var(--foreground))" }}
+            dx={-10}
+          />
+          <Bar dataKey="percentage" radius={[12, 12, 0, 0]}>
+            {data.map((entry) => (
+              <Cell key={entry.originalOption} fill={entry.color} />
+            ))}
+            <LabelList
+              dataKey="percentage"
+              position="top"
+              formatter={(value: number) => `${value.toFixed(1)}%`}
+              fill="hsl(var(--foreground))"
+              dy={-10}
+            />
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    );
   };
 
   return (
@@ -300,7 +247,7 @@ export default function Visualizer({
                 height={200}
               />
             </CardHeader>
-            <CardContent className="flex">{renderChart()}</CardContent>
+            <CardContent className="flex">{renderBarChart()}</CardContent>
             <CardFooter className="flex flex-row justify-between">
               <p className="text-sm text-muted-foreground">Source: Tangle</p>
             </CardFooter>
@@ -312,30 +259,7 @@ export default function Visualizer({
             <CardDescription>Customize your chart</CardDescription>
           </CardHeader>
           <CardContent className="flex-grow">
-            <div className="flex gap-2">
-              <Button
-                variant={chartType === "vertical" ? "default" : "outline"}
-                onClick={() => setChartType("vertical")}
-                size="icon"
-              >
-                <BarChart2 className="" />
-              </Button>
-              <Button
-                variant={chartType === "horizontal" ? "default" : "outline"}
-                onClick={() => setChartType("horizontal")}
-                size="icon"
-              >
-                <BarChartHorizontal />
-              </Button>
-              <Button
-                variant={chartType === "donut" ? "default" : "outline"}
-                onClick={() => setChartType("donut")}
-                size="icon"
-              >
-                <PieChartIcon />
-              </Button>
-            </div>
-            <div className="mt-4 flex flex-col gap-2">
+            <div className="flex flex-col gap-2">
               <Label className="mt-2 text-sm">
                 Chart width: {chartWidth}px
               </Label>
@@ -379,6 +303,8 @@ export default function Visualizer({
                     value={option}
                     index={idx}
                     onChange={handleOptionChange}
+                    color={optionColors[idx] ?? "#000000"}
+                    onColorChange={handleColorChange}
                   />
                 ))}
             </div>
