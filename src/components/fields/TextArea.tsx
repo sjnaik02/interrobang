@@ -27,7 +27,7 @@ const propertiesSchema = z.object({
   required: z.boolean(),
 });
 
-type CustomInstance = SurveyElementInstance & {
+export type CustomInstance = SurveyElementInstance & {
   properties: z.infer<typeof propertiesSchema>;
 };
 
