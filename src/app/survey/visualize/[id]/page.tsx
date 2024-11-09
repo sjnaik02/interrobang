@@ -3,12 +3,17 @@ import { getResponsesFromSurveyId, getSurveyFromId } from "@/server/queries";
 import { type Response, type Survey } from "@/server/db/schema";
 import { notFound } from "next/navigation";
 import { type CustomInstance as MultipleChoiceInstance } from "@/components/fields/MultipleChoice";
+import { type CustomInstance as TextAreaInstance } from "@/components/fields/TextArea";
 import TopNav from "../../responses/[id]/TopNav";
+import TextResponseTable from "@/components/TextResponseTable";
 
-function getMultipleChoiceQuestions(survey: Survey): MultipleChoiceInstance[] {
+function getQuestions(
+  survey: Survey,
+): (MultipleChoiceInstance | TextAreaInstance)[] {
   return (
     survey.questions?.filter(
-      (q): q is MultipleChoiceInstance => q.type === "MultipleChoice",
+      (q): q is MultipleChoiceInstance | TextAreaInstance =>
+        q.type === "MultipleChoice" || q.type === "TextArea",
     ) ?? []
   );
 }
@@ -36,18 +41,11 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
   }
   const responses = await getResponsesFromSurveyId(survey.id);
 
-  const mcQuestions = getMultipleChoiceQuestions(survey);
+  const questions = getQuestions(survey);
 
-  if (mcQuestions.length === 0) {
-    return <div>No multiple choice questions found</div>;
+  if (questions.length === 0) {
+    return <div>No questions found</div>;
   }
-
-  const firstQuestion = mcQuestions[0];
-  if (!firstQuestion) {
-    throw new Error("No multiple choice questions found");
-  }
-
-  const processedData = processQuestionResponses(firstQuestion.id, responses);
 
   return (
     <div className="flex min-h-screen flex-col px-4">
@@ -61,11 +59,32 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
           Visualize Responses for{" "}
           <span className="underline underline-offset-4">{survey.title}</span>
         </h1>
-        <Visualizer
-          questionLabel={firstQuestion.properties.label}
-          options={firstQuestion.properties.options}
-          answers={processedData.answers}
-        />
+        {questions.map((question, index) => {
+          const processedData = processQuestionResponses(
+            question.id,
+            responses,
+          );
+
+          return (
+            <div key={question.id} className="mb-8">
+              {question.type === "MultipleChoice" && (
+                <Visualizer
+                  questionLabel={`${index + 1}. ${(question as MultipleChoiceInstance).properties.label}`}
+                  options={
+                    (question as MultipleChoiceInstance).properties.options
+                  }
+                  answers={processedData.answers}
+                />
+              )}
+              {question.type === "TextArea" && (
+                <TextResponseTable
+                  question={question as TextAreaInstance}
+                  responses={responses}
+                />
+              )}
+            </div>
+          );
+        })}
       </main>
     </div>
   );
