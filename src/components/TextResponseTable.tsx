@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { responses, type Response } from "@/server/db/schema";
+import { type Response } from "@/server/db/schema";
 import {
   Table,
   TableBody,
