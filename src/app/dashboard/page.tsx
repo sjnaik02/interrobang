@@ -19,7 +19,7 @@ import { ExternalLink, MessageSquareQuote, BarChart } from "lucide-react";
 
 export default async function DashboardPage() {
   const user = await currentUser();
-  const surveys = await getSurveys(0, 7);
+  const surveys = await getSurveys(0, 14);
   const responses = await getAllResponses();
   return (
     <div className="flex w-full flex-col gap-2 p-4">

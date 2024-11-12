@@ -2,7 +2,7 @@
 "use client";
 
 import * as React from "react";
-import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -15,7 +15,7 @@ export function ResponsesChart({ responses }: { responses: Response[] }) {
   // Process responses into daily counts for last 7 days
   const chartData = React.useMemo(() => {
     const now = new Date();
-    const days = Array.from({ length: 7 }, (_, i) => {
+    const days = Array.from({ length: 14 }, (_, i) => {
       const date = new Date(now);
       date.setDate(date.getDate() - i);
       date.setHours(0, 0, 0, 0);
@@ -57,7 +57,7 @@ export function ResponsesChart({ responses }: { responses: Response[] }) {
         <div>
           <CardTitle>Daily Responses</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Last 7 days: {total} responses
+            Last 14 days: {total} responses
           </p>
         </div>
       </CardHeader>
@@ -66,7 +66,7 @@ export function ResponsesChart({ responses }: { responses: Response[] }) {
           config={chartConfig}
           className="aspect-auto h-[250px] w-full"
         >
-          <AreaChart
+          <BarChart
             data={chartData}
             margin={{
               left: 12,
@@ -105,14 +105,8 @@ export function ResponsesChart({ responses }: { responses: Response[] }) {
                 />
               }
             />
-            <Area
-              type="monotone"
-              dataKey="responses"
-              stroke={chartConfig.responses.color}
-              fillOpacity={0.4}
-              fill={chartConfig.responses.color}
-            />
-          </AreaChart>
+            <Bar dataKey="responses" fill={chartConfig.responses.color} />
+          </BarChart>
         </ChartContainer>
       </CardContent>
     </Card>
