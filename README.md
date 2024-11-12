@@ -12,6 +12,7 @@ Interrobang is a tool for creating audience polls for Tangle.
 - Need a kanban board for feature tracking.
 - Db and serverless calls can be optimised when fetching data
 - DB schema currently uses a jsonb column for questions and responses. This may need refactoring in the future.
+- SURVEYS CANNOT BE EDITED ONCE PUBLISHED.
 
 ## TODOS
 
