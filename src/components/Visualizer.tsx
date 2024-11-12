@@ -185,8 +185,8 @@ export default function Visualizer({
   options,
   answers,
 }: VisualizerProps) {
-  const [chartWidth, setChartWidth] = useState<number>(800);
-  const [barCategoryGap, setBarCategoryGap] = useState<number>(15);
+  const [chartWidth, setChartWidth] = useState<number>(900);
+  const [barCategoryGap, setBarCategoryGap] = useState<number>(45);
   const ref = useRef<HTMLDivElement>(null);
   const [editableOptions, setEditableOptions] = useState<string[]>(options);
   const [showOptions, setShowOptions] = useState<boolean>(false);
@@ -283,20 +283,20 @@ export default function Visualizer({
                 id="width"
                 value={[chartWidth]}
                 onValueChange={(e) => setChartWidth(e[0] ?? 0)}
-                defaultValue={[700]}
+                defaultValue={[900]}
                 max={900}
-                min={500}
+                min={650}
                 step={25}
               />
               <Label className="mt-2 text-sm">
-                Width between bars: {barCategoryGap}%
+                Space between bars: {barCategoryGap}%
               </Label>
               <Slider
                 id="barCategoryGap"
                 value={[barCategoryGap]}
                 onValueChange={(e) => setBarCategoryGap(e[0] ?? 0)}
-                defaultValue={[15]}
-                max={50}
+                defaultValue={[45]}
+                max={75}
                 min={10}
                 step={5}
               />
