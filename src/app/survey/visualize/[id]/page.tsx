@@ -34,6 +34,28 @@ function processQuestionResponses(
   return { answers };
 }
 
+type RenderTextAreaResponse = {
+  createdAt: Date;
+  text: string;
+};
+
+function processTextAreaResponses(
+  questionId: string,
+  responses: Response[],
+): { answers: RenderTextAreaResponse[] } {
+  return {
+    answers: responses
+      .map((r) => ({
+        createdAt: r.createdAt,
+        text: r.responses?.[questionId],
+      }))
+      .filter(
+        (response): response is RenderTextAreaResponse =>
+          typeof response.text === "string" && response.text !== undefined,
+      ),
+  };
+}
+
 const VisualizePage = async ({ params }: { params: { id: string } }) => {
   const survey = await getSurveyFromId(params.id);
   if (!survey) {
@@ -60,11 +82,10 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
           <span className="underline underline-offset-4">{survey.title}</span>
         </h1>
         {questions.map((question, index) => {
-          const processedData = processQuestionResponses(
-            question.id,
-            responses,
-          );
-
+          const processedData =
+            question.type === "MultipleChoice"
+              ? processQuestionResponses(question.id, responses)
+              : processTextAreaResponses(question.id, responses);
           return (
             <div key={question.id} className="mb-8">
               {question.type === "MultipleChoice" && (
@@ -73,13 +94,13 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
                   options={
                     (question as MultipleChoiceInstance).properties.options
                   }
-                  answers={processedData.answers}
+                  answers={processedData.answers as string[]}
                 />
               )}
               {question.type === "TextArea" && (
                 <TextResponseTable
-                  question={question as TextAreaInstance}
-                  responses={responses}
+                  questionLabel={`${index + 1}. ${(question as TextAreaInstance).properties.label}`}
+                  responses={processedData.answers as RenderTextAreaResponse[]}
                 />
               )}
             </div>

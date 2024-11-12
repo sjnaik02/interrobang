@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unsafe-call */
-import { type Response } from "@/server/db/schema";
 import { CardContent, Card, CardTitle, CardHeader } from "./ui/card";
 import {
   Table,
@@ -9,42 +8,73 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { type CustomInstance as TextAreaInstance } from "@/components/fields/TextArea";
+
+type RenderResponse = {
+  createdAt: Date;
+  text: string;
+};
 
 interface TextResponseTableProps {
-  question: TextAreaInstance;
-  responses: Response[];
+  questionLabel: string;
+  responses: RenderResponse[];
 }
+
 export default function TextResponseTable({
-  question,
+  questionLabel,
   responses,
 }: TextResponseTableProps) {
+  if (responses.length === 0) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle>{questionLabel}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-32">Created At</TableHead>
+                <TableHead>Response</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={2}>
+                  <div className="relative flex h-64 w-full items-center justify-center">
+                    <div className="absolute inset-0 bg-muted opacity-50 blur-lg"></div>
+                    <div className="relative z-10 text-lg">
+                      No text responses so far
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>{question.properties.label}</CardTitle>
+        <CardTitle>{questionLabel}</CardTitle>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Created At</TableHead>
+              <TableHead className="w-32">Created At</TableHead>
               <TableHead>Response</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {responses.map((response, index) => (
               <TableRow key={index}>
-                <TableCell className="whitespace-nowrap">
+                <TableCell className="w-32 whitespace-nowrap">
                   {new Date(response.createdAt).toLocaleDateString()}
                 </TableCell>
-                <TableCell>
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit.
-                  Officiis rem veniam iure amet doloremque eius recusandae
-                  placeat facilis quis laborum pariatur mollitia rerum
-                  cupiditate, accusantium excepturi praesentium. Ipsa, dicta
-                  nobis.
-                </TableCell>
+                <TableCell>{response.text}</TableCell>
               </TableRow>
             ))}
           </TableBody>
