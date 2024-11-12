@@ -1,6 +1,6 @@
 import { NavLink } from "@/app/_components/NavLink";
 import { Separator } from "@/components/ui/separator";
-import { BarChart, Home, Pen } from "lucide-react";
+import { Home, Pen } from "lucide-react";
 import { UserButton } from "@clerk/nextjs";
 import { CreateSurveyButton } from "./CreateSurveyButton";
 import type { CreateSurveyType } from "@/app/actions/survey";
@@ -22,10 +22,10 @@ export const DashboardSidebar = async ({
             <Pen className="h-4 w-4" />
             Surveys
           </NavLink>
-          <NavLink href="/dashboard/visualise">
+          {/* <NavLink href="/dashboard/visualise">
             <BarChart className="h-4 w-4" />
             Visualise
-          </NavLink>
+          </NavLink> */}
         </nav>
         <CreateSurveyButton createSurvey={createSurvey} />
         <Separator />
