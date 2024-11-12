@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import SurveyActionsDropdown from "../SurveyActionsDropdown";
 import { archiveSurvey } from "@/app/actions/survey";
+import Link from "next/link";
 import {
   Pagination,
   PaginationContent,
@@ -20,7 +21,7 @@ import {
 } from "@/components/ui/pagination";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageSquareQuote } from "lucide-react";
+import { MessageSquareQuote, BarChart } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const SurveysPage = async ({
@@ -49,8 +50,9 @@ const SurveysPage = async ({
             <TableHead>Status</TableHead>
             <TableHead>Title</TableHead>
             <TableHead>Created At</TableHead>
-            <TableHead className="text-right">Responses</TableHead>
+            <TableHead className="text-right"># of responses</TableHead>
             <TableHead className="">Responses</TableHead>
+            <TableHead className="">Visualize</TableHead>
             <TableHead className="text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -81,8 +83,17 @@ const SurveysPage = async ({
                 {survey.responseCount}
               </TableCell>
               <TableCell className="">
-                <Button variant="outline" size="icon">
-                  <MessageSquareQuote className="h-4 w-4" />
+                <Button variant="outline" size="icon" asChild>
+                  <Link href={`/survey/responses/${survey.id}`}>
+                    <MessageSquareQuote className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </TableCell>
+              <TableCell className="">
+                <Button variant="outline" size="icon" asChild>
+                  <Link href={`/survey/visualise/${survey.id}`}>
+                    <BarChart className="h-4 w-4" />
+                  </Link>
                 </Button>
               </TableCell>
               <TableCell className="text-right">
