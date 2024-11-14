@@ -8,13 +8,36 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import TopNav from "./TopNav";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
-const SurveyResponsesPage = async ({ params }: { params: { id: string } }) => {
+const ITEMS_PER_PAGE = 100;
+
+const SurveyResponsesPage = async ({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { page?: string };
+}) => {
+  const currentPage = Number(searchParams.page) || 1;
+  const skip = (currentPage - 1) * ITEMS_PER_PAGE;
+
   const survey = await getSurveyFromId(params.id);
   if (!survey) {
     throw new Error("Survey not found");
   }
-  const responses = await getResponsesFromSurveyId(params.id);
+  const responses = await getResponsesFromSurveyId(
+    params.id,
+    skip,
+    ITEMS_PER_PAGE,
+  );
 
   return (
     <div className="flex min-h-screen w-full flex-col px-4">
@@ -42,7 +65,7 @@ const SurveyResponsesPage = async ({ params }: { params: { id: string } }) => {
           <TableBody>
             {responses.map((response, index) => (
               <TableRow key={response.id}>
-                <TableCell>{index + 1}</TableCell>
+                <TableCell>{skip + index + 1}</TableCell>
                 {survey.questions?.map((question) => (
                   <TableCell key={question.id}>
                     {response.responses?.[question.id]}
@@ -52,6 +75,35 @@ const SurveyResponsesPage = async ({ params }: { params: { id: string } }) => {
             ))}
           </TableBody>
         </Table>
+        <div className="mt-4">
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem>
+                <PaginationPrevious
+                  href={`?page=${currentPage - 1}`}
+                  className={
+                    currentPage === 1 ? "pointer-events-none opacity-50" : ""
+                  }
+                />
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationLink href={`?page=${currentPage}`} isActive>
+                  {currentPage}
+                </PaginationLink>
+              </PaginationItem>
+              <PaginationItem>
+                <PaginationNext
+                  href={`?page=${currentPage + 1}`}
+                  className={
+                    responses.length < ITEMS_PER_PAGE
+                      ? "pointer-events-none opacity-50"
+                      : ""
+                  }
+                />
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </div>
       </main>
     </div>
   );
