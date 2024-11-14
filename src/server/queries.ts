@@ -36,18 +36,33 @@ export const getSurveys = cache(async (skip: number, take: number) => {
   return receivedSurveys;
 });
 
-export const getResponsesFromSurveyId = cache(async (id: string) => {
+export const getResponsesFromSurveyId = cache(
+  async (id: string, skip: number, take: number) => {
+    const userId = auth().userId;
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+    const res = await db.query.responses.findMany({
+      where: eq(responses.surveyId, id),
+      offset: skip,
+      limit: take,
+    });
+    return res;
+  },
+);
+
+export const getAllResponsesFromSurveyId = cache(async (id: string) => {
   const userId = auth().userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
-  const res = await db.query.responses.findMany({
+  const allResponses = await db.query.responses.findMany({
     where: eq(responses.surveyId, id),
   });
-  return res;
+  return allResponses;
 });
 
-export const getAllResponses = cache(async () => {
+export const getResponses = cache(async (lastDays: number) => {
   const userId = auth().userId;
   if (!userId) {
     throw new Error("Unauthorized");
@@ -56,11 +71,41 @@ export const getAllResponses = cache(async () => {
   const allResponses = await db.query.responses.findMany({
     where: gte(
       responses.createdAt,
-      new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      new Date(Date.now() - lastDays * 24 * 60 * 60 * 1000),
     ),
   });
 
   return allResponses;
+});
+
+export const getDashboardData = cache(async (limit: number, days: number) => {
+  const userId = auth().userId;
+  if (!userId) throw new Error("Unauthorized");
+
+  const [requestedSurveys, responseCount] = await Promise.all([
+    db
+      .select()
+      .from(surveys)
+      .where(eq(surveys.isArchived, false))
+      .orderBy(desc(surveys.createdAt))
+      .limit(limit),
+
+    db
+      .select({
+        date: sql<string>`DATE(${responses.createdAt})`,
+        count: sql<number>`COUNT(*)`,
+      })
+      .from(responses)
+      .where(
+        gte(
+          responses.createdAt,
+          new Date(Date.now() - days * 24 * 60 * 60 * 1000),
+        ),
+      )
+      .groupBy(sql`DATE(${responses.createdAt})`),
+  ]);
+
+  return { requestedSurveys, responseCount };
 });
 
 export const getTotalSurveyCount = cache(async () => {
