@@ -10,7 +10,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { archiveSurvey } from "@/app/actions/survey";
+import {
+  archiveSurvey,
+  deleteSurvey,
+  renameSurvey,
+} from "@/app/actions/survey";
 import { ResponsesChart } from "./ResponsesChart";
 import SurveyActionsDropdown from "./SurveyActionsDropdown";
 import { Button } from "@/components/ui/button";
@@ -107,6 +111,10 @@ export default async function DashboardPage() {
                     <SurveyActionsDropdown
                       id={survey.id}
                       archiveSurvey={archiveSurvey}
+                      deleteSurvey={deleteSurvey}
+                      isArchived={survey.isArchived ?? false}
+                      renameSurvey={renameSurvey}
+                      surveyName={survey.name}
                     />
                   </TableCell>
                 </TableRow>

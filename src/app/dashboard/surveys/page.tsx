@@ -8,7 +8,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import SurveyActionsDropdown from "../SurveyActionsDropdown";
-import { archiveSurvey } from "@/app/actions/survey";
+import {
+  archiveSurvey,
+  deleteSurvey,
+  renameSurvey,
+} from "@/app/actions/survey";
 import Link from "next/link";
 import {
   Pagination,
@@ -100,6 +104,10 @@ const SurveysPage = async ({
                 <SurveyActionsDropdown
                   id={survey.id}
                   archiveSurvey={archiveSurvey}
+                  deleteSurvey={deleteSurvey}
+                  isArchived={survey.isArchived ?? false}
+                  renameSurvey={renameSurvey}
+                  surveyName={survey.name}
                 />
               </TableCell>
             </TableRow>
