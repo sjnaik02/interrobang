@@ -11,7 +11,6 @@ import { Separator } from "@/components/ui/separator";
 import {
   Breadcrumb,
   BreadcrumbItem,
-  BreadcrumbLink,
   BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
@@ -31,7 +30,7 @@ import {
 import { toast } from "sonner";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
 import TopNav from "@/app/survey/responses/[id]/TopNav";
-import { Save, Eye, Send, Plus, LayoutDashboard } from "lucide-react";
+import { Save, Eye, Send, Plus, LayoutDashboard, Link } from "lucide-react";
 import ClickToEdit from "./ClickToEdit";
 import {
   type PublishSurveyType,
@@ -86,11 +85,11 @@ const TopBar = ({
       <div className="flex items-center gap-2">
         <Breadcrumb>
           <BreadcrumbList>
-            <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard" className="flex items-center">
+            <BreadcrumbItem className="flex items-center">
+              <Link href="/dashboard">
                 <LayoutDashboard className="mr-1 h-4 w-4" />
                 Dashboard
-              </BreadcrumbLink>
+              </Link>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
