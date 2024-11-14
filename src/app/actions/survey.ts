@@ -21,6 +21,10 @@ export const saveChangesToSurvey = async ({
   updatedAt: Date;
 }) => {
   try {
+    const userId = auth().userId;
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
     await db
       .update(surveys)
       .set({
@@ -39,6 +43,10 @@ export const saveChangesToSurvey = async ({
 
 export const publishSurvey = async (id: string) => {
   try {
+    const userId = auth().userId;
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
     const updatedSurvey = await db
       .update(surveys)
       .set({
@@ -98,6 +106,10 @@ export const createSurvey = async () => {
 
 export const archiveSurvey = async (id: string) => {
   try {
+    const userId = auth().userId;
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
     await db
       .update(surveys)
       .set({ isArchived: true })
@@ -110,8 +122,43 @@ export const archiveSurvey = async (id: string) => {
   }
 };
 
+export const deleteSurvey = async (id: string) => {
+  try {
+    const userId = auth().userId;
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+    await db.transaction(async (tx) => {
+      await tx.delete(responses).where(eq(responses.surveyId, id));
+      await tx.delete(surveys).where(eq(surveys.id, id));
+    });
+    revalidatePath("/dashboard");
+    return true;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to delete survey");
+  }
+};
+
+export const renameSurvey = async (id: string, name: string) => {
+  try {
+    const userId = auth().userId;
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+    await db.update(surveys).set({ name }).where(eq(surveys.id, id));
+    revalidatePath("/dashboard");
+    return true;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to rename survey");
+  }
+};
+
 export type SaveChangesToSurveyType = typeof saveChangesToSurvey;
 export type PublishSurveyType = typeof publishSurvey;
 export type SubmitSurveyType = typeof submitSurvey;
 export type CreateSurveyType = typeof createSurvey;
 export type ArchiveSurveyType = typeof archiveSurvey;
+export type DeleteSurveyType = typeof deleteSurvey;
+export type RenameSurveyType = typeof renameSurvey;
