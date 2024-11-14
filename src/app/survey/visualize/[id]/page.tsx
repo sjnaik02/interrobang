@@ -1,5 +1,5 @@
 import Visualizer from "@/components/Visualizer";
-import { getResponsesFromSurveyId, getSurveyFromId } from "@/server/queries";
+import { getAllResponsesFromSurveyId, getSurveyFromId } from "@/server/queries";
 import { type Response, type Survey } from "@/server/db/schema";
 import { notFound } from "next/navigation";
 import { type CustomInstance as MultipleChoiceInstance } from "@/components/fields/MultipleChoice";
@@ -61,7 +61,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
   if (!survey) {
     notFound();
   }
-  const responses = await getResponsesFromSurveyId(survey.id);
+  const responses = await getAllResponsesFromSurveyId(survey.id);
 
   const questions = getQuestions(survey);
 
