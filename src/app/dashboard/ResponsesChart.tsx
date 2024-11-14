@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
 "use client";
 
-import * as React from "react";
+import { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -9,43 +9,39 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { type Response } from "@/server/db/schema";
 
-export function ResponsesChart({ responses }: { responses: Response[] }) {
-  // Process responses into daily counts for last 7 days
-  const chartData = React.useMemo(() => {
-    const now = new Date();
-    const days = Array.from({ length: 14 }, (_, i) => {
-      const date = new Date(now);
-      date.setDate(date.getDate() - i);
-      date.setHours(0, 0, 0, 0);
-      return date;
-    }).reverse();
+export function ResponsesChart({
+  responseCount,
+}: {
+  responseCount: { date: string; count: number }[];
+}) {
+  // Fill in missing dates with 0 responses
+  const filledResponseCount = useMemo(() => {
+    const dates = new Set(responseCount.map((r) => r.date));
+    const allDates = [];
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - 13); // Last 14 days
 
-    // Create a map of dates to response counts
-    const dailyCounts = days.map((date) => {
-      const count = responses.filter((response) => {
-        const responseDate = new Date(response.createdAt);
-        return responseDate.toDateString() === date.toDateString();
-      }).length;
+    for (let d = start; d <= end; d.setDate(d.getDate() + 1)) {
+      const dateStr = d.toISOString().split("T")[0];
+      allDates.push({
+        date: dateStr,
+        count: dates.has(dateStr!)
+          ? (responseCount.find((r) => r.date === dateStr)?.count ?? 0)
+          : 0,
+      });
+    }
+    return allDates;
+  }, [responseCount]);
 
-      return {
-        date: date.toISOString(),
-        responses: count,
-      };
-    });
-
-    return dailyCounts;
-  }, [responses]);
-
-  // Calculate total responses
-  const total = React.useMemo(
-    () => chartData.reduce((acc, curr) => acc + curr.responses, 0),
-    [chartData],
+  const total = filledResponseCount.reduce(
+    (acc, curr) => acc + Number(curr.count),
+    0,
   );
 
   const chartConfig = {
-    responses: {
+    count: {
       label: "Responses",
       color: "#2563eb",
     },
@@ -67,7 +63,7 @@ export function ResponsesChart({ responses }: { responses: Response[] }) {
           className="aspect-auto h-[250px] w-full"
         >
           <BarChart
-            data={chartData}
+            data={filledResponseCount}
             margin={{
               left: 12,
               right: 12,
@@ -94,7 +90,7 @@ export function ResponsesChart({ responses }: { responses: Response[] }) {
               content={
                 <ChartTooltipContent
                   className="w-[150px]"
-                  nameKey="responses"
+                  nameKey="count"
                   labelFormatter={(value) => {
                     return new Date(value).toLocaleDateString("en-US", {
                       weekday: "long",
@@ -105,7 +101,7 @@ export function ResponsesChart({ responses }: { responses: Response[] }) {
                 />
               }
             />
-            <Bar dataKey="responses" fill={chartConfig.responses.color} />
+            <Bar dataKey="count" fill={chartConfig.count.color} />
           </BarChart>
         </ChartContainer>
       </CardContent>
