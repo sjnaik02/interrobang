@@ -51,3 +51,5 @@ export const responses = createTable(
 
 export type Survey = typeof surveys.$inferSelect;
 export type Response = typeof responses.$inferSelect;
+
+export { SurveyElementInstance };
