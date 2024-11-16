@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { TextArea } from "./fields/TextArea";
 import { MultipleChoice } from "./fields/MultipleChoice";
+import { CheckBox } from "./fields/CheckBox";
 import { type LucideIcon } from "lucide-react";
 import { type z } from "zod";
-export type ElementType = "TextArea" | "MultipleChoice";
+export type ElementType = "TextArea" | "MultipleChoice" | "CheckBox";
 
 export type SubmitFunction = (key: string, value: string) => void;
 
@@ -39,4 +40,5 @@ type SurveyElementsType = {
 export const SurveyElements: SurveyElementsType = {
   MultipleChoice: MultipleChoice,
   TextArea: TextArea,
+  CheckBox: CheckBox,
 };
