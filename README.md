@@ -1,6 +1,8 @@
 # Interrobang
 
-Interrobang is a tool for creating audience polls for Tangle.
+Interrobang is a tool for creating and visualising audience polls for Tangle.
+
+![meme](./assets/meme.jpg)
 
 ## THINGS TO NOTE
 
