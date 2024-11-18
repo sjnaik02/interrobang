@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+export const dynamic = "force-static";
+
 export default function HomePage() {
   return (
     <main className="flex h-screen flex-col items-center justify-center p-4">
