@@ -84,7 +84,15 @@ export const getDashboardData = cache(async (limit: number, days: number) => {
 
   const [requestedSurveys, responseCount] = await Promise.all([
     db
-      .select()
+      .select({
+        id: surveys.id,
+        name: surveys.name,
+        title: surveys.title,
+        createdAt: surveys.createdAt,
+        updatedAt: surveys.updatedAt,
+        isPublished: surveys.isPublished,
+        responseCount: surveys.responseCount,
+      })
       .from(surveys)
       .where(eq(surveys.isArchived, false))
       .orderBy(desc(surveys.createdAt))
