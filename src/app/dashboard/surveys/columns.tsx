@@ -4,6 +4,9 @@
 import { type ColumnDef } from "@tanstack/react-table";
 import { type Survey } from "@/server/db/schema";
 import SurveyActionsDropdown from "../SurveyActionsDropdown";
+import { Button } from "@/components/ui/button";
+import { ExternalLink, MessageSquareQuote, BarChart } from "lucide-react";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import {
   archiveSurvey,
@@ -15,6 +18,16 @@ export const columns: ColumnDef<Survey>[] = [
   {
     accessorKey: "name",
     header: "Name",
+    cell: ({ row }) => {
+      return (
+        <Link
+          href={`/survey/create/${row.original.id}`}
+          className="flex items-center gap-2 underline"
+        >
+          {row.original.name} <ExternalLink className="h-4 w-4" />
+        </Link>
+      );
+    },
   },
   {
     id: "status",
@@ -52,6 +65,44 @@ export const columns: ColumnDef<Survey>[] = [
     },
   },
   {
+    accessorKey: "responseCount",
+    header: "# of responses",
+    cell: ({ row }) => {
+      return (
+        <span className="text-right tabular-nums">
+          {row.original.responseCount}
+        </span>
+      );
+    },
+  },
+  {
+    id: "responses",
+    header: "Responses",
+    cell: ({ row }) => {
+      return (
+        <Button variant="ghost" size="icon" asChild>
+          <Link href={`/survey/responses/${row.original.id}`}>
+            <MessageSquareQuote className="h-4 w-4" />
+          </Link>
+        </Button>
+      );
+    },
+  },
+
+  {
+    id: "visualize",
+    header: "Visualize",
+    cell: ({ row }) => {
+      return (
+        <Button variant="ghost" size="icon" asChild>
+          <Link href={`/survey/visualize/${row.original.id}`}>
+            <BarChart className="h-4 w-4" />
+          </Link>
+        </Button>
+      );
+    },
+  },
+  {
     id: "actions",
     cell: ({ row }) => (
       <SurveyActionsDropdown
@@ -69,16 +120,20 @@ export const columns: ColumnDef<Survey>[] = [
 const SurveyStatusBadge = ({ status }: { status: string }) => {
   switch (status) {
     case "archived":
-      return <Badge variant="destructive">Archived</Badge>;
+      return (
+        <Badge className="bg-red-500 text-black hover:bg-red-600 hover:text-black">
+          Archived
+        </Badge>
+      );
     case "published":
       return (
-        <Badge className="bg-green-500 text-white hover:bg-green-600">
+        <Badge className="bg-green-500 text-black hover:bg-green-600 hover:text-black">
           Published
         </Badge>
       );
     default:
       return (
-        <Badge className="bg-yellow-500 text-white hover:bg-yellow-600">
+        <Badge className="bg-yellow-500 text-black hover:bg-yellow-600 hover:text-black">
           Draft
         </Badge>
       );
