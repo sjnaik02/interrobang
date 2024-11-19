@@ -44,7 +44,11 @@ import { Download } from "lucide-react";
 interface VisualizerProps {
   questionLabel: string;
   options: string[];
-  answers: string[];
+  data: {
+    option: string;
+    count: number;
+    percentage: number;
+  }[];
 }
 
 const CHART_COLORS = [
@@ -183,7 +187,7 @@ const BarChartComponent = ({
 export default function Visualizer({
   questionLabel,
   options,
-  answers,
+  data,
 }: VisualizerProps) {
   const [chartWidth, setChartWidth] = useState<number>(900);
   const [barCategoryGap, setBarCategoryGap] = useState<number>(45);
@@ -194,19 +198,20 @@ export default function Visualizer({
     options.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]) as string[],
   );
 
-  const data = useMemo(() => {
-    return options.map((option, index) => {
-      const count = answers.filter((answer) => answer === option).length;
-      const displayOption = editableOptions[index] + " (" + count + ")";
-      return {
-        option: displayOption,
-        originalOption: option,
-        count,
-        percentage: (count / answers.length) * 100,
-        color: optionColors[index],
-      };
-    });
-  }, [options, answers, editableOptions, optionColors]);
+  const chartData = useMemo(() => {
+    return data.map(
+      (answer: { count: number; percentage: number }, index: number) => {
+        const optionData = answer;
+        return {
+          option: editableOptions[index] + " (" + optionData.count + ")",
+          originalOption: editableOptions[index],
+          count: optionData.count,
+          percentage: optionData.percentage,
+          color: optionColors[index],
+        };
+      },
+    );
+  }, [data, editableOptions, optionColors]);
 
   const handleOptionChange = useCallback((index: number, value: string) => {
     setEditableOptions((prev) => {
@@ -259,7 +264,7 @@ export default function Visualizer({
             </CardHeader>
             <CardContent className="flex">
               <BarChartComponent
-                data={data}
+                data={chartData}
                 chartWidth={chartWidth}
                 barCategoryGap={barCategoryGap}
               />

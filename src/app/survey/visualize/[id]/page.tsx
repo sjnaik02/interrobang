@@ -1,37 +1,25 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import Visualizer from "@/components/Visualizer";
 import { getAllResponsesFromSurveyId, getSurveyFromId } from "@/server/queries";
 import { type Response, type Survey } from "@/server/db/schema";
 import { notFound } from "next/navigation";
 import { type CustomInstance as MultipleChoiceInstance } from "@/components/fields/MultipleChoice";
 import { type CustomInstance as TextAreaInstance } from "@/components/fields/TextArea";
+import { type CustomInstance as CheckboxInstance } from "@/components/fields/CheckBox";
 import TopNav from "../../responses/[id]/TopNav";
 import TextResponseTable from "@/components/TextResponseTable";
 
 function getQuestions(
   survey: Survey,
-): (MultipleChoiceInstance | TextAreaInstance)[] {
+): (MultipleChoiceInstance | TextAreaInstance | CheckboxInstance)[] {
   return (
     survey.questions?.filter(
-      (q): q is MultipleChoiceInstance | TextAreaInstance =>
-        q.type === "MultipleChoice" || q.type === "TextArea",
+      (q): q is MultipleChoiceInstance | TextAreaInstance | CheckboxInstance =>
+        q.type === "MultipleChoice" ||
+        q.type === "TextArea" ||
+        q.type === "CheckBox",
     ) ?? []
   );
-}
-
-function processQuestionResponses(
-  questionId: string,
-  responses: Response[],
-): {
-  answers: string[];
-} {
-  const answers = responses
-    .map((r) => r.responses?.[questionId])
-    .filter(
-      (answer): answer is string =>
-        typeof answer === "string" && answer !== undefined,
-    );
-
-  return { answers };
 }
 
 type RenderTextAreaResponse = {
@@ -55,6 +43,42 @@ function processTextAreaResponses(
       ),
   };
 }
+interface ProcessedQuestionData {
+  options: string[];
+  optionCounts: {
+    option: string;
+    count: number;
+    percentage: number;
+  }[];
+}
+
+function processQuestionData(
+  questionId: string,
+  responses: Response[],
+  options: string[],
+): ProcessedQuestionData {
+  const totalResponses = responses.length;
+  const optionCounts = options.map((option) => {
+    const count = responses.filter((response) => {
+      const answer = response.responses?.[questionId];
+      if (Array.isArray(answer)) {
+        return answer.includes(option);
+      }
+      return answer === option;
+    }).length;
+
+    return {
+      option,
+      count,
+      percentage: (count / totalResponses) * 100,
+    };
+  });
+
+  return {
+    options,
+    optionCounts,
+  };
+}
 
 const VisualizePage = async ({ params }: { params: { id: string } }) => {
   const survey = await getSurveyFromId(params.id);
@@ -62,7 +86,6 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
     notFound();
   }
   const responses = await getAllResponsesFromSurveyId(survey.id);
-
   const questions = getQuestions(survey);
 
   if (questions.length === 0) {
@@ -82,27 +105,34 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
           <span className="underline underline-offset-4">{survey.title}</span>
         </h1>
         {questions.map((question, index) => {
-          const processedData =
-            question.type === "MultipleChoice"
-              ? processQuestionResponses(question.id, responses)
-              : processTextAreaResponses(question.id, responses);
+          if (question.type === "TextArea") {
+            const processedData = processTextAreaResponses(
+              question.id,
+              responses,
+            );
+            return (
+              <div key={question.id} className="mb-8">
+                <TextResponseTable
+                  questionLabel={`${index + 1}. ${question.properties.label}`}
+                  responses={processedData.answers}
+                />
+              </div>
+            );
+          }
+
+          const processedData = processQuestionData(
+            question.id,
+            responses,
+            question.properties.options,
+          );
+
           return (
             <div key={question.id} className="mb-8">
-              {question.type === "MultipleChoice" && (
-                <Visualizer
-                  questionLabel={`${index + 1}. ${(question as MultipleChoiceInstance).properties.label}`}
-                  options={
-                    (question as MultipleChoiceInstance).properties.options
-                  }
-                  answers={processedData.answers as string[]}
-                />
-              )}
-              {question.type === "TextArea" && (
-                <TextResponseTable
-                  questionLabel={`${index + 1}. ${(question as TextAreaInstance).properties.label}`}
-                  responses={processedData.answers as RenderTextAreaResponse[]}
-                />
-              )}
+              <Visualizer
+                questionLabel={`${index + 1}. ${question.properties.label}`}
+                options={processedData.options}
+                data={processedData.optionCounts}
+              />
             </div>
           );
         })}
