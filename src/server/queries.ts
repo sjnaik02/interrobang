@@ -91,6 +91,7 @@ export const getDashboardData = cache(async (limit: number, days: number) => {
         createdAt: surveys.createdAt,
         updatedAt: surveys.updatedAt,
         isPublished: surveys.isPublished,
+        isArchived: surveys.isArchived,
         responseCount: surveys.responseCount,
       })
       .from(surveys)
