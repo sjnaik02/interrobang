@@ -146,7 +146,10 @@ export const renameSurvey = async (id: string, name: string) => {
     if (!userId) {
       throw new Error("Unauthorized");
     }
-    await db.update(surveys).set({ name }).where(eq(surveys.id, id));
+    await db
+      .update(surveys)
+      .set({ name, updatedAt: new Date() })
+      .where(eq(surveys.id, id));
     revalidatePath("/dashboard");
     return true;
   } catch (error) {
