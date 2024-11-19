@@ -57,14 +57,6 @@ export const columns: ColumnDef<Survey>[] = [
     },
   },
   {
-    accessorKey: "updatedAt",
-    header: "Updated At",
-    cell: ({ row }) => {
-      const date = row.getValue("updatedAt") as Date | null;
-      return date ? date.toLocaleDateString("en-US") : "-";
-    },
-  },
-  {
     accessorKey: "responseCount",
     header: "# of responses",
     cell: ({ row }) => {
