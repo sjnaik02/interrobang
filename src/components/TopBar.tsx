@@ -28,10 +28,18 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
 import TopNav from "@/app/survey/responses/[id]/TopNav";
-import { Save, Eye, Send, Plus, LayoutDashboard } from "lucide-react";
+import {
+  Save,
+  Eye,
+  Send,
+  Plus,
+  LayoutDashboard,
+  CircleAlert,
+} from "lucide-react";
 import ClickToEdit from "./ClickToEdit";
 import {
   type PublishSurveyType,
@@ -199,13 +207,18 @@ const PublishSurveyButton = ({
       toast.success(`Published "${publishedSurvey.title}"`);
     }
   };
+
+  const elementsContainsRequired = elements.some(
+    (element) => element.properties?.required,
+  );
+
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
           className="bg-gradient-to-r from-red-500 to-blue-500 px-2 py-1 text-sm hover:from-red-600 hover:to-blue-600"
           size="sm"
-          disabled={isPublished}
+          disabled={isPublished || elements.length === 0}
         >
           <Send className="mr-1 h-4 w-4" />
           Publish
@@ -215,6 +228,17 @@ const PublishSurveyButton = ({
         <AlertDialogHeader>
           <AlertDialogTitle>Are you sure you want to publish?</AlertDialogTitle>
           <AlertDialogDescription>
+            {!elementsContainsRequired && (
+              <Alert className="border-yellow-300 bg-yellow-100 text-black">
+                <CircleAlert className="mr-1 h-4 w-4" />
+                <AlertTitle>Heads up!</AlertTitle>
+                <AlertDescription>
+                  This survey has no required questions. This will allow
+                  respondents to submit empty responses. Are you sure you want
+                  to publish?
+                </AlertDescription>
+              </Alert>
+            )}
             Publishing this survey will make it available to respondents. This
             action cannot be undone.
           </AlertDialogDescription>
