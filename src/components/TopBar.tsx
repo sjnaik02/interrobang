@@ -229,7 +229,7 @@ const PublishSurveyButton = ({
           <AlertDialogTitle>Are you sure you want to publish?</AlertDialogTitle>
           <AlertDialogDescription>
             {!elementsContainsRequired && (
-              <Alert className="border-yellow-300 bg-yellow-100 text-black">
+              <Alert className="mb-2 border-yellow-300 bg-yellow-100 text-black">
                 <CircleAlert className="mr-1 h-4 w-4" />
                 <AlertTitle>Heads up!</AlertTitle>
                 <AlertDescription>
