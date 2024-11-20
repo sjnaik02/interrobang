@@ -131,3 +131,12 @@ export const getTotalSurveyCount = cache(async () => {
 
   return result?.count ?? 0;
 });
+
+export const getSurveyIds = cache(async (limit: number) => {
+  const surveyIds = await db
+    .select({ id: surveys.id })
+    .from(surveys)
+    .orderBy(desc(surveys.createdAt))
+    .limit(limit);
+  return surveyIds;
+});
