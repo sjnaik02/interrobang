@@ -12,6 +12,7 @@ import {
   archiveSurvey,
   renameSurvey,
   deleteSurvey,
+  duplicateSurvey,
 } from "@/app/actions/survey";
 
 export const columns: ColumnDef<Survey>[] = [
@@ -104,6 +105,7 @@ export const columns: ColumnDef<Survey>[] = [
         archiveSurvey={archiveSurvey}
         deleteSurvey={deleteSurvey}
         renameSurvey={renameSurvey}
+        duplicateSurvey={duplicateSurvey}
       />
     ),
   },

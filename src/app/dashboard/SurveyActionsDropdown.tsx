@@ -32,8 +32,9 @@ import {
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { MoreHorizontal, Trash, Pencil, Archive } from "lucide-react";
+import { MoreHorizontal, Trash, Pencil, Archive, Copy } from "lucide-react";
 import {
+  type DuplicateSurveyType,
   type ArchiveSurveyType,
   type DeleteSurveyType,
   type RenameSurveyType,
@@ -57,6 +58,7 @@ type SurveyActionsDropdownProps = {
   archiveSurvey: ArchiveSurveyType;
   deleteSurvey: DeleteSurveyType;
   renameSurvey: RenameSurveyType;
+  duplicateSurvey: DuplicateSurveyType;
 };
 
 const SurveyActionsDropdown = ({
@@ -65,6 +67,7 @@ const SurveyActionsDropdown = ({
   archiveSurvey,
   deleteSurvey,
   renameSurvey,
+  duplicateSurvey,
   isArchived,
 }: SurveyActionsDropdownProps) => {
   return (
@@ -77,8 +80,32 @@ const SurveyActionsDropdown = ({
       <DropdownMenuContent className="w-48">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
         <DropdownMenuSeparator />
+        <DropdownMenuItem asChild>
+          <RenameSurveyButton
+            id={id}
+            renameSurvey={renameSurvey}
+            surveyName={surveyName}
+          />
+        </DropdownMenuItem>
+        <DropdownMenuItem
+          className="cursor-pointer"
+          onClick={async () => {
+            try {
+              toast.loading("Duplicating survey...");
+              await duplicateSurvey(id);
+              toast.dismiss();
+              toast.success("Survey duplicated successfully");
+            } catch (error) {
+              toast.error((error as Error).message);
+            }
+          }}
+        >
+          <Copy className="mr-2 h-4 w-4" />
+          Duplicate Survey
+        </DropdownMenuItem>
         {!isArchived && (
           <DropdownMenuItem
+            className="cursor-pointer"
             onClick={async () => {
               try {
                 await archiveSurvey(id);
@@ -92,15 +119,9 @@ const SurveyActionsDropdown = ({
             Archive
           </DropdownMenuItem>
         )}
+        <DropdownMenuSeparator />
         <DropdownMenuItem asChild>
           <DeleteSurveyButton id={id} deleteSurvey={deleteSurvey} />
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <RenameSurveyButton
-            id={id}
-            renameSurvey={renameSurvey}
-            surveyName={surveyName}
-          />
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
@@ -194,7 +215,8 @@ const RenameSurveyButton = ({
       <DialogTrigger asChild>
         <Button
           variant="ghost"
-          className="flex w-full items-start justify-start px-2"
+          className="flex w-full items-center justify-start px-2 py-1 font-normal"
+          size="sm"
         >
           <Pencil className="mr-2 h-4 w-4" />
           Rename

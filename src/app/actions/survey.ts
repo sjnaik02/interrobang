@@ -158,6 +158,37 @@ export const renameSurvey = async (id: string, name: string) => {
   }
 };
 
+export const duplicateSurvey = async (id: string) => {
+  try {
+    const userId = auth().userId;
+    if (!userId) {
+      throw new Error("Unauthorized");
+    }
+    const survey = await db.query.surveys.findFirst({
+      where: eq(surveys.id, id),
+    });
+    if (!survey) {
+      throw new Error("Could not find survey to duplicate");
+    }
+    const newSurvey = await db.insert(surveys).values({
+      name: `${survey.name} (Copy)`,
+      title: `${survey.title} (Copy)`,
+      createdBy: userId,
+      questions: survey.questions,
+      isPublished: false,
+      isArchived: false,
+      responseCount: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    });
+    revalidatePath("/dashboard");
+    return newSurvey[0];
+  } catch (error) {
+    console.error(error);
+    throw new Error("Failed to duplicate survey");
+  }
+};
+
 export type SaveChangesToSurveyType = typeof saveChangesToSurvey;
 export type PublishSurveyType = typeof publishSurvey;
 export type SubmitSurveyType = typeof submitSurvey;
@@ -165,3 +196,4 @@ export type CreateSurveyType = typeof createSurvey;
 export type ArchiveSurveyType = typeof archiveSurvey;
 export type DeleteSurveyType = typeof deleteSurvey;
 export type RenameSurveyType = typeof renameSurvey;
+export type DuplicateSurveyType = typeof duplicateSurvey;

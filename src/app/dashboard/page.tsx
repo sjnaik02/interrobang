@@ -14,6 +14,7 @@ import {
   archiveSurvey,
   deleteSurvey,
   renameSurvey,
+  duplicateSurvey,
 } from "@/app/actions/survey";
 import { ResponsesChart } from "./ResponsesChart";
 import SurveyActionsDropdown from "./SurveyActionsDropdown";
@@ -115,6 +116,7 @@ export default async function DashboardPage() {
                       isArchived={survey.isArchived ?? false}
                       renameSurvey={renameSurvey}
                       surveyName={survey.name}
+                      duplicateSurvey={duplicateSurvey}
                     />
                   </TableCell>
                 </TableRow>
