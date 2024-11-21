@@ -191,7 +191,7 @@ const MultipleChoicePreviewComponent: React.FC<{
     }
   };
   return (
-    <div>
+    <div className="flex w-full flex-col space-y-2">
       <h2 className="text-lg">
         {element.properties.label}
         {element.properties.required && " *"}
@@ -205,12 +205,12 @@ const MultipleChoicePreviewComponent: React.FC<{
             <RadioGroupItem
               key={index}
               value={option}
-              id={`option-${index}`}
+              id={`option-${index}-${option}-${element.id}`}
               checked={selectedValue === option}
               onClick={() => handleClick(option)}
             />
             <Label
-              htmlFor={`option-${index}`}
+              htmlFor={`option-${index}-${option}-${element.id}`}
               className="w-full cursor-pointer py-2 text-base font-normal"
             >
               {option}
@@ -248,9 +248,12 @@ const MultipleChoiceSurveyComponent: React.FC<{
               key={index}
               className="flex w-full items-center gap-2 border border-transparent px-2 hover:border hover:border-dashed hover:border-muted-foreground"
             >
-              <RadioGroupItem value={option} id={`option-${index}`} />
+              <RadioGroupItem
+                value={option}
+                id={`option-${index}-${option}-${element.id}`}
+              />
               <Label
-                htmlFor={`option-${index}`}
+                htmlFor={`option-${index}-${option}-${element.id}`}
                 className="w-full cursor-pointer py-2 text-lg font-normal"
               >
                 {option}

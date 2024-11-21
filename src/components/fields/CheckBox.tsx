@@ -191,7 +191,7 @@ const CheckBoxPreviewComponent: React.FC<{
   };
 
   return (
-    <div>
+    <div className="flex w-full flex-col space-y-2">
       <h2 className="text-lg">
         {element.properties.label}
         {element.properties.required && " *"}
@@ -205,10 +205,10 @@ const CheckBoxPreviewComponent: React.FC<{
             <Checkbox
               checked={selectedValues.includes(option)}
               onCheckedChange={() => handleClick(option)}
-              id={`option-${index}`}
+              id={`option-${index}-${option}-${element.id}`}
             />
             <Label
-              htmlFor={`option-${index}`}
+              htmlFor={`option-${index}-${option}-${element.id}`}
               className="w-full cursor-pointer py-2 text-base font-normal"
             >
               {option}
@@ -250,10 +250,10 @@ const CheckBoxSurveyComponent: React.FC<{
                     field.onChange(values.filter((v: string) => v !== option));
                   }
                 }}
-                id={`option-${index}`}
+                id={`option-${index}-${option}-${element.id}`}
               />
               <Label
-                htmlFor={`option-${index}`}
+                htmlFor={`option-${index}-${option}-${element.id}`}
                 className="w-full cursor-pointer py-2 text-lg font-normal"
               >
                 {option}
