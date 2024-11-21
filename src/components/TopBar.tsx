@@ -155,7 +155,11 @@ const TopBar = ({
         </Button>
         <Button
           variant="outline"
-          className="px-2 py-1 text-sm"
+          className={`px-2 py-1 text-sm ${
+            preview
+              ? "bg-blue-400 text-white hover:bg-blue-500 hover:text-white"
+              : ""
+          }`}
           size="sm"
           onClick={() => setPreview(!preview)}
           disabled={isPublished}
