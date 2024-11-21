@@ -170,19 +170,25 @@ export const duplicateSurvey = async (id: string) => {
     if (!survey) {
       throw new Error("Could not find survey to duplicate");
     }
-    const newSurvey = await db.insert(surveys).values({
-      name: `${survey.name} (Copy)`,
-      title: `${survey.title} (Copy)`,
-      createdBy: userId,
-      questions: survey.questions,
-      isPublished: false,
-      isArchived: false,
-      responseCount: 0,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    const newSurvey = await db
+      .insert(surveys)
+      .values({
+        name: `${survey.name} (Copy)`,
+        title: `${survey.title} (Copy)`,
+        createdBy: userId,
+        questions: survey.questions,
+        isPublished: false,
+        isArchived: false,
+        responseCount: 0,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .returning({ id: surveys.id });
+    if (!newSurvey[0]) {
+      throw new Error("Failed to duplicate survey");
+    }
     revalidatePath("/dashboard");
-    return newSurvey[0];
+    return newSurvey[0].id;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to duplicate survey");

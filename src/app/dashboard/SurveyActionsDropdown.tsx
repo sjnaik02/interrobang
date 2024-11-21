@@ -50,6 +50,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 type SurveyActionsDropdownProps = {
   id: string;
@@ -70,6 +71,7 @@ const SurveyActionsDropdown = ({
   duplicateSurvey,
   isArchived,
 }: SurveyActionsDropdownProps) => {
+  const router = useRouter();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -92,8 +94,9 @@ const SurveyActionsDropdown = ({
           onClick={async () => {
             try {
               toast.loading("Duplicating survey...");
-              await duplicateSurvey(id);
+              const duplicatedSurveyId = await duplicateSurvey(id);
               toast.dismiss();
+              router.push(`/survey/create/${duplicatedSurveyId}`);
               toast.success("Survey duplicated successfully");
             } catch (error) {
               toast.error((error as Error).message);
