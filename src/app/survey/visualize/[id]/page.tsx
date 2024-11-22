@@ -107,7 +107,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
           Visualize Responses for{" "}
           <span className="underline underline-offset-4">{survey.title}</span>
         </h1>
-        {questions.map((question, index) => {
+        {questions.map((question) => {
           if (question.type === "TextArea") {
             const processedData = processTextAreaResponses(
               question.id,
@@ -116,7 +116,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
             return (
               <div key={question.id} className="mb-8">
                 <TextResponseTable
-                  questionLabel={`${index + 1}. ${question.properties.label}`}
+                  questionLabel={question.properties.label}
                   responses={processedData.answers}
                 />
               </div>
@@ -132,7 +132,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
           return (
             <div key={question.id} className="mb-8">
               <Visualizer
-                questionLabel={`${index + 1}. ${question.properties.label}`}
+                questionLabel={question.properties.label}
                 options={processedData.options}
                 data={processedData.optionCounts}
               />
