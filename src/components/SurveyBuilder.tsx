@@ -23,6 +23,14 @@ import {
   type PublishSurveyType,
   type SaveChangesToSurveyType,
 } from "@/app/actions/survey";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import randomId from "@/lib/randomId";
+import React from "react";
 
 const SurveyBuilder: React.FC<{
   survey: Survey;
@@ -46,6 +54,7 @@ const SurveyBuilder: React.FC<{
     setIsPublished,
     setName,
     setSurveyId,
+    changeElementType,
   } = useSurveyBuilder();
 
   useEffect(() => {
@@ -109,7 +118,7 @@ const SurveyBuilder: React.FC<{
           <SurveyPreview />
         </div>
       ) : (
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+        <div className="mx-auto mb-24 flex w-full max-w-2xl flex-col gap-4">
           <ClickToEdit onSave={(value) => setTitle(value)} className="text-2xl">
             <h1>{title}</h1>
           </ClickToEdit>
@@ -124,6 +133,7 @@ const SurveyBuilder: React.FC<{
               setSelectedElement={setSelectedElement}
               idx={idx}
               length={elements.length}
+              changeElementType={changeElementType}
             />
           ))}
         </div>
@@ -147,6 +157,10 @@ const BuilderElementWrapper: React.FC<{
   length: number;
   selectedElement: SurveyElementInstance | null;
   setSelectedElement: (element: SurveyElementInstance | null) => void;
+  changeElementType: (
+    idx: string,
+    element: SurveyElementInstance,
+  ) => SurveyElementInstance;
 }> = ({
   element,
   removeElement,
@@ -156,6 +170,7 @@ const BuilderElementWrapper: React.FC<{
   length,
   selectedElement,
   setSelectedElement,
+  changeElementType,
 }) => {
   return (
     <div className="relative flex w-full gap-2" key={element.id}>
@@ -195,6 +210,37 @@ const BuilderElementWrapper: React.FC<{
         })}
         {selectedElement?.id === element.id && (
           <div className="mt-4 flex w-full items-center justify-between gap-2">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="font-mono">
+                  {/* render the correct icon */}
+                  {React.createElement(SurveyElements[element.type].icon)}
+                  {element.type}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="font-mono">
+                {Object.entries(SurveyElements)
+                  .filter(([key]) => key !== element.type)
+                  .map(([key, value]) => (
+                    <DropdownMenuItem
+                      key={key}
+                      onClick={() => {
+                        const updatedElement = changeElementType(
+                          element.id,
+                          value.construct(randomId()),
+                        );
+                        setTimeout(() => {
+                          setSelectedElement(updatedElement);
+                        }, 0);
+                      }}
+                    >
+                      <value.icon className="mr-1 h-4 w-4" />
+                      {value.name}
+                    </DropdownMenuItem>
+                  ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="outline"
               onClick={() => removeElement(element.id)}

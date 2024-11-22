@@ -29,6 +29,10 @@ type SurveyBuilderContextType = {
     direction: "up" | "down",
     element: SurveyElementInstance,
   ) => void;
+  changeElementType: (
+    idx: string,
+    element: SurveyElementInstance,
+  ) => SurveyElementInstance;
 };
 
 export const SurveyBuilderContext =
@@ -54,6 +58,41 @@ export const SurveyBuilderContextProvider: React.FC<{
 
   const updateElement = (idx: string, element: SurveyElementInstance) => {
     setElements((prev) => prev.map((e) => (e.id === idx ? element : e)));
+  };
+
+  const changeElementType = (
+    idx: string,
+    element: SurveyElementInstance,
+  ): SurveyElementInstance => {
+    const updatedElement = { ...element };
+    setElements((prev) =>
+      prev.map((e) => {
+        if (e.id === idx) {
+          // Transfer common properties
+          updatedElement.properties = {
+            ...updatedElement.properties,
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            label: e.properties?.label ?? "",
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            required: e.properties?.required ?? false,
+          };
+
+          // Transfer options if both elements support them
+          if (
+            (e.type === "MultipleChoice" || e.type === "CheckBox") &&
+            (updatedElement.type === "MultipleChoice" ||
+              updatedElement.type === "CheckBox")
+          ) {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            updatedElement.properties.options = e.properties?.options ?? [];
+          }
+
+          return updatedElement;
+        }
+        return e;
+      }),
+    );
+    return updatedElement;
   };
 
   const moveElement = (
@@ -89,6 +128,7 @@ export const SurveyBuilderContextProvider: React.FC<{
         setSurveyId,
         isPublished,
         setIsPublished,
+        changeElementType,
       }}
     >
       {children}
