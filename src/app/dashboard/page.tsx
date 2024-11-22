@@ -43,7 +43,7 @@ export default async function DashboardPage() {
         </CardHeader>
         <CardContent>
           <Table className="w-full text-base">
-            <TableHeader>
+            <TableHeader className="text-sm">
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Status</TableHead>
@@ -89,24 +89,47 @@ export default async function DashboardPage() {
                     {survey.responseCount}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link
-                        href={`/survey/responses/${survey.id}`}
-                        className="flex items-center gap-2 hover:underline"
+                    {survey.isPublished ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        asChild
+                        disabled={!survey.isPublished}
                       >
-                        <MessageSquareQuote className="h-6 w-6" />
-                      </Link>
-                    </Button>
+                        <Link
+                          href={`/survey/responses/${survey.id}`}
+                          className="inline-flex items-center gap-2 hover:underline"
+                        >
+                          <MessageSquareQuote className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    ) : (
+                      <div className="inline-flex items-center gap-2 text-muted-foreground">
+                        <MessageSquareQuote className="h-4 w-4" />
+                      </div>
+                    )}
                   </TableCell>
+
                   <TableCell className="text-center">
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link
-                        href={`/survey/visualize/${survey.id}`}
-                        className="flex items-center gap-2 hover:underline"
+                    {survey.isPublished ? (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        asChild
+                        disabled={!survey.isPublished}
                       >
-                        <BarChart className="h-6 w-6" />
-                      </Link>
-                    </Button>
+                        <Link
+                          href={`/survey/visualize/${survey.id}`}
+                          className="inline-flex items-center gap-2 p-2 hover:underline"
+                        >
+                          <BarChart className="h-4 w-4" />
+                        </Link>
+                      </Button>
+                    ) : (
+                      <div className="inline-flex items-center gap-2 text-muted-foreground">
+                        <BarChart className="h-4 w-4" />
+                      </div>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">
                     <SurveyActionsDropdown

@@ -85,6 +85,9 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
   if (!survey) {
     notFound();
   }
+  if (!survey.isPublished) {
+    notFound();
+  }
   const responses = await getAllResponsesFromSurveyId(survey.id);
   const questions = getQuestions(survey);
 

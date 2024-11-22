@@ -72,11 +72,25 @@ export const columns: ColumnDef<Survey>[] = [
     id: "responses",
     header: "Responses",
     cell: ({ row }) => {
-      return (
-        <Button variant="ghost" size="icon" asChild>
+      return row.original.isPublished ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          asChild
+          disabled={!row.original.isPublished}
+        >
           <Link href={`/survey/responses/${row.original.id}`}>
             <MessageSquareQuote className="h-4 w-4" />
           </Link>
+        </Button>
+      ) : (
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled
+          className="inline-flex items-center gap-2 text-muted-foreground"
+        >
+          <MessageSquareQuote className="h-4 w-4" />
         </Button>
       );
     },
@@ -86,11 +100,25 @@ export const columns: ColumnDef<Survey>[] = [
     id: "visualize",
     header: "Visualize",
     cell: ({ row }) => {
-      return (
-        <Button variant="ghost" size="icon" asChild>
+      return row.original.isPublished ? (
+        <Button
+          variant="ghost"
+          size="icon"
+          asChild
+          disabled={!row.original.isPublished}
+        >
           <Link href={`/survey/visualize/${row.original.id}`}>
             <BarChart className="h-4 w-4" />
           </Link>
+        </Button>
+      ) : (
+        <Button
+          variant="ghost"
+          size="icon"
+          disabled
+          className="inline-flex items-center gap-2 text-muted-foreground"
+        >
+          <BarChart className="h-4 w-4" />
         </Button>
       );
     },

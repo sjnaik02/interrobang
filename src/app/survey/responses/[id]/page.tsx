@@ -16,6 +16,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { notFound } from "next/navigation";
 
 const ITEMS_PER_PAGE = 100;
 
@@ -31,7 +32,10 @@ const SurveyResponsesPage = async ({
 
   const survey = await getSurveyFromId(params.id);
   if (!survey) {
-    throw new Error("Survey not found");
+    notFound();
+  }
+  if (!survey.isPublished) {
+    notFound();
   }
   const responses = await getResponsesFromSurveyId(
     params.id,
