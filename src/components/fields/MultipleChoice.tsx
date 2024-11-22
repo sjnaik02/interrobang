@@ -135,25 +135,21 @@ const MultipleChoiceEditorComponent: React.FC<{
         {element.properties.options.map((option, index) => (
           <div key={index} className="flex w-full items-center gap-2">
             <RadioGroupItem value={option} id={`option-${index}`} />
-            {editingIndex === index ? (
-              <Input
-                ref={inputRef}
-                value={editingValue}
-                onChange={(e) => setEditingValue(e.target.value)}
-                onBlur={saveEdit}
-                onKeyDown={handleKeyDown}
-                placeholder="Click to edit, Enter to save"
-                className="w-full rounded-none border-0 px-0 text-base focus-visible:border-b-2 focus-visible:border-b-primary focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-            ) : (
-              <Label
-                htmlFor={`option-${index}`}
-                onClick={() => startEditing(index)}
-                className="w-full cursor-pointer py-2 text-base font-normal"
-              >
-                {option}
-              </Label>
-            )}
+            <Input
+              value={editingIndex === index ? editingValue : option}
+              onFocus={() => startEditing(index)}
+              onChange={(e) =>
+                editingIndex === index && setEditingValue(e.target.value)
+              }
+              onBlur={saveEdit}
+              onKeyDown={handleKeyDown}
+              placeholder="Enter option text"
+              className={`w-full rounded-none border-0 px-0 text-base ${
+                editingIndex === index
+                  ? "focus-visible:border-b-2 focus-visible:border-b-primary"
+                  : "border-transparent"
+              } focus-visible:outline-none focus-visible:ring-0`}
+            />
             <Button
               variant="outline"
               size="icon"
