@@ -230,6 +230,7 @@ const BuilderElementWrapper: React.FC<{
                           element.id,
                           value.construct(randomId()),
                         );
+                        //this makes the new element selected, doesn't work without the setTimeout
                         setTimeout(() => {
                           setSelectedElement(updatedElement);
                         }, 0);

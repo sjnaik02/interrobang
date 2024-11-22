@@ -167,7 +167,7 @@ const BarChartComponent = ({
           tick={{ fill: "hsl(var(--foreground))" }}
           dx={-10}
         />
-        <Bar dataKey="percentage" radius={[12, 12, 0, 0]}>
+        <Bar dataKey="percentage">
           {data.map((entry) => (
             <Cell key={entry.originalOption} fill={entry.color} />
           ))}
@@ -281,33 +281,19 @@ export default function Visualizer({
           </CardHeader>
           <CardContent className="flex-grow">
             <div className="flex flex-col gap-2">
-              <Label className="mt-2 text-sm">
-                Chart width: {chartWidth}px
-              </Label>
-              <Slider
-                id="width"
-                value={[chartWidth]}
-                onValueChange={(e) => setChartWidth(e[0] ?? 0)}
-                defaultValue={[900]}
-                max={900}
-                min={650}
-                step={25}
-              />
-              <Label className="mt-2 text-sm">
-                Space between bars: {barCategoryGap}%
-              </Label>
-              <Slider
-                id="barCategoryGap"
-                value={[barCategoryGap]}
-                onValueChange={(e) => setBarCategoryGap(e[0] ?? 0)}
-                defaultValue={[45]}
-                max={75}
-                min={10}
-                step={5}
-              />
-
+              <Label>Edit labels and colors</Label>
+              {editableOptions.map((option, idx) => (
+                <OptionInput
+                  key={idx}
+                  value={option}
+                  index={idx}
+                  onChange={handleOptionChange}
+                  color={optionColors[idx] ?? "#000000"}
+                  onColorChange={handleColorChange}
+                />
+              ))}
               <div className="flex items-center gap-2 pt-4">
-                <Label>Edit labels</Label>
+                <Label>Chart settings</Label>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -317,17 +303,34 @@ export default function Visualizer({
                   {showOptions ? "Hide" : "Show"}
                 </Button>
               </div>
-              {showOptions &&
-                editableOptions.map((option, idx) => (
-                  <OptionInput
-                    key={idx}
-                    value={option}
-                    index={idx}
-                    onChange={handleOptionChange}
-                    color={optionColors[idx] ?? "#000000"}
-                    onColorChange={handleColorChange}
+              {showOptions && (
+                <>
+                  <Label className="mt-2 text-sm">
+                    Chart width: {chartWidth}px
+                  </Label>
+                  <Slider
+                    id="width"
+                    value={[chartWidth]}
+                    onValueChange={(e) => setChartWidth(e[0] ?? 0)}
+                    defaultValue={[900]}
+                    max={900}
+                    min={650}
+                    step={25}
                   />
-                ))}
+                  <Label className="mt-2 text-sm">
+                    Space between bars: {barCategoryGap}%
+                  </Label>
+                  <Slider
+                    id="barCategoryGap"
+                    value={[barCategoryGap]}
+                    onValueChange={(e) => setBarCategoryGap(e[0] ?? 0)}
+                    defaultValue={[45]}
+                    max={75}
+                    min={10}
+                    step={5}
+                  />
+                </>
+              )}
             </div>
           </CardContent>
           <CardFooter>
