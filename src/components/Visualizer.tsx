@@ -40,6 +40,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Download } from "lucide-react";
+import { HexColorInput, HexColorPicker } from "react-colorful";
 
 interface VisualizerProps {
   questionLabel: string;
@@ -85,15 +86,26 @@ const ColorPicker = ({
           className="h-8 w-8 rounded-md border-2 border-black"
         />
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="grid grid-cols-4 gap-1">
-        {CHART_COLORS.map((chartColor, i) => (
-          <DropdownMenuItem
-            key={i}
-            className="flex aspect-square items-center justify-center border-2 border-black"
-            style={{ backgroundColor: chartColor }}
-            onClick={() => onColorChange(chartColor)}
-          />
-        ))}
+      <DropdownMenuContent className="flex flex-col gap-2 p-4">
+        <p className="text-sm font-medium">Pick a color</p>
+        <HexColorPicker
+          color={color}
+          onChange={(color) => onColorChange(color)}
+        />
+        <HexColorInput
+          color={color}
+          onChange={(color) => onColorChange(color)}
+        />
+        <div className="grid grid-cols-4 gap-1">
+          {CHART_COLORS.map((chartColor, i) => (
+            <DropdownMenuItem
+              key={i}
+              className="flex aspect-square items-center justify-center border-2 border-black"
+              style={{ backgroundColor: chartColor }}
+              onClick={() => onColorChange(chartColor)}
+            />
+          ))}
+        </div>
       </DropdownMenuContent>
     </DropdownMenu>
   );
