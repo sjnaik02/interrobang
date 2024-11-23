@@ -18,7 +18,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import {
   Dialog,
@@ -27,7 +26,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -72,85 +70,101 @@ const SurveyActionsDropdown = ({
   isArchived,
 }: SurveyActionsDropdownProps) => {
   const router = useRouter();
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [renameDialogOpen, setRenameDialogOpen] = useState(false);
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-48">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <RenameSurveyButton
-            id={id}
-            renameSurvey={renameSurvey}
-            surveyName={surveyName}
-          />
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onClick={async () => {
-            try {
-              toast.loading("Duplicating survey...");
-              const duplicatedSurveyId = await duplicateSurvey(id);
-              toast.dismiss();
-              router.push(`/survey/create/${duplicatedSurveyId}`);
-              toast.success("Survey duplicated successfully");
-            } catch (error) {
-              toast.error((error as Error).message);
-            }
-          }}
-        >
-          <Copy className="mr-2 h-4 w-4" />
-          Duplicate Survey
-        </DropdownMenuItem>
-        {!isArchived && (
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-48">
+          <DropdownMenuLabel>Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setRenameDialogOpen(true)}
+            className="cursor-pointer"
+          >
+            <Pencil className="mr-2 h-4 w-4" />
+            Rename
+          </DropdownMenuItem>
           <DropdownMenuItem
             className="cursor-pointer"
             onClick={async () => {
               try {
-                await archiveSurvey(id);
-                toast.success("Survey archived successfully");
+                toast.loading("Duplicating survey...");
+                const duplicatedSurveyId = await duplicateSurvey(id);
+                toast.dismiss();
+                router.push(`/survey/create/${duplicatedSurveyId}`);
+                toast.success("Survey duplicated successfully");
               } catch (error) {
                 toast.error((error as Error).message);
               }
             }}
           >
-            <Archive className="mr-2 h-4 w-4" />
-            Archive
+            <Copy className="mr-2 h-4 w-4" />
+            Duplicate Survey
           </DropdownMenuItem>
-        )}
-        <DropdownMenuSeparator />
-        <DropdownMenuItem asChild>
-          <DeleteSurveyButton id={id} deleteSurvey={deleteSurvey} />
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+          {!isArchived && (
+            <DropdownMenuItem
+              className="cursor-pointer"
+              onClick={async () => {
+                try {
+                  await archiveSurvey(id);
+                  toast.success("Survey archived successfully");
+                } catch (error) {
+                  toast.error((error as Error).message);
+                }
+              }}
+            >
+              <Archive className="mr-2 h-4 w-4" />
+              Archive
+            </DropdownMenuItem>
+          )}
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onClick={() => setDeleteDialogOpen(true)}
+            className="cursor-pointer text-destructive"
+          >
+            <Trash className="mr-2 h-4 w-4" />
+            Delete
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <DeleteSurveyDialog
+        id={id}
+        deleteSurvey={deleteSurvey}
+        open={deleteDialogOpen}
+        setOpen={setDeleteDialogOpen}
+      />
+      <RenameSurveyDialog
+        id={id}
+        renameSurvey={renameSurvey}
+        surveyName={surveyName}
+        open={renameDialogOpen}
+        setOpen={setRenameDialogOpen}
+      />
+    </>
   );
 };
 
 export default SurveyActionsDropdown;
 
-const DeleteSurveyButton = ({
+const DeleteSurveyDialog = ({
   id,
   deleteSurvey,
+  open,
+  setOpen,
 }: {
   id: string;
   deleteSurvey: DeleteSurveyType;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }) => {
   return (
-    <AlertDialog>
-      <AlertDialogTrigger asChild>
-        <Button
-          variant="ghost"
-          className="flex w-full items-center justify-start px-2 text-destructive"
-        >
-          <Trash className="mr-2 h-4 w-4" />
-          Delete
-        </Button>
-      </AlertDialogTrigger>
+    <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Survey</AlertDialogTitle>
@@ -181,17 +195,19 @@ const DeleteSurveyButton = ({
   );
 };
 
-const RenameSurveyButton = ({
+const RenameSurveyDialog = ({
   id,
   renameSurvey,
   surveyName,
+  open,
+  setOpen,
 }: {
   id: string;
   renameSurvey: RenameSurveyType;
   surveyName: string;
+  open: boolean;
+  setOpen: (open: boolean) => void;
 }) => {
-  const [open, setOpen] = useState(false);
-
   const formSchema = z.object({
     name: z.string().max(255, "Name must be less than 255 characters"),
   });
@@ -215,16 +231,6 @@ const RenameSurveyButton = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          className="flex w-full items-center justify-start px-2 py-1 font-normal"
-          size="sm"
-        >
-          <Pencil className="mr-2 h-4 w-4" />
-          Rename
-        </Button>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Rename Survey</DialogTitle>
