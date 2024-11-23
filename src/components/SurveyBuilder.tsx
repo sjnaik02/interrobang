@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import randomId from "@/lib/randomId";
 import React from "react";
+import useAutosave from "./hooks/useAutosave";
 
 const SurveyBuilder: React.FC<{
   survey: Survey;
@@ -73,6 +74,32 @@ const SurveyBuilder: React.FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleSave = async () => {
+    try {
+      await saveChanges({
+        id: survey.id,
+        title,
+        name: survey.name,
+        questions: elements,
+        updatedAt: new Date(),
+      });
+
+      toast.success("Saved survey");
+      return true;
+    } catch (err) {
+      console.error("Autosave failed:", err);
+      return false;
+    }
+  };
+
+  const { status, triggerSave } = useAutosave(handleSave);
+
+  useEffect(() => {
+    if (!isReady) return;
+    triggerSave();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [elements, title]);
+
   return (
     <div
       className="flex min-h-screen flex-col gap-4"
@@ -83,6 +110,7 @@ const SurveyBuilder: React.FC<{
         setPreview={setPreview}
         saveChanges={saveChanges}
         publishSurvey={publishSurvey}
+        status={status}
       />
       {/* if published, display link to access survey with a copy button */}
       {isPublished ? (

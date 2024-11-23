@@ -39,6 +39,7 @@ import {
   Plus,
   LayoutDashboard,
   CircleAlert,
+  Loader2,
 } from "lucide-react";
 import ClickToEdit from "./ClickToEdit";
 import {
@@ -51,11 +52,13 @@ const TopBar = ({
   setPreview,
   saveChanges,
   publishSurvey,
+  status,
 }: {
   preview: boolean;
   setPreview: (preview: boolean) => void;
   saveChanges: SaveChangesToSurveyType;
   publishSurvey: PublishSurveyType;
+  status: "idle" | "saving" | "saved" | "error";
 }) => {
   const {
     elements,
@@ -144,13 +147,17 @@ const TopBar = ({
           variant="outline"
           className="px-2 py-1 text-sm"
           size="sm"
-          disabled={isPublished}
+          disabled={isPublished || status === "saving"}
           onClick={async () => {
             await handleSave();
             toast.success(`Saved "${title}" as "${surveyName}"`);
           }}
         >
-          <Save className="mr-1 h-4 w-4" />
+          {status === "saving" ? (
+            <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+          ) : (
+            <Save className="mr-1 h-4 w-4" />
+          )}
           Save
         </Button>
         <Button
