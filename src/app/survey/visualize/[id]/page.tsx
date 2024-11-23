@@ -6,7 +6,7 @@ import { notFound } from "next/navigation";
 import { type CustomInstance as MultipleChoiceInstance } from "@/components/fields/MultipleChoice";
 import { type CustomInstance as TextAreaInstance } from "@/components/fields/TextArea";
 import { type CustomInstance as CheckboxInstance } from "@/components/fields/CheckBox";
-import TopNav from "../../responses/[id]/TopNav";
+import TopNav from "@/components/TopNav";
 import TextResponseTable from "@/components/TextResponseTable";
 
 function getQuestions(
@@ -104,7 +104,8 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
       />
       <main className="container mx-auto">
         <h1 className="mb-4 mt-8 text-2xl">
-          Visualize Responses for{" "}
+          Visualize <span className="font-mono">{responses.length}</span>{" "}
+          Responses for{" "}
           <span className="underline underline-offset-4">{survey.title}</span>
         </h1>
         {questions.map((question) => {

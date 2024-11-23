@@ -1,3 +1,5 @@
+"use client";
+
 import { NavLink } from "@/app/_components/NavLink";
 import { Separator } from "@/components/ui/separator";
 import { Home, Pen } from "lucide-react";
@@ -5,14 +7,15 @@ import { UserButton } from "@clerk/nextjs";
 import { CreateSurveyButton } from "./CreateSurveyButton";
 import type { CreateSurveyType } from "@/app/actions/survey";
 
-export const DashboardSidebar = async ({
+export const DashboardSidebar = ({
   createSurvey,
 }: {
   createSurvey: CreateSurveyType;
 }) => {
   return (
-    <aside className="flex h-full w-64">
+    <aside className="flex h-full w-64 bg-muted">
       <div className="flex h-full w-full flex-col gap-4 p-4">
+        <p className="text-center text-2xl font-bold">Interrobang ‽</p>
         <nav className="mt-4 flex flex-col items-center gap-2 font-mono">
           <NavLink href="/dashboard">
             <Home className="h-4 w-4" />
@@ -33,10 +36,7 @@ export const DashboardSidebar = async ({
           <UserButton />
         </div>
       </div>
-      <Separator
-        orientation="vertical"
-        className="h-[calc(100%-2rem)] self-center"
-      />
+      <Separator orientation="vertical" className="h-full self-center" />
     </aside>
   );
 };

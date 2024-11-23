@@ -7,7 +7,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import TopNav from "./TopNav";
+import TopNav from "@/components/TopNav";
 import {
   Pagination,
   PaginationContent,

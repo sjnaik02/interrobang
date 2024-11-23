@@ -52,7 +52,7 @@ const TopNav = ({
         <Link
           href={`/survey/create/${surveyId}`}
           className={cn(
-            "flex items-center rounded-md px-2 py-1 text-muted-foreground hover:bg-muted",
+            "flex items-center rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-muted",
             pathname === `/survey/create/${surveyId}` &&
               "text-foreground underline underline-offset-4",
           )}
@@ -63,7 +63,7 @@ const TopNav = ({
         <Link
           href={`/survey/responses/${surveyId}`}
           className={cn(
-            "flex items-center rounded-md px-2 py-1 text-muted-foreground hover:bg-muted",
+            "flex items-center rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-muted",
             pathname === `/survey/responses/${surveyId}` &&
               "text-foreground underline underline-offset-4",
           )}
@@ -74,7 +74,7 @@ const TopNav = ({
         <Link
           href={`/survey/visualize/${surveyId}`}
           className={cn(
-            "flex items-center rounded-md px-2 py-1 text-muted-foreground hover:bg-muted",
+            "flex items-center rounded-md px-2 py-1 text-sm text-muted-foreground hover:bg-muted",
             pathname === `/survey/visualize/${surveyId}` &&
               "text-foreground underline underline-offset-4",
           )}

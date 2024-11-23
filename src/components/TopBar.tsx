@@ -31,7 +31,7 @@ import {
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
-import TopNav from "@/app/survey/responses/[id]/TopNav";
+import TopNav from "@/components/TopNav";
 import {
   Save,
   Eye,
@@ -90,7 +90,7 @@ const TopBar = ({
       surveyId={surveyId}
     />
   ) : (
-    <div className="flex w-full items-center justify-between border-b border-gray-200 py-2 font-mono">
+    <div className="container mx-auto flex w-full items-center justify-between border-b border-gray-200 py-2 font-mono">
       <div className="flex items-center gap-2">
         <Breadcrumb>
           <BreadcrumbList>
