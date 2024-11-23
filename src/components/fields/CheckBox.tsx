@@ -138,6 +138,7 @@ const CheckBoxEditorComponent: React.FC<{
           <div key={index} className="flex w-full items-center gap-2">
             <Checkbox disabled />
             <Input
+              ref={editingIndex === index ? inputRef : undefined}
               value={editingIndex === index ? editingValue : option}
               onFocus={() => startEditing(index)}
               onChange={(e) =>

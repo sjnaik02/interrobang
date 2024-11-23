@@ -136,6 +136,7 @@ const MultipleChoiceEditorComponent: React.FC<{
           <div key={index} className="flex w-full items-center gap-2">
             <RadioGroupItem value={option} id={`option-${index}`} />
             <Input
+              ref={editingIndex === index ? inputRef : undefined}
               value={editingIndex === index ? editingValue : option}
               onFocus={() => startEditing(index)}
               onChange={(e) =>
