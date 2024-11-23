@@ -15,7 +15,7 @@ export const DashboardSidebar = ({
   return (
     <aside className="flex h-full w-64 bg-muted">
       <div className="flex h-full w-full flex-col gap-4 p-4">
-        <p className="text-center text-2xl font-bold">Interrobang ‽</p>
+        <p className="text-center text-2xl">Interrobang ‽</p>
         <nav className="mt-4 flex flex-col items-center gap-2 font-mono">
           <NavLink href="/dashboard">
             <Home className="h-4 w-4" />
