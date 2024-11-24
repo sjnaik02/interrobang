@@ -15,9 +15,10 @@ import { Button } from "../ui/button";
 import { useState, useRef, useEffect } from "react";
 import { Input } from "../ui/input";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
-import { CircleX, CirclePlus, CheckSquare } from "lucide-react";
+import { CircleX, CirclePlus, CheckSquare, GripVertical } from "lucide-react";
 import ClickToEdit from "../ClickToEdit";
 import { FormItem, FormLabel, FormControl, FormMessage } from "../ui/form";
+import { Reorder } from "framer-motion";
 
 const type: ElementType = "CheckBox";
 
@@ -44,6 +45,7 @@ const CheckBoxEditorComponent: React.FC<{
   const element = elementInstance as CustomInstance;
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState("");
+  const [options, setOptions] = useState(element.properties.options);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -52,12 +54,17 @@ const CheckBoxEditorComponent: React.FC<{
     }
   }, [editingIndex]);
 
-  const addOption = (focus = false) => {
-    const newOptions = [...element.properties.options, ""];
+  useEffect(() => {
     updateElement(element.id, {
       ...element,
-      properties: { ...element.properties, options: newOptions },
+      properties: { ...element.properties, options },
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options]);
+
+  const addOption = (focus = false) => {
+    const newOptions = [...options, ""];
+    setOptions(newOptions);
     if (focus) {
       setEditingIndex(newOptions.length - 1);
       setEditingValue("");
@@ -65,26 +72,20 @@ const CheckBoxEditorComponent: React.FC<{
   };
 
   const removeOption = (index: number) => {
-    const newOptions = element.properties.options.filter((_, i) => i !== index);
-    updateElement(element.id, {
-      ...element,
-      properties: { ...element.properties, options: newOptions },
-    });
+    const newOptions = options.filter((_, i) => i !== index);
+    setOptions(newOptions);
   };
 
   const startEditing = (index: number) => {
     setEditingIndex(index);
-    setEditingValue(element.properties.options[index] ?? "");
+    setEditingValue(options[index] ?? "");
   };
 
   const saveEdit = () => {
     if (editingIndex !== null) {
-      const newOptions = [...element.properties.options];
+      const newOptions = [...options];
       newOptions[editingIndex] = editingValue;
-      updateElement(element.id, {
-        ...element,
-        properties: { ...element.properties, options: newOptions },
-      });
+      setOptions(newOptions);
       setEditingIndex(null);
     }
   };
@@ -98,13 +99,10 @@ const CheckBoxEditorComponent: React.FC<{
     if (e.key === "Enter") {
       e.preventDefault();
       if (editingIndex !== null) {
-        const newOptions = [...element.properties.options];
+        const newOptions = [...options];
         newOptions[editingIndex] = editingValue;
         newOptions.push("");
-        updateElement(element.id, {
-          ...element,
-          properties: { ...element.properties, options: newOptions },
-        });
+        setOptions(newOptions);
         setEditingIndex(newOptions.length - 1);
         setEditingValue("");
       }
@@ -133,9 +131,19 @@ const CheckBoxEditorComponent: React.FC<{
           <p className="px-2 font-mono text-sm text-red-500">Required</p>
         ) : null}
       </div>
-      <div className="flex w-full flex-col gap-4">
-        {element.properties.options.map((option, index) => (
-          <div key={index} className="flex w-full items-center gap-2">
+      <Reorder.Group
+        axis="y"
+        values={options}
+        onReorder={setOptions}
+        className="flex w-full flex-col gap-4"
+      >
+        {options.map((option, index) => (
+          <Reorder.Item
+            key={option}
+            value={option}
+            className="flex w-full items-center gap-2"
+          >
+            <GripVertical className="h-4 w-4 cursor-grab active:cursor-grabbing" />
             <Checkbox disabled />
             <Input
               ref={editingIndex === index ? inputRef : undefined}
@@ -161,9 +169,9 @@ const CheckBoxEditorComponent: React.FC<{
             >
               <CircleX className="h-4 w-4" />
             </Button>
-          </div>
+          </Reorder.Item>
         ))}
-      </div>
+      </Reorder.Group>
       <Button
         variant="outline"
         size="sm"

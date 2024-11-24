@@ -12,9 +12,10 @@ import { Button } from "../ui/button";
 import { useState, useRef, useEffect } from "react";
 import { Input } from "../ui/input";
 import useSurveyBuilder from "@/components/hooks/useSurveyBuilder";
-import { CircleX, CirclePlus, CheckCircle } from "lucide-react";
+import { CircleX, CirclePlus, CheckCircle, GripVertical } from "lucide-react";
 import ClickToEdit from "../ClickToEdit";
 import { FormItem, FormLabel, FormControl, FormMessage } from "../ui/form";
+import { Reorder } from "framer-motion";
 
 const type: ElementType = "MultipleChoice";
 
@@ -43,6 +44,7 @@ const MultipleChoiceEditorComponent: React.FC<{
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [editingValue, setEditingValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [options, setOptions] = useState(element.properties.options);
 
   useEffect(() => {
     if (editingIndex !== null) {
@@ -50,12 +52,17 @@ const MultipleChoiceEditorComponent: React.FC<{
     }
   }, [editingIndex]);
 
-  const addOption = (focus = false) => {
-    const newOptions = [...element.properties.options, ""];
+  useEffect(() => {
     updateElement(element.id, {
       ...element,
-      properties: { ...element.properties, options: newOptions },
+      properties: { ...element.properties, options },
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [options]);
+
+  const addOption = (focus = false) => {
+    const newOptions = [...options, ""];
+    setOptions(newOptions);
     if (focus) {
       setEditingIndex(newOptions.length - 1);
       setEditingValue("");
@@ -63,26 +70,20 @@ const MultipleChoiceEditorComponent: React.FC<{
   };
 
   const removeOption = (index: number) => {
-    const newOptions = element.properties.options.filter((_, i) => i !== index);
-    updateElement(element.id, {
-      ...element,
-      properties: { ...element.properties, options: newOptions },
-    });
+    const newOptions = options.filter((_, i) => i !== index);
+    setOptions(newOptions);
   };
 
   const startEditing = (index: number) => {
     setEditingIndex(index);
-    setEditingValue(element.properties.options[index] ?? "");
+    setEditingValue(options[index] ?? "");
   };
 
   const saveEdit = () => {
     if (editingIndex !== null) {
-      const newOptions = [...element.properties.options];
+      const newOptions = [...options];
       newOptions[editingIndex] = editingValue;
-      updateElement(element.id, {
-        ...element,
-        properties: { ...element.properties, options: newOptions },
-      });
+      setOptions(newOptions);
       setEditingIndex(null);
     }
   };
@@ -96,13 +97,10 @@ const MultipleChoiceEditorComponent: React.FC<{
     if (e.key === "Enter") {
       e.preventDefault();
       if (editingIndex !== null) {
-        const newOptions = [...element.properties.options];
+        const newOptions = [...options];
         newOptions[editingIndex] = editingValue;
         newOptions.push("");
-        updateElement(element.id, {
-          ...element,
-          properties: { ...element.properties, options: newOptions },
-        });
+        setOptions(newOptions);
         setEditingIndex(newOptions.length - 1);
         setEditingValue("");
       }
@@ -132,35 +130,47 @@ const MultipleChoiceEditorComponent: React.FC<{
         ) : null}
       </div>
       <RadioGroup className="w-full" disabled={true}>
-        {element.properties.options.map((option, index) => (
-          <div key={index} className="flex w-full items-center gap-2">
-            <RadioGroupItem value={option} id={`option-${index}`} />
-            <Input
-              ref={editingIndex === index ? inputRef : undefined}
-              value={editingIndex === index ? editingValue : option}
-              onFocus={() => startEditing(index)}
-              onChange={(e) =>
-                editingIndex === index && setEditingValue(e.target.value)
-              }
-              onBlur={saveEdit}
-              onKeyDown={handleKeyDown}
-              placeholder="Enter option text"
-              className={`w-full rounded-none border-0 px-0 text-base ${
-                editingIndex === index
-                  ? "focus-visible:border-b-2 focus-visible:border-b-primary"
-                  : "border-transparent"
-              } focus-visible:outline-none focus-visible:ring-0`}
-            />
-            <Button
-              variant="outline"
-              size="icon"
-              className="ml-auto"
-              onClick={() => removeOption(index)}
+        <Reorder.Group
+          axis="y"
+          values={options}
+          onReorder={setOptions}
+          className="flex w-full flex-col gap-4"
+        >
+          {options.map((option, index) => (
+            <Reorder.Item
+              key={option}
+              value={option}
+              className="flex w-full items-center gap-2"
             >
-              <CircleX className="h-4 w-4" />
-            </Button>
-          </div>
-        ))}
+              <GripVertical className="h-4 w-4 cursor-grab active:cursor-grabbing" />
+              <RadioGroupItem value={option} id={`option-${index}`} disabled />
+              <Input
+                ref={editingIndex === index ? inputRef : undefined}
+                value={editingIndex === index ? editingValue : option}
+                onFocus={() => startEditing(index)}
+                onChange={(e) =>
+                  editingIndex === index && setEditingValue(e.target.value)
+                }
+                onBlur={saveEdit}
+                onKeyDown={handleKeyDown}
+                placeholder="Enter option text"
+                className={`w-full rounded-none border-0 px-0 text-base ${
+                  editingIndex === index
+                    ? "focus-visible:border-b-2 focus-visible:border-b-primary"
+                    : "border-transparent"
+                } focus-visible:outline-none focus-visible:ring-0`}
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                className="ml-auto"
+                onClick={() => removeOption(index)}
+              >
+                <CircleX className="h-4 w-4" />
+              </Button>
+            </Reorder.Item>
+          ))}
+        </Reorder.Group>
       </RadioGroup>
       <Button
         variant="outline"
