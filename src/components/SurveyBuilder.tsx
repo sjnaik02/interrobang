@@ -32,6 +32,7 @@ import {
 import randomId from "@/lib/randomId";
 import React from "react";
 import useAutosave from "./hooks/useAutosave";
+import { AnimatePresence, motion } from "framer-motion";
 
 const SurveyBuilder: React.FC<{
   survey: Survey;
@@ -236,71 +237,79 @@ const BuilderElementWrapper: React.FC<{
         {SurveyElements[element.type].editorComponent({
           elementInstance: element,
         })}
-        {selectedElement?.id === element.id && (
-          <div className="mt-4 flex w-full items-center justify-between gap-2">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="font-mono">
-                  {/* render the correct icon */}
-                  {React.createElement(SurveyElements[element.type].icon)}
-                  {element.type}
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="font-mono">
-                {Object.entries(SurveyElements)
-                  .filter(([key]) => key !== element.type)
-                  .map(([key, value]) => (
-                    <DropdownMenuItem
-                      key={key}
-                      onClick={() => {
-                        const updatedElement = changeElementType(
-                          element.id,
-                          value.construct(randomId()),
-                        );
-                        //this makes the new element selected, doesn't work without the setTimeout
-                        setTimeout(() => {
-                          setSelectedElement(updatedElement);
-                        }, 0);
-                      }}
-                    >
-                      <value.icon className="mr-1 h-4 w-4" />
-                      {value.name}
-                    </DropdownMenuItem>
-                  ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button
-              variant="outline"
-              onClick={() => removeElement(element.id)}
-              className="border-destructive text-destructive"
-              size="sm"
+        <AnimatePresence>
+          {selectedElement?.id === element.id && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.2 }}
+              className="mt-4 flex w-full items-center justify-between gap-2"
             >
-              <Trash className="mr-1 h-4 w-4" color="red" />
-              Remove
-            </Button>
-            <div className="flex items-center gap-2">
-              <Label htmlFor="required" className="font-mono">
-                Required
-              </Label>
-              <Switch
-                id="required"
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                checked={element.properties?.required}
-                onCheckedChange={(checked) => {
-                  updateElement(element.id, {
-                    id: element.id,
-                    type: element.type,
-                    properties: {
-                      ...element.properties,
-                      required: checked,
-                    },
-                  });
-                }}
-              />
-            </div>
-          </div>
-        )}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="font-mono">
+                    {/* render the correct icon */}
+                    {React.createElement(SurveyElements[element.type].icon)}
+                    {element.type}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="font-mono">
+                  {Object.entries(SurveyElements)
+                    .filter(([key]) => key !== element.type)
+                    .map(([key, value]) => (
+                      <DropdownMenuItem
+                        key={key}
+                        onClick={() => {
+                          const updatedElement = changeElementType(
+                            element.id,
+                            value.construct(randomId()),
+                          );
+                          //this makes the new element selected, doesn't work without the setTimeout
+                          setTimeout(() => {
+                            setSelectedElement(updatedElement);
+                          }, 0);
+                        }}
+                      >
+                        <value.icon className="mr-1 h-4 w-4" />
+                        {value.name}
+                      </DropdownMenuItem>
+                    ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button
+                variant="outline"
+                onClick={() => removeElement(element.id)}
+                className="border-destructive text-destructive"
+                size="sm"
+              >
+                <Trash className="mr-1 h-4 w-4" color="red" />
+                Remove
+              </Button>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="required" className="font-mono">
+                  Required
+                </Label>
+                <Switch
+                  id="required"
+                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+                  checked={element.properties?.required}
+                  onCheckedChange={(checked) => {
+                    updateElement(element.id, {
+                      id: element.id,
+                      type: element.type,
+                      properties: {
+                        ...element.properties,
+                        required: checked,
+                      },
+                    });
+                  }}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
