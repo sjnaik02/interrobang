@@ -97,6 +97,8 @@ const SurveyBuilder: React.FC<{
 
   useEffect(() => {
     if (!isReady) return;
+    if (isPublished) return;
+    if (status === "saving") return;
     triggerSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [elements, title]);
