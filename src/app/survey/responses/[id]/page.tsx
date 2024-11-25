@@ -72,7 +72,9 @@ const SurveyResponsesPage = async ({
                 <TableCell>{skip + index + 1}</TableCell>
                 {survey.questions?.map((question) => (
                   <TableCell key={question.id}>
-                    {response.responses?.[question.id]}
+                    {Array.isArray(response.responses?.[question.id])
+                      ? (response.responses[question.id] as string[]).join(", ")
+                      : response.responses?.[question.id]}
                   </TableCell>
                 ))}
               </TableRow>
