@@ -138,7 +138,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
   const responses = await getAllResponsesFromSurveyId(survey.id);
   const questions = getQuestions(survey);
 
-  if (questions.length !== 0) {
+  if (questions.length === 0) {
     return (
       <div className="flex min-h-screen flex-col px-4">
         <TopNav
