@@ -6,18 +6,24 @@ import { notFound } from "next/navigation";
 import { type CustomInstance as MultipleChoiceInstance } from "@/components/fields/MultipleChoice";
 import { type CustomInstance as TextAreaInstance } from "@/components/fields/TextArea";
 import { type CustomInstance as CheckboxInstance } from "@/components/fields/CheckBox";
+import { type CustomInstance as RankingInstance } from "@/components/fields/Ranking";
 import TopNav from "@/components/TopNav";
 import TextResponseTable from "@/components/TextResponseTable";
 
-function getQuestions(
-  survey: Survey,
-): (MultipleChoiceInstance | TextAreaInstance | CheckboxInstance)[] {
+type getQuestionProps =
+  | MultipleChoiceInstance
+  | TextAreaInstance
+  | CheckboxInstance
+  | RankingInstance;
+
+function getQuestions(survey: Survey): getQuestionProps[] {
   return (
     survey.questions?.filter(
-      (q): q is MultipleChoiceInstance | TextAreaInstance | CheckboxInstance =>
+      (q): q is getQuestionProps =>
         q.type === "MultipleChoice" ||
         q.type === "TextArea" ||
-        q.type === "CheckBox",
+        q.type === "CheckBox" ||
+        q.type === "Ranking",
     ) ?? []
   );
 }
@@ -56,8 +62,38 @@ function processQuestionData(
   questionId: string,
   responses: Response[],
   options: string[],
+  type: string,
 ): ProcessedQuestionData {
   const totalResponses = responses.length;
+
+  if (type === "Ranking") {
+    // Count how many times each option got first place
+    const firstPlaceCounts = options.map((option) => {
+      const count = responses.filter((response) => {
+        const answer = response.responses?.[questionId];
+        if (Array.isArray(answer)) {
+          return answer[0] === option; // Check if option is in first position
+        }
+        return false;
+      }).length;
+
+      return {
+        option,
+        count,
+        percentage: (count / totalResponses) * 100,
+      };
+    });
+
+    // Sort by count in descending order
+    firstPlaceCounts.sort((a, b) => b.count - a.count);
+
+    return {
+      options,
+      optionCounts: firstPlaceCounts,
+    };
+  }
+
+  // Original processing for other question types
   const optionCounts = options.map((option) => {
     const count = responses.filter((response) => {
       const answer = response.responses?.[questionId];
@@ -128,6 +164,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
             question.id,
             responses,
             question.properties.options,
+            question.type,
           );
 
           return (

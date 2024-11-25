@@ -79,9 +79,12 @@ export const SurveyBuilderContextProvider: React.FC<{
 
           // Transfer options if both elements support them
           if (
-            (e.type === "MultipleChoice" || e.type === "CheckBox") &&
+            (e.type === "MultipleChoice" ||
+              e.type === "CheckBox" ||
+              e.type === "Ranking") &&
             (updatedElement.type === "MultipleChoice" ||
-              updatedElement.type === "CheckBox")
+              updatedElement.type === "CheckBox" ||
+              updatedElement.type === "Ranking")
           ) {
             // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
             updatedElement.properties.options = e.properties?.options ?? [];

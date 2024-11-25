@@ -4,7 +4,12 @@ import { MultipleChoice } from "./fields/MultipleChoice";
 import { CheckBox } from "./fields/CheckBox";
 import { type LucideIcon } from "lucide-react";
 import { type z } from "zod";
-export type ElementType = "TextArea" | "MultipleChoice" | "CheckBox";
+import { RankingFormElement } from "./fields/Ranking";
+export type ElementType =
+  | "TextArea"
+  | "MultipleChoice"
+  | "CheckBox"
+  | "Ranking";
 
 export type SubmitFunction = (key: string, value: string) => void;
 
@@ -39,6 +44,7 @@ type SurveyElementsType = {
 
 export const SurveyElements: SurveyElementsType = {
   MultipleChoice: MultipleChoice,
-  TextArea: TextArea,
   CheckBox: CheckBox,
+  TextArea: TextArea,
+  Ranking: RankingFormElement,
 };
