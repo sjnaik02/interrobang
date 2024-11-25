@@ -50,6 +50,7 @@ interface VisualizerProps {
     count: number;
     percentage: number;
   }[];
+  type?: string;
 }
 
 const CHART_COLORS = [
@@ -196,10 +197,62 @@ const BarChartComponent = ({
   );
 };
 
+const RankingBarChartComponent = ({
+  data,
+  chartWidth,
+  barCategoryGap,
+}: {
+  data: any[];
+  chartWidth: number;
+  barCategoryGap: number;
+}) => {
+  return (
+    <ResponsiveContainer width={chartWidth} height={400}>
+      <BarChart data={data} barGap={0} barCategoryGap={barCategoryGap}>
+        <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
+        <XAxis
+          dataKey="option"
+          interval={0}
+          height={60}
+          tick={({ x, y, payload }) => (
+            <Text
+              x={x}
+              y={y}
+              width={120}
+              textAnchor="middle"
+              verticalAnchor="start"
+            >
+              {payload.value}
+            </Text>
+          )}
+        />
+        <YAxis
+          domain={[1, (dataMax: number) => Math.ceil(dataMax * 1.1)]}
+          tick={{ fill: "hsl(var(--foreground))" }}
+          dx={-10}
+        />
+        <Bar dataKey="score">
+          {data.map((entry) => (
+            <Cell key={entry.originalOption} fill={entry.color} />
+          ))}
+          <LabelList
+            dataKey="score"
+            position="top"
+            formatter={(value: number) => value.toFixed(2)}
+            fill="hsl(var(--foreground))"
+            dy={-10}
+          />
+        </Bar>
+      </BarChart>
+    </ResponsiveContainer>
+  );
+};
+
 export default function Visualizer({
   questionLabel,
   options,
   data,
+  type = "default",
 }: VisualizerProps) {
   const [chartWidth, setChartWidth] = useState<number>(900);
   const [barCategoryGap, setBarCategoryGap] = useState<number>(45);
@@ -212,18 +265,21 @@ export default function Visualizer({
 
   const chartData = useMemo(() => {
     return data.map(
-      (answer: { count: number; percentage: number }, index: number) => {
-        const optionData = answer;
-        return {
-          option: editableOptions[index] + " (" + optionData.count + ")",
-          originalOption: editableOptions[index],
-          count: optionData.count,
-          percentage: optionData.percentage,
-          color: optionColors[index],
-        };
-      },
+      (
+        answer: { count: number; percentage: number; score?: number },
+        index: number,
+      ) => ({
+        option:
+          editableOptions[index] +
+          (type === "Ranking" ? "" : ` (${answer.count})`),
+        originalOption: editableOptions[index],
+        count: answer.count,
+        score: answer.score,
+        percentage: answer.percentage,
+        color: optionColors[index],
+      }),
     );
-  }, [data, editableOptions, optionColors]);
+  }, [data, editableOptions, optionColors, type]);
 
   const handleOptionChange = useCallback((index: number, value: string) => {
     setEditableOptions((prev) => {
@@ -275,11 +331,19 @@ export default function Visualizer({
               />
             </CardHeader>
             <CardContent className="flex">
-              <BarChartComponent
-                data={chartData}
-                chartWidth={chartWidth}
-                barCategoryGap={barCategoryGap}
-              />
+              {type === "Ranking" ? (
+                <RankingBarChartComponent
+                  data={chartData}
+                  chartWidth={chartWidth}
+                  barCategoryGap={barCategoryGap}
+                />
+              ) : (
+                <BarChartComponent
+                  data={chartData}
+                  chartWidth={chartWidth}
+                  barCategoryGap={barCategoryGap}
+                />
+              )}
             </CardContent>
             <CardFooter className="flex flex-row justify-between">
               <p className="text-sm text-muted-foreground">Source: Tangle</p>

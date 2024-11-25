@@ -9,6 +9,7 @@ import { type CustomInstance as CheckboxInstance } from "@/components/fields/Che
 import { type CustomInstance as RankingInstance } from "@/components/fields/Ranking";
 import TopNav from "@/components/TopNav";
 import TextResponseTable from "@/components/TextResponseTable";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 type getQuestionProps =
   | MultipleChoiceInstance
@@ -49,14 +50,16 @@ function processTextAreaResponses(
       ),
   };
 }
-interface ProcessedQuestionData {
+
+type ProcessedQuestionData = {
   options: string[];
   optionCounts: {
     option: string;
     count: number;
     percentage: number;
+    score?: number;
   }[];
-}
+};
 
 function processQuestionData(
   questionId: string,
@@ -67,29 +70,37 @@ function processQuestionData(
   const totalResponses = responses.length;
 
   if (type === "Ranking") {
-    // Count how many times each option got first place
-    const firstPlaceCounts = options.map((option) => {
-      const count = responses.filter((response) => {
-        const answer = response.responses?.[questionId];
-        if (Array.isArray(answer)) {
-          return answer[0] === option; // Check if option is in first position
+    const scores = options.map((option) => {
+      let totalScore = 0;
+      let firstPlaceCount = 0;
+
+      responses.forEach((response) => {
+        const rankings = response.responses?.[questionId];
+        if (Array.isArray(rankings)) {
+          const position = rankings.indexOf(option);
+          if (position !== -1) {
+            const score = options.length - position;
+            totalScore += score;
+            if (position === 0) firstPlaceCount++;
+          }
         }
-        return false;
-      }).length;
+      });
+
+      const averageScore = totalScore / totalResponses;
 
       return {
         option,
-        count,
-        percentage: (count / totalResponses) * 100,
+        count: firstPlaceCount,
+        score: averageScore,
+        percentage: 0, // Added to satisfy type, not used for ranking
       };
     });
 
-    // Sort by count in descending order
-    firstPlaceCounts.sort((a, b) => b.count - a.count);
+    scores.sort((a, b) => b.score - a.score);
 
     return {
       options,
-      optionCounts: firstPlaceCounts,
+      optionCounts: scores,
     };
   }
 
@@ -127,8 +138,29 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
   const responses = await getAllResponsesFromSurveyId(survey.id);
   const questions = getQuestions(survey);
 
-  if (questions.length === 0) {
-    return <div>No questions found</div>;
+  if (questions.length !== 0) {
+    return (
+      <div className="flex min-h-screen flex-col px-4">
+        <TopNav
+          surveyName={survey.name}
+          isPublished={survey.isPublished ?? false}
+          surveyId={survey.id}
+        />
+        <main className="container mx-auto">
+          <h1 className="mb-4 mt-8 text-2xl">
+            No questions found for{" "}
+            <span className="underline underline-offset-4">{survey.title}</span>
+          </h1>
+          <Alert variant="destructive" className="max-w-2xl">
+            <AlertTitle>Something went wrong</AlertTitle>
+            <AlertDescription>
+              Please contact Shourya (shourya@readtangle.com). Include the
+              following id in your message: {survey.id}
+            </AlertDescription>
+          </Alert>
+        </main>
+      </div>
+    );
   }
 
   return (
@@ -173,6 +205,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
                 questionLabel={question.properties.label}
                 options={processedData.options}
                 data={processedData.optionCounts}
+                type={question.type}
               />
             </div>
           );
