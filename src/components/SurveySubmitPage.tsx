@@ -90,7 +90,7 @@ const SurveySubmitPage = ({
       }
     } catch (error) {
       console.error(error);
-      toast.error("Failed to submit survey");
+      toast.error("Failed to submit survey. Please try again.");
     } finally {
       setSubmitting(false);
       setHasSubmitted(true);
@@ -99,8 +99,8 @@ const SurveySubmitPage = ({
 
   return (
     <main className="container mx-auto flex min-h-screen w-full max-w-3xl flex-col p-4">
-      <div className="flex-grow">
-        <h1 className="mb-8 mt-24 text-3xl font-semibold">{survey.title}</h1>
+      <div className="mb-12 flex-grow">
+        <h1 className="mb-8 mt-12 text-3xl font-semibold">{survey.title}</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             {survey.questions.map((element, idx) => (
