@@ -281,13 +281,13 @@ const CheckBoxPreviewComponent: React.FC<{
   const element = elementInstance as CustomInstance;
 
   const handleClick = (value: string) => {
-    if (value === "none") {
+    if (value === "None of the Above") {
       // If none is selected, clear other selections and lock it
-      setSelectedValues(["none"]);
+      setSelectedValues(["None of the Above"]);
     } else {
       setSelectedValues((prev) => {
         // If none is selected, don't allow other selections
-        if (prev.includes("none")) {
+        if (prev.includes("None of the Above")) {
           return prev;
         }
         // Normal toggle behavior
@@ -314,7 +314,7 @@ const CheckBoxPreviewComponent: React.FC<{
               checked={selectedValues.includes(option)}
               onCheckedChange={() => handleClick(option)}
               id={`option-${index}-${option}-${element.id}`}
-              disabled={selectedValues.includes("none")}
+              disabled={selectedValues.includes("None of the Above")}
             />
             <Label
               htmlFor={`option-${index}-${option}-${element.id}`}
@@ -327,12 +327,12 @@ const CheckBoxPreviewComponent: React.FC<{
         {element.properties.allowNone && (
           <div className="flex w-full items-center gap-2 border border-transparent px-2 hover:border hover:border-dashed hover:border-muted-foreground">
             <Checkbox
-              checked={selectedValues.includes("none")}
+              checked={selectedValues.includes("None of the Above")}
               onCheckedChange={() => {
-                if (selectedValues.includes("none")) {
+                if (selectedValues.includes("None of the Above")) {
                   setSelectedValues([]);
                 } else {
-                  setSelectedValues(["none"]);
+                  setSelectedValues(["None of the Above"]);
                 }
               }}
               id={`none-${element.id}`}
@@ -375,7 +375,7 @@ const CheckBoxSurveyComponent: React.FC<{
                 onCheckedChange={(checked) => {
                   const values = field.value || [];
                   if (checked) {
-                    if (values.includes("none")) {
+                    if (values.includes("None of the Above")) {
                       field.onChange([option]);
                     } else {
                       field.onChange([...values, option]);
@@ -385,7 +385,7 @@ const CheckBoxSurveyComponent: React.FC<{
                   }
                 }}
                 id={`option-${index}-${option}-${element.id}`}
-                disabled={field.value?.includes("none")}
+                disabled={field.value?.includes("None of the Above")}
               />
               <Label
                 htmlFor={`option-${index}-${option}-${element.id}`}
@@ -398,10 +398,10 @@ const CheckBoxSurveyComponent: React.FC<{
           {element.properties.allowNone && (
             <div className="flex w-full items-center gap-2 border border-transparent px-2 hover:border hover:border-dashed hover:border-muted-foreground">
               <Checkbox
-                checked={field.value?.includes("none")}
+                checked={field.value?.includes("None of the Above")}
                 onCheckedChange={(checked) => {
                   if (checked) {
-                    field.onChange(["none"]);
+                    field.onChange(["None of the Above"]);
                   } else {
                     field.onChange([]);
                   }
