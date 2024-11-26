@@ -66,10 +66,12 @@ function processQuestionData(
   responses: Response[],
   options: string[],
   type: string,
+  allowNone?: boolean, // New parameter
 ): ProcessedQuestionData {
   const totalResponses = responses.length;
 
   if (type === "Ranking") {
+    // Ranking logic stays the same...
     const scores = options.map((option) => {
       let totalScore = 0;
       let firstPlaceCount = 0;
@@ -92,7 +94,7 @@ function processQuestionData(
         option,
         count: firstPlaceCount,
         score: averageScore,
-        percentage: 0, // Added to satisfy type, not used for ranking
+        percentage: 0,
       };
     });
 
@@ -101,6 +103,48 @@ function processQuestionData(
     return {
       options,
       optionCounts: scores,
+    };
+  }
+
+  // Handle "None of the Above" responses for CheckBox type
+  if (type === "CheckBox" && allowNone) {
+    const allOptions = [...options, "None of the Above"];
+
+    const optionCounts = allOptions.map((option) => {
+      let count;
+
+      if (option === "None of the Above") {
+        // Count responses where "None of the Above" is the only selected option
+        count = responses.filter((response) => {
+          const answer = response.responses?.[questionId];
+          return (
+            Array.isArray(answer) &&
+            answer.length === 1 &&
+            answer[0] === "None of the Above"
+          );
+        }).length;
+      } else {
+        // For regular options, only count if "None of the Above" wasn't selected
+        count = responses.filter((response) => {
+          const answer = response.responses?.[questionId];
+          return (
+            Array.isArray(answer) &&
+            answer.includes(option) &&
+            !answer.includes("None of the Above")
+          );
+        }).length;
+      }
+
+      return {
+        option,
+        count,
+        percentage: (count / totalResponses) * 100,
+      };
+    });
+
+    return {
+      options: allOptions,
+      optionCounts,
     };
   }
 
@@ -197,6 +241,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
             responses,
             question.properties.options,
             question.type,
+            question.properties.allowNone,
           );
 
           return (
