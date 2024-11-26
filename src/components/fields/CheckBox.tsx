@@ -19,6 +19,7 @@ import { CircleX, CirclePlus, CheckSquare, GripVertical } from "lucide-react";
 import ClickToEdit from "../ClickToEdit";
 import { FormItem, FormLabel, FormControl, FormMessage } from "../ui/form";
 import { Reorder, useDragControls } from "framer-motion";
+import { Switch } from "../ui/switch";
 
 const type: ElementType = "CheckBox";
 
@@ -26,12 +27,14 @@ const propertiesSchema = z.object({
   label: z.string(),
   required: z.boolean(),
   options: z.array(z.string()),
+  allowNone: z.boolean(),
 });
 
 const properties = {
   label: "Checkbox",
   required: false,
   options: ["Option 1"],
+  allowNone: false,
 };
 
 export type CustomInstance = SurveyElementInstance & {
@@ -223,14 +226,50 @@ const CheckBoxEditorComponent: React.FC<{
           />
         ))}
       </Reorder.Group>
-      <Button
-        variant="outline"
-        size="sm"
-        className="w-fit"
-        onClick={() => addOption()}
-      >
-        <CirclePlus className="mr-1 h-4 w-4" /> Add Option
-      </Button>
+      {/* if allow none is true, add a "None of the Above" option which is not reorderable but has the same styling as the other options */}
+      {element.properties.allowNone && (
+        <div className="mb-2 flex w-full items-center gap-2 bg-background">
+          <GripVertical className="h-4 w-4 opacity-0" />
+          <Checkbox disabled />
+          <Label className="w-full cursor-pointer py-2 text-base font-normal text-foreground disabled:text-foreground">
+            None of the Above
+          </Label>
+          <Button
+            variant="outline"
+            size="icon"
+            className="ml-auto"
+            onClick={() =>
+              updateElement(element.id, {
+                ...element,
+                properties: { ...element.properties, allowNone: false },
+              })
+            }
+          >
+            <CircleX className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+      <div className="flex items-center gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-fit"
+          onClick={() => addOption()}
+        >
+          <CirclePlus className="mr-1 h-4 w-4" /> Add Option
+        </Button>
+        <Switch
+          checked={element.properties.allowNone}
+          onCheckedChange={(checked) =>
+            updateElement(element.id, {
+              ...element,
+              properties: { ...element.properties, allowNone: checked },
+            })
+          }
+          id="allow-none"
+        />
+        <Label htmlFor="allow-none">Allow None of the Above</Label>
+      </div>
     </div>
   );
 };
@@ -242,9 +281,21 @@ const CheckBoxPreviewComponent: React.FC<{
   const element = elementInstance as CustomInstance;
 
   const handleClick = (value: string) => {
-    setSelectedValues((prev) =>
-      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
-    );
+    if (value === "none") {
+      // If none is selected, clear other selections and lock it
+      setSelectedValues(["none"]);
+    } else {
+      setSelectedValues((prev) => {
+        // If none is selected, don't allow other selections
+        if (prev.includes("none")) {
+          return prev;
+        }
+        // Normal toggle behavior
+        return prev.includes(value)
+          ? prev.filter((v) => v !== value)
+          : [...prev, value];
+      });
+    }
   };
 
   return (
@@ -263,6 +314,7 @@ const CheckBoxPreviewComponent: React.FC<{
               checked={selectedValues.includes(option)}
               onCheckedChange={() => handleClick(option)}
               id={`option-${index}-${option}-${element.id}`}
+              disabled={selectedValues.includes("none")}
             />
             <Label
               htmlFor={`option-${index}-${option}-${element.id}`}
@@ -272,6 +324,27 @@ const CheckBoxPreviewComponent: React.FC<{
             </Label>
           </div>
         ))}
+        {element.properties.allowNone && (
+          <div className="flex w-full items-center gap-2 border border-transparent px-2 hover:border hover:border-dashed hover:border-muted-foreground">
+            <Checkbox
+              checked={selectedValues.includes("none")}
+              onCheckedChange={() => {
+                if (selectedValues.includes("none")) {
+                  setSelectedValues([]);
+                } else {
+                  setSelectedValues(["none"]);
+                }
+              }}
+              id={`none-${element.id}`}
+            />
+            <Label
+              htmlFor={`none-${element.id}`}
+              className="w-full cursor-pointer py-2 text-base font-normal text-foreground"
+            >
+              None of the Above
+            </Label>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -302,12 +375,17 @@ const CheckBoxSurveyComponent: React.FC<{
                 onCheckedChange={(checked) => {
                   const values = field.value || [];
                   if (checked) {
-                    field.onChange([...values, option]);
+                    if (values.includes("none")) {
+                      field.onChange([option]);
+                    } else {
+                      field.onChange([...values, option]);
+                    }
                   } else {
                     field.onChange(values.filter((v: string) => v !== option));
                   }
                 }}
                 id={`option-${index}-${option}-${element.id}`}
+                disabled={field.value?.includes("none")}
               />
               <Label
                 htmlFor={`option-${index}-${option}-${element.id}`}
@@ -317,6 +395,27 @@ const CheckBoxSurveyComponent: React.FC<{
               </Label>
             </div>
           ))}
+          {element.properties.allowNone && (
+            <div className="flex w-full items-center gap-2 border border-transparent px-2 hover:border hover:border-dashed hover:border-muted-foreground">
+              <Checkbox
+                checked={field.value?.includes("none")}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    field.onChange(["none"]);
+                  } else {
+                    field.onChange([]);
+                  }
+                }}
+                id={`none-${element.id}`}
+              />
+              <Label
+                htmlFor={`none-${element.id}`}
+                className="w-full cursor-pointer py-2 text-lg font-normal"
+              >
+                None of the Above
+              </Label>
+            </div>
+          )}
         </div>
       </FormControl>
       <FormMessage />
