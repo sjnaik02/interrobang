@@ -117,7 +117,7 @@ const SurveyBuilder: React.FC<{
       />
       {/* if published, display link to access survey with a copy button */}
       {isPublished ? (
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-between gap-2 rounded-md border border-muted-foreground pl-2">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 rounded-md border border-muted-foreground pl-2">
           <span className="flex items-center whitespace-nowrap font-mono">
             <LinkIcon className="mr-1 h-4 w-4" />
             Survey Link:{" "}
@@ -145,7 +145,7 @@ const SurveyBuilder: React.FC<{
         </div>
       ) : null}
       {preview ? (
-        <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 pb-12">
           <SurveyPreview />
         </div>
       ) : (
@@ -330,6 +330,9 @@ const SurveyPreview = () => {
           })}
         </div>
       ))}
+      <Button variant="default" className="mt-4 w-fit">
+        Submit
+      </Button>
     </>
   );
 };
