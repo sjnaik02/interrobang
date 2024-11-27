@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -28,6 +29,7 @@ const propertiesSchema = z.object({
   required: z.boolean(),
   options: z.array(z.string()),
   allowNone: z.boolean(),
+  allowOther: z.boolean(),
 });
 
 const properties = {
@@ -35,6 +37,7 @@ const properties = {
   required: false,
   options: ["Option 1"],
   allowNone: false,
+  allowOther: false,
 };
 
 export type CustomInstance = SurveyElementInstance & {
@@ -249,6 +252,28 @@ const CheckBoxEditorComponent: React.FC<{
           </Button>
         </div>
       )}
+      {element.properties.allowOther && (
+        <div className="mb-2 flex w-full items-center gap-2 bg-background">
+          <GripVertical className="h-4 w-4 opacity-0" />
+          <Checkbox disabled />
+          <Label className="w-full cursor-pointer py-2 text-base font-normal text-foreground disabled:text-foreground">
+            Other
+          </Label>
+          <Button
+            variant="outline"
+            size="icon"
+            className="ml-auto"
+            onClick={() =>
+              updateElement(element.id, {
+                ...element,
+                properties: { ...element.properties, allowOther: false },
+              })
+            }
+          >
+            <CircleX className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
       <div className="flex items-center gap-2">
         <Button
           variant="outline"
@@ -269,6 +294,17 @@ const CheckBoxEditorComponent: React.FC<{
           id="allow-none"
         />
         <Label htmlFor="allow-none">Allow None of the Above</Label>
+        <Switch
+          checked={element.properties.allowOther}
+          onCheckedChange={(checked) =>
+            updateElement(element.id, {
+              ...element,
+              properties: { ...element.properties, allowOther: checked },
+            })
+          }
+          id="allow-other"
+        />
+        <Label htmlFor="allow-other">Allow Other</Label>
       </div>
     </div>
   );
@@ -278,6 +314,7 @@ const CheckBoxPreviewComponent: React.FC<{
   elementInstance: SurveyElementInstance;
 }> = ({ elementInstance }) => {
   const [selectedValues, setSelectedValues] = useState<string[]>([]);
+  const [otherValue, setOtherValue] = useState("");
   const element = elementInstance as CustomInstance;
 
   const handleClick = (value: string) => {
@@ -345,17 +382,104 @@ const CheckBoxPreviewComponent: React.FC<{
             </Label>
           </div>
         )}
+        {element.properties.allowOther && (
+          <>
+            <div className="flex w-full items-center gap-2 border border-transparent px-2 hover:border hover:border-dashed hover:border-muted-foreground">
+              <Checkbox
+                checked={selectedValues.includes("Other")}
+                onClick={() => {
+                  if (selectedValues.includes("Other")) {
+                    setSelectedValues(
+                      selectedValues.filter((v) => v !== "Other"),
+                    );
+                  } else {
+                    setSelectedValues([...selectedValues, "Other"]);
+                  }
+                }}
+                id={`other-${element.id}`}
+                disabled={selectedValues.includes("None of the Above")}
+              />
+              <Label
+                htmlFor={`other-${element.id}`}
+                className="w-full cursor-pointer py-2 text-base font-normal"
+              >
+                Other
+              </Label>
+            </div>
+            <Input
+              value={otherValue}
+              onChange={(e) => setOtherValue(e.target.value)}
+              className={`${
+                selectedValues.includes("Other") ? "block" : "hidden"
+              }`}
+            />
+          </>
+        )}
       </div>
     </div>
   );
 };
 
-const CheckBoxSurveyComponent: React.FC<{
+export const CheckBoxSurveyComponent: React.FC<{
   elementInstance: SurveyElementInstance;
   field: any;
   index: number;
 }> = ({ elementInstance, field, index }) => {
   const element = elementInstance as CustomInstance;
+  const [otherText, setOtherText] = useState("");
+
+  // Initialize form values if "Other" is selected
+  useEffect(() => {
+    if (field.value?.includes("Other")) {
+      const otherValue = field.value.find((v: string) =>
+        v.startsWith("Other:"),
+      );
+      if (otherValue) {
+        setOtherText(otherValue.replace("Other:", "").trim());
+      }
+    }
+  }, [field.value]);
+
+  // Handle checkbox changes
+  const handleCheckboxChange = (option: string, checked: boolean) => {
+    const currentValues = field.value || [];
+    let newValues: string[];
+
+    if (option === "None of the Above") {
+      newValues = checked ? ["None of the Above"] : [];
+    } else if (checked) {
+      if (currentValues.includes("None of the Above")) {
+        newValues = [option];
+      } else {
+        newValues = [...currentValues, option];
+      }
+    } else {
+      newValues = currentValues.filter(
+        (v: string) => !v.startsWith(option) && v !== "Other",
+      );
+    }
+
+    field.onChange(newValues);
+  };
+
+  // Handle "Other" text input changes
+  const handleOtherTextChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (field.value?.includes("None of the Above")) {
+      return;
+    }
+
+    const text = e.target.value.slice(0, 255); // Limit to 255 characters
+    setOtherText(text);
+
+    const currentValues =
+      field.value?.filter((v: string) => !v.startsWith("Other:")) || [];
+
+    if (text.trim()) {
+      field.onChange([...currentValues, `Other:${text}`]);
+    } else {
+      field.onChange(currentValues);
+    }
+  };
 
   return (
     <FormItem>
@@ -372,18 +496,9 @@ const CheckBoxSurveyComponent: React.FC<{
             >
               <Checkbox
                 checked={field.value?.includes(option)}
-                onCheckedChange={(checked) => {
-                  const values = field.value || [];
-                  if (checked) {
-                    if (values.includes("None of the Above")) {
-                      field.onChange([option]);
-                    } else {
-                      field.onChange([...values, option]);
-                    }
-                  } else {
-                    field.onChange(values.filter((v: string) => v !== option));
-                  }
-                }}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange(option, !!checked)
+                }
                 id={`option-${index}-${option}-${element.id}`}
                 disabled={field.value?.includes("None of the Above")}
               />
@@ -395,17 +510,14 @@ const CheckBoxSurveyComponent: React.FC<{
               </Label>
             </div>
           ))}
+
           {element.properties.allowNone && (
             <div className="flex w-full items-center gap-2 border border-transparent px-2 hover:border hover:border-dashed hover:border-muted-foreground">
               <Checkbox
                 checked={field.value?.includes("None of the Above")}
-                onCheckedChange={(checked) => {
-                  if (checked) {
-                    field.onChange(["None of the Above"]);
-                  } else {
-                    field.onChange([]);
-                  }
-                }}
+                onCheckedChange={(checked) =>
+                  handleCheckboxChange("None of the Above", !!checked)
+                }
                 id={`none-${element.id}`}
               />
               <Label
@@ -414,6 +526,48 @@ const CheckBoxSurveyComponent: React.FC<{
               >
                 None of the Above
               </Label>
+            </div>
+          )}
+
+          {element.properties.allowOther && (
+            <div className="flex w-full flex-col gap-2">
+              <div className="flex w-full items-center gap-2 border border-transparent px-2 hover:border hover:border-dashed hover:border-muted-foreground">
+                <Checkbox
+                  checked={field.value?.some((v: string) =>
+                    v.startsWith("Other:"),
+                  )}
+                  onCheckedChange={(checked) => {
+                    if (!checked) {
+                      const newValues =
+                        field.value?.filter(
+                          (v: string) => !v.startsWith("Other:"),
+                        ) || [];
+                      field.onChange(newValues);
+                      setOtherText("");
+                    } else {
+                      const newValues = [...(field.value || []), "Other:"];
+                      field.onChange(newValues);
+                    }
+                  }}
+                  id={`other-${element.id}`}
+                  disabled={field.value?.includes("None of the Above")}
+                />
+                <Label
+                  htmlFor={`other-${element.id}`}
+                  className="w-full cursor-pointer py-2 text-lg font-normal"
+                >
+                  Other
+                </Label>
+              </div>
+              {field.value?.some((v: string) => v.startsWith("Other:")) && (
+                <Input
+                  value={otherText}
+                  onChange={handleOtherTextChange}
+                  placeholder="Please specify"
+                  className="ml-8 w-[calc(100%-2rem)]"
+                  disabled={field.value?.includes("None of the Above")}
+                />
+              )}
             </div>
           )}
         </div>
