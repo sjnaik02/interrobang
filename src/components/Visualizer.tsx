@@ -39,6 +39,14 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Download } from "lucide-react";
 import { HexColorInput, HexColorPicker } from "react-colorful";
 
@@ -51,6 +59,7 @@ interface VisualizerProps {
     percentage: number;
   }[];
   type?: string;
+  otherResponses?: { text: string; count: number }[];
 }
 
 const CHART_COLORS = [
@@ -253,6 +262,7 @@ export default function Visualizer({
   options,
   data,
   type = "default",
+  otherResponses,
 }: VisualizerProps) {
   const [chartWidth, setChartWidth] = useState<number>(900);
   const [barCategoryGap, setBarCategoryGap] = useState<number>(45);
@@ -315,11 +325,11 @@ export default function Visualizer({
   return (
     <>
       <div className="mx-auto flex gap-4">
-        <Card className="flex w-full justify-center">
+        <Card className="flex w-full flex-col justify-center p-4">
           <div
             style={{ width: `${chartWidth}px` }}
             ref={ref}
-            className="h-fit bg-card"
+            className="mx-auto h-fit bg-card"
           >
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="mr-4">{questionLabel}</CardTitle>
@@ -349,13 +359,36 @@ export default function Visualizer({
               <p className="text-sm text-muted-foreground">Source: Tangle</p>
             </CardFooter>
           </div>
+          {otherResponses && otherResponses.length > 0 && (
+            <>
+              <p className="text-sm text-muted-foreground">Other responses:</p>
+              <Table className="rounded-lg border border-muted">
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>No.</TableHead>
+                    <TableHead>Response</TableHead>
+                    <TableHead>Count</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {otherResponses.map((response, index) => (
+                    <TableRow key={response.text}>
+                      <TableCell>{index + 1}</TableCell>
+                      <TableCell>{response.text}</TableCell>
+                      <TableCell>{response.count}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </>
+          )}
         </Card>
-        <Card className="flex w-full max-w-[300px] flex-col gap-2">
+        <Card className="flex h-fit w-full max-w-[300px] flex-col gap-2">
           <CardHeader className="flex justify-between">
             <CardTitle>Customize</CardTitle>
             <CardDescription>Customize your chart</CardDescription>
           </CardHeader>
-          <CardContent className="flex-grow">
+          <CardContent className="flex-grow overflow-y-scroll">
             <div className="flex flex-col gap-2">
               <Label>Edit labels and colors</Label>
               {editableOptions.map((option, idx) => (

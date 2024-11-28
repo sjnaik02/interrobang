@@ -59,14 +59,15 @@ type ProcessedQuestionData = {
     percentage: number;
     score?: number;
   }[];
+  otherResponses?: { text: string; count: number }[];
 };
-
 function processQuestionData(
   questionId: string,
   responses: Response[],
   options: string[],
   type: string,
-  allowNone?: boolean, // New parameter
+  allowNone?: boolean,
+  allowOther?: boolean,
 ): ProcessedQuestionData {
   const totalResponses = responses.length;
 
@@ -98,7 +99,7 @@ function processQuestionData(
       };
     });
 
-    scores.sort((a, b) => b.score - a.score);
+    scores.sort((a, b) => (b.score ?? 0) - (a.score ?? 0));
 
     return {
       options,
@@ -106,57 +107,76 @@ function processQuestionData(
     };
   }
 
-  // Handle "None of the Above" responses for CheckBox type
-  if (type === "CheckBox" && allowNone) {
-    const allOptions = [...options, "None of the Above"];
+  // Initialize array to store all options including "None of the Above" and "Other"
+  const allOptions = [...options];
+  if (allowNone) allOptions.push("None of the Above");
+  if (allowOther) allOptions.push("Other");
 
-    const optionCounts = allOptions.map((option) => {
-      let count;
+  // Initialize map to collect unique "Other" responses
+  const otherResponsesMap = new Map<string, number>();
 
-      if (option === "None of the Above") {
-        // Count responses where "None of the Above" is the only selected option
-        count = responses.filter((response) => {
-          const answer = response.responses?.[questionId];
-          return (
-            Array.isArray(answer) &&
-            answer.length === 1 &&
-            answer[0] === "None of the Above"
-          );
-        }).length;
-      } else {
-        // For regular options, only count if "None of the Above" wasn't selected
-        count = responses.filter((response) => {
-          const answer = response.responses?.[questionId];
-          return (
-            Array.isArray(answer) &&
-            answer.includes(option) &&
-            !answer.includes("None of the Above")
-          );
-        }).length;
-      }
+  const optionCounts = allOptions.map((option) => {
+    let count = 0;
 
-      return {
-        option,
-        count,
-        percentage: (count / totalResponses) * 100,
-      };
-    });
+    if (option === "None of the Above") {
+      // Count responses where "None of the Above" is the only selected option
+      count = responses.filter((response) => {
+        const answer = response.responses?.[questionId];
+        return (
+          Array.isArray(answer) &&
+          answer.length === 1 &&
+          answer[0] === "None of the Above"
+        );
+      }).length;
+    } else if (option === "Other") {
+      // Count and collect "Other" responses
+      responses.forEach((response) => {
+        const answer = response.responses?.[questionId];
+        if (type === "MultipleChoice") {
+          if (typeof answer === "string" && answer.startsWith("Other:")) {
+            count++;
+            const otherText = answer.replace("Other:", "").trim() || "Empty";
+            otherResponsesMap.set(
+              otherText,
+              (otherResponsesMap.get(otherText) ?? 0) + 1,
+            );
+          }
+        } else if (type === "CheckBox") {
+          if (Array.isArray(answer)) {
+            const otherAnswers = answer.filter((val) =>
+              val.startsWith("Other:"),
+            );
+            if (otherAnswers.length > 0) {
+              count++;
+              otherAnswers.forEach((otherAnswer) => {
+                const otherText =
+                  otherAnswer.replace("Other:", "").trim() || "Empty";
+                otherResponsesMap.set(
+                  otherText,
+                  (otherResponsesMap.get(otherText) ?? 0) + 1,
+                );
+              });
+            }
+          }
+        }
+      });
+    } else {
+      // For regular options
+      count = responses.filter((response) => {
+        const answer = response.responses?.[questionId];
+        // Handle "None of the Above" exclusion
+        if (Array.isArray(answer) && answer.includes("None of the Above")) {
+          return false;
+        }
 
-    return {
-      options: allOptions,
-      optionCounts,
-    };
-  }
-
-  // Original processing for other question types
-  const optionCounts = options.map((option) => {
-    const count = responses.filter((response) => {
-      const answer = response.responses?.[questionId];
-      if (Array.isArray(answer)) {
-        return answer.includes(option);
-      }
-      return answer === option;
-    }).length;
+        if (type === "MultipleChoice") {
+          return answer === option;
+        } else if (type === "CheckBox") {
+          return Array.isArray(answer) && answer.includes(option);
+        }
+        return false;
+      }).length;
+    }
 
     return {
       option,
@@ -165,12 +185,20 @@ function processQuestionData(
     };
   });
 
+  // Convert the otherResponses map to an array and sort by count
+  const otherResponses = Array.from(otherResponsesMap.entries())
+    .map(([text, count]) => ({
+      text,
+      count,
+    }))
+    .sort((a, b) => b.count - a.count);
+
   return {
-    options,
+    options: allOptions,
     optionCounts,
+    otherResponses: otherResponses.length > 0 ? otherResponses : undefined,
   };
 }
-
 const VisualizePage = async ({ params }: { params: { id: string } }) => {
   const survey = await getSurveyFromId(params.id);
   if (!survey) {
@@ -242,6 +270,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
             question.properties.options,
             question.type,
             question.properties.allowNone,
+            question.properties.allowOther,
           );
 
           return (
@@ -251,6 +280,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
                 options={processedData.options}
                 data={processedData.optionCounts}
                 type={question.type}
+                otherResponses={processedData.otherResponses}
               />
             </div>
           );
