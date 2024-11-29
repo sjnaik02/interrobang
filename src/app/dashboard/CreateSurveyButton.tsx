@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PlusCircle, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { cn } from "@/lib/utils";
 import type { SurveyElementInstance } from "@/components/SurveyElement";
 
 export const CreateSurveyButton = ({
@@ -27,7 +28,7 @@ export const CreateSurveyButton = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const handleCreateForm = async () => {
+  const handleCreateSurvey = async () => {
     setLoading(true);
     const newSurvey = await createSurvey();
     router.push(`/survey/create/${newSurvey?.id}`);
@@ -36,14 +37,17 @@ export const CreateSurveyButton = ({
   return (
     <>
       <Button
-        className="flex items-center rounded-2xl px-4 py-2 text-sm"
-        onClick={handleCreateForm}
+        onClick={handleCreateSurvey}
+        className={cn(
+          "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors duration-200",
+          "bg-primary text-primary-foreground hover:bg-primary/90",
+        )}
       >
-        <PlusCircle className="mr-2 h-4 w-4" />
+        <PlusCircle className="h-4 w-4" />
         Create Survey
       </Button>
       {loading && (
-        <div className="absolute z-10 flex h-full w-full items-center justify-center bg-white">
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80">
           <Loader2 className="h-4 w-4 animate-spin" />
         </div>
       )}

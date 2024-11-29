@@ -8,22 +8,32 @@ type NavLinkProps = {
   href: string;
   className?: string;
   children?: React.ReactNode;
+  icon?: React.ReactNode;
+  selectedIcon?: React.ReactNode;
 };
 
-export const NavLink = ({ href, className, children }: NavLinkProps) => {
+export const NavLink = ({
+  href,
+  className,
+  children,
+  icon,
+  selectedIcon,
+}: NavLinkProps) => {
   const pathname = usePathname();
   const isActive = pathname === href;
   return (
     <Link
       href={href}
       className={cn(
-        "flex w-full items-center gap-2 rounded-2xl border-2 border-transparent px-4 py-2 hover:border-black hover:bg-gray-200",
+        "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors duration-200",
+        "hover:bg-muted/80",
         isActive
-          ? "border-2 border-black bg-background font-semibold text-foreground"
+          ? "bg-primary/10 font-medium text-primary"
           : "text-muted-foreground",
         className,
       )}
     >
+      {icon && isActive && selectedIcon ? selectedIcon : icon}
       {children}
     </Link>
   );
