@@ -28,7 +28,7 @@ export const NavLink = ({
         "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm transition-colors duration-200",
         "hover:bg-muted/80",
         isActive
-          ? "bg-primary/10 font-medium text-primary"
+          ? "bg-primary/10 font-medium text-primary hover:bg-primary/20"
           : "text-muted-foreground",
         className,
       )}
