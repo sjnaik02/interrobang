@@ -235,6 +235,11 @@ const BuilderElementWrapper: React.FC<{
           e.stopPropagation();
           setSelectedElement(element);
         }}
+        tabIndex={0}
+        onFocus={() => setSelectedElement(element)}
+        onBlur={() => setSelectedElement(null)}
+        role="button"
+        aria-pressed={selectedElement?.id === element.id}
       >
         {SurveyElements[element.type].editorComponent({
           elementInstance: element,
