@@ -45,9 +45,8 @@ export default async function DashboardPage() {
           <Table className="w-full text-base">
             <TableHeader className="text-sm">
               <TableRow>
-                <TableHead>Name</TableHead>
-                <TableHead>Status</TableHead>
                 <TableHead>Title</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Created At</TableHead>
                 <TableHead className="text-right"># of responses</TableHead>
                 <TableHead className="">Responses</TableHead>
@@ -63,7 +62,7 @@ export default async function DashboardPage() {
                       href={`/survey/create/${survey.id}`}
                       className="flex w-full items-center gap-2 hover:underline"
                     >
-                      {survey.name}
+                      {survey.title}
                       <ExternalLink className="h-4 w-4" />
                       {new Date().getTime() -
                         new Date(survey.createdAt).getTime() <
@@ -81,7 +80,6 @@ export default async function DashboardPage() {
                       {survey.isPublished ? "Published" : "Draft"}
                     </Badge>
                   </TableCell>
-                  <TableCell className="truncate">{survey.title}</TableCell>
                   <TableCell className="text-sm">
                     {new Date(survey.createdAt).toLocaleDateString()}
                   </TableCell>
@@ -138,7 +136,7 @@ export default async function DashboardPage() {
                       deleteSurvey={deleteSurvey}
                       isArchived={survey.isArchived ?? false}
                       renameSurvey={renameSurvey}
-                      surveyName={survey.name}
+                      surveyName={survey.title}
                       duplicateSurvey={duplicateSurvey}
                     />
                   </TableCell>

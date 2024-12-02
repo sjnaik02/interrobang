@@ -209,19 +209,19 @@ const RenameSurveyDialog = ({
   setOpen: (open: boolean) => void;
 }) => {
   const formSchema = z.object({
-    name: z.string().max(255, "Name must be less than 255 characters"),
+    title: z.string().max(255, "Title must be less than 255 characters"),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: surveyName,
+      title: surveyName,
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await renameSurvey(id, values.name);
+      await renameSurvey(id, values.title);
       toast.success("Survey renamed successfully");
       setOpen(false);
     } catch (error) {
@@ -235,19 +235,19 @@ const RenameSurveyDialog = ({
         <DialogHeader>
           <DialogTitle>Rename Survey</DialogTitle>
           <DialogDescription>
-            Enter a new name for your survey
+            Enter a new title for your survey
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="name"
+              name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Name</FormLabel>
+                  <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Survey name" {...field} />
+                    <Input placeholder="Survey title" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

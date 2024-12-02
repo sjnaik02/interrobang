@@ -46,7 +46,7 @@ const SurveyResponsesPage = async ({
   return (
     <div className="flex min-h-screen w-full flex-col px-4">
       <TopNav
-        surveyName={survey.name}
+        title={survey.title}
         isPublished={survey.isPublished ?? false}
         surveyId={survey.id}
       />

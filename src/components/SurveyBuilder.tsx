@@ -54,7 +54,6 @@ const SurveyBuilder: React.FC<{
     setTitle,
     isPublished,
     setIsPublished,
-    setName,
     setSurveyId,
     changeElementType,
   } = useSurveyBuilder();
@@ -62,7 +61,6 @@ const SurveyBuilder: React.FC<{
   useEffect(() => {
     if (isReady) return;
     setTitle(survey.title);
-    setName(survey.name);
     setIsPublished(survey.isPublished ?? false);
     setSurveyId(survey.id);
     if (survey.questions && survey.questions.length > 0) {
@@ -80,7 +78,6 @@ const SurveyBuilder: React.FC<{
       await saveChanges({
         id: survey.id,
         title,
-        name: survey.name,
         questions: elements,
         updatedAt: new Date(),
       });

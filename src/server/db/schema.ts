@@ -17,7 +17,6 @@ export const createTable = pgTableCreator((name) => `interrobang_${name}`);
 
 export const surveys = createTable("survey", {
   id: uuid("id").primaryKey().defaultRandom(),
-  name: varchar("name", { length: 256 }).notNull(),
   title: varchar("title", { length: 256 }).notNull(),
   questions: jsonb("questions").$type<SurveyElementInstance[]>(),
   isPublished: boolean("is_published").default(false),

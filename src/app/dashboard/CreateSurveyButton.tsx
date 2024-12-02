@@ -13,7 +13,6 @@ export const CreateSurveyButton = ({
   createSurvey: () => Promise<
     | {
         id: string;
-        name: string;
         title: string;
         questions: SurveyElementInstance[] | null;
         isPublished: boolean | null;

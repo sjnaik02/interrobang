@@ -10,13 +10,11 @@ import { revalidatePath } from "next/cache";
 export const saveChangesToSurvey = async ({
   id,
   title,
-  name,
   questions,
   updatedAt,
 }: {
   id: string;
   title: string;
-  name: string;
   questions: SurveyElementInstance[];
   updatedAt: Date;
 }) => {
@@ -29,7 +27,6 @@ export const saveChangesToSurvey = async ({
       .update(surveys)
       .set({
         title: title,
-        name: name,
         questions: questions,
         updatedAt: updatedAt,
       })
@@ -96,7 +93,6 @@ export const createSurvey = async () => {
   const newSurvey = await db
     .insert(surveys)
     .values({
-      name: "Untitled Survey",
       title: "Untitled Survey",
       createdBy: userId,
     })
@@ -140,7 +136,7 @@ export const deleteSurvey = async (id: string) => {
   }
 };
 
-export const renameSurvey = async (id: string, name: string) => {
+export const renameSurvey = async (id: string, title: string) => {
   try {
     const userId = auth().userId;
     if (!userId) {
@@ -148,7 +144,7 @@ export const renameSurvey = async (id: string, name: string) => {
     }
     await db
       .update(surveys)
-      .set({ name, updatedAt: new Date() })
+      .set({ title, updatedAt: new Date() })
       .where(eq(surveys.id, id));
     revalidatePath("/dashboard");
     return true;
@@ -173,7 +169,6 @@ export const duplicateSurvey = async (id: string) => {
     const newSurvey = await db
       .insert(surveys)
       .values({
-        name: `${survey.name} (Copy)`,
         title: `${survey.title} (Copy)`,
         createdBy: userId,
         questions: survey.questions,

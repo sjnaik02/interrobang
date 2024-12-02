@@ -17,15 +17,15 @@ import {
 
 export const columns: ColumnDef<Survey>[] = [
   {
-    accessorKey: "name",
-    header: "Name",
+    accessorKey: "title",
+    header: "Title",
     cell: ({ row }) => {
       return (
         <Link
           href={`/survey/create/${row.original.id}`}
           className="flex items-center gap-2 underline"
         >
-          {row.original.name} <ExternalLink className="h-4 w-4" />
+          {row.original.title} <ExternalLink className="h-4 w-4" />
         </Link>
       );
     },
@@ -44,10 +44,6 @@ export const columns: ColumnDef<Survey>[] = [
 
       return <SurveyStatusBadge status={status} />;
     },
-  },
-  {
-    accessorKey: "title",
-    header: "Title",
   },
   {
     accessorKey: "createdAt",
@@ -129,7 +125,7 @@ export const columns: ColumnDef<Survey>[] = [
       <SurveyActionsDropdown
         id={row.original.id}
         isArchived={row.original.isArchived ?? false}
-        surveyName={row.original.name}
+        surveyName={row.original.title}
         archiveSurvey={archiveSurvey}
         deleteSurvey={deleteSurvey}
         renameSurvey={renameSurvey}

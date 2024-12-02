@@ -214,7 +214,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
     return (
       <div className="flex min-h-screen flex-col px-4">
         <TopNav
-          surveyName={survey.name}
+          title={survey.title}
           isPublished={survey.isPublished ?? false}
           surveyId={survey.id}
         />
@@ -238,7 +238,7 @@ const VisualizePage = async ({ params }: { params: { id: string } }) => {
   return (
     <div className="flex min-h-screen flex-col px-4">
       <TopNav
-        surveyName={survey.name}
+        title={survey.title}
         isPublished={survey.isPublished ?? false}
         surveyId={survey.id}
       />

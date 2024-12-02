@@ -21,7 +21,6 @@ export const getSurveys = cache(async (skip: number, take: number) => {
   const receivedSurveys = await db
     .select({
       id: surveys.id,
-      name: surveys.name,
       title: surveys.title,
       createdAt: surveys.createdAt,
       updatedAt: surveys.updatedAt,
@@ -86,7 +85,6 @@ export const getDashboardData = cache(async (limit: number, days: number) => {
     db
       .select({
         id: surveys.id,
-        name: surveys.name,
         title: surveys.title,
         createdAt: surveys.createdAt,
         updatedAt: surveys.updatedAt,

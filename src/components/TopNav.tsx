@@ -15,11 +15,11 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const TopNav = ({
-  surveyName,
+  title,
   isPublished,
   surveyId,
 }: {
-  surveyName: string;
+  title: string;
   isPublished: boolean;
   surveyId: string;
 }) => {
@@ -37,7 +37,7 @@ const TopNav = ({
             </BreadcrumbItem>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <p>{surveyName}</p>
+              <p>{title}</p>
             </BreadcrumbItem>
           </BreadcrumbList>
         </Breadcrumb>

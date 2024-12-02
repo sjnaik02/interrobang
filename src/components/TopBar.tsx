@@ -60,15 +60,8 @@ const TopBar = ({
   publishSurvey: PublishSurveyType;
   status: "idle" | "saving" | "saved" | "error";
 }) => {
-  const {
-    elements,
-    surveyId,
-    addElement,
-    title,
-    name: surveyName,
-    setName,
-    isPublished,
-  } = useSurveyBuilder();
+  const { elements, surveyId, addElement, title, setTitle, isPublished } =
+    useSurveyBuilder();
 
   const handleSave = async () => {
     try {
@@ -76,10 +69,9 @@ const TopBar = ({
         updatedAt: new Date(),
         id: surveyId,
         title,
-        name: surveyName,
         questions: elements,
       });
-      toast.success(`Saved "${title}" as "${surveyName}"`);
+      toast.success(`Saved "${title}"`);
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Failed to save changes");
@@ -87,11 +79,7 @@ const TopBar = ({
   };
 
   return isPublished ? (
-    <TopNav
-      surveyName={surveyName}
-      isPublished={isPublished}
-      surveyId={surveyId}
-    />
+    <TopNav title={title} isPublished={isPublished} surveyId={surveyId} />
   ) : (
     <div className="container mx-auto flex w-full items-center justify-between border-b border-gray-200 py-2 font-mono">
       <div className="flex items-center gap-2">
@@ -103,8 +91,8 @@ const TopBar = ({
             </BreadcrumbLink>
             <BreadcrumbSeparator />
             <BreadcrumbItem>
-              <ClickToEdit onSave={(value) => setName(value)}>
-                <p>{surveyName}</p>
+              <ClickToEdit onSave={(value) => setTitle(value)}>
+                <p>{title}</p>
               </ClickToEdit>
             </BreadcrumbItem>
           </BreadcrumbList>
@@ -150,7 +138,7 @@ const TopBar = ({
           disabled={isPublished || status === "saving"}
           onClick={async () => {
             await handleSave();
-            toast.success(`Saved "${title}" as "${surveyName}"`);
+            toast.success(`Saved "${title}"`);
           }}
         >
           {status === "saving" ? (
@@ -195,19 +183,12 @@ const PublishSurveyButton = ({
   publishSurvey: PublishSurveyType;
   saveChanges: SaveChangesToSurveyType;
 }) => {
-  const {
-    setIsPublished,
-    isPublished,
-    title,
-    name: surveyName,
-    elements,
-  } = useSurveyBuilder();
+  const { setIsPublished, isPublished, title, elements } = useSurveyBuilder();
   const handlePublish = async () => {
     await saveChanges({
       updatedAt: new Date(),
       id: surveyId,
       title,
-      name: surveyName,
       questions: elements,
     });
     const publishedSurvey = await publishSurvey(surveyId);
