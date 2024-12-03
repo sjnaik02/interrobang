@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "./ui/button";
 import { toast } from "sonner";
 import Link from "next/link";
-import { Home, Loader2 } from "lucide-react";
+import { Home, Loader2, ExternalLink } from "lucide-react";
 import { useState, useEffect } from "react";
 import { notFound } from "next/navigation";
 
@@ -154,9 +154,12 @@ const ThankYouPage = ({ survey }: { survey: Survey }) => {
         <p className="mb-8 text-muted-foreground">
           Your response to {survey.title} has been recorded.
         </p>
-        <Link href="/" className="flex items-center gap-2 underline">
-          <Home className="h-4 w-4" />
-          Return to homepage
+        <Link
+          href="https://www.readtangle.com/"
+          className="flex items-center gap-2 underline"
+        >
+          Go to Tangle
+          <ExternalLink className="ml-1 h-4 w-4" />
         </Link>
       </main>
       <SurveyFooter />
