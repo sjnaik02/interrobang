@@ -8,7 +8,6 @@ Interrobang is a tool for creating and visualising audience polls for Tangle.
 
 - This is not optimised for mobile. The public facing surveys themselves are responsive, but any dashboard pages are not. Use desktop for survey creation/management.
 - Things are slow and clunky. Perf improvements down the line.
-- Surveys do not auto-save. You have to save them manually.
 - There are no tests.
 - There's only 16 colours in the chart customisation palette.
 - Need a kanban board for feature tracking.
