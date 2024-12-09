@@ -34,18 +34,18 @@ Interrobang is a tool for creating and visualising audience polls for Tangle.
 - [x] Basic visualisation for responses
 - [x] Export visualisation as image
 - [x] Table for Text Responses
-- [ ] Add pagination to responses page
+- [x] Add pagination to responses page
 - [ ] Add search to responses page
 - [ ] Add filters to responses page
-- [ ] Add pagination to Text Responses table
+- [x] Add pagination to Text Responses table
 - [ ] Polished design for survey/visualise page
-- [ ] Detailed visualisation customisation
+- [x] Detailed visualisation customisation
 - [ ] Refactor visualisations to use Shadcn's Recharts Utils
 - [ ] Better design for responses page
 - [ ] More details in dashboard
 - [ ] Searchable surveys
 - [ ] Sortable surveys
 - [ ] Filterable surveys
-- [ ] Visualise page
-- [ ] More question types - Checkbox, Ranking
+- [x] Visualise page
+- [x] More question types - Checkbox, Ranking
 - [ ] More visualisation types - Pie chart, Horizontal bar chart
