@@ -69,7 +69,7 @@ export const DashboardSidebar = ({
               <>
                 <Skeleton className="h-8 w-8 rounded-full" />
                 <div className="flex flex-col gap-1">
-                  <Skeleton className="h-4 w-32" />
+                  <Skeleton className="h-4 w-28" />
                   <Skeleton className="h-3 w-24" />
                 </div>
               </>
