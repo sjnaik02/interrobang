@@ -12,6 +12,7 @@ import {
   ChevronDown,
   Link as LinkIcon,
   Copy,
+  Check,
 } from "lucide-react";
 import Link from "next/link";
 import { Switch } from "./ui/switch";
@@ -41,6 +42,7 @@ const SurveyBuilder: React.FC<{
 }> = ({ survey, saveChanges, publishSurvey }) => {
   const [isReady, setIsReady] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   const {
     elements,
@@ -132,11 +134,16 @@ const SurveyBuilder: React.FC<{
                 `${window.location.origin}/survey/${survey.id}`,
               );
               toast.success("Copied survey link to clipboard");
+              setCopied(true);
             }}
             size="sm"
             className="rounded-l-none"
           >
-            <Copy className="mr-1 h-4 w-4" />
+            {copied ? (
+              <Check className="mr-1 h-4 w-4" />
+            ) : (
+              <Copy className="mr-1 h-4 w-4" />
+            )}
             Copy Link
           </Button>
         </div>
@@ -147,7 +154,10 @@ const SurveyBuilder: React.FC<{
         </div>
       ) : (
         <div className="mx-auto mb-24 flex w-full max-w-2xl flex-col gap-4">
-          <ClickToEdit onSave={(value) => setTitle(value)} className="text-2xl">
+          <ClickToEdit
+            onSave={(value) => setTitle(value)}
+            className="text-3xl font-bold"
+          >
             <h1>{title}</h1>
           </ClickToEdit>
           {elements.map((element, idx) => (
