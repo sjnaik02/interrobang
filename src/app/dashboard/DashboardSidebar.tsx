@@ -16,7 +16,7 @@ export const DashboardSidebar = ({
 }) => {
   const { isLoaded, user } = useUser();
   return (
-    <aside className="flex h-full w-64 flex-col border-r bg-background shadow-sm">
+    <aside className="flex h-full w-64 max-w-64 flex-col border-r bg-background shadow-sm">
       <div className="flex items-center justify-center border-b py-4">
         <h1 className="text-2xl">Interrobang ‽</h1>
       </div>
@@ -59,7 +59,7 @@ export const DashboardSidebar = ({
                 {user?.fullName && (
                   <div className="flex flex-col">
                     <p className="text-sm font-semibold">{user.fullName}</p>
-                    <p className="text-xs text-muted-foreground/80">
+                    <p className="max-w-32 truncate text-xs text-muted-foreground/80">
                       {user.primaryEmailAddress?.emailAddress}
                     </p>
                   </div>
