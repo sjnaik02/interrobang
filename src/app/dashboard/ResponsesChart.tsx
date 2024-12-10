@@ -47,6 +47,13 @@ export function ResponsesChart({
     },
   };
 
+  // Calculate max value for YAxis domain with single pass
+  const maxCount = filledResponseCount.reduce(
+    (max, d) => Math.max(max, d.count),
+    0,
+  );
+  const yAxisMax = Math.ceil(maxCount * 1.1); // Add 10% padding
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -85,7 +92,13 @@ export function ResponsesChart({
                 });
               }}
             />
-            <YAxis tickLine={false} axisLine={false} tickMargin={8} />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              tickMargin={8}
+              domain={[0, yAxisMax]} // Set explicit domain
+              allowDataOverflow={false} // Prevent data from overflowing
+            />
             <ChartTooltip
               content={
                 <ChartTooltipContent
