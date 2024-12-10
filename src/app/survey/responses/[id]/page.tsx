@@ -50,7 +50,7 @@ const SurveyResponsesPage = async ({
         isPublished={survey.isPublished ?? false}
         surveyId={survey.id}
       />
-      <main className="container mx-auto">
+      <main className="container mx-auto pb-12">
         <h1 className="mb-4 mt-8 text-2xl">
           Responses for:{" "}
           <span className="underline underline-offset-4">{survey.title}</span>
