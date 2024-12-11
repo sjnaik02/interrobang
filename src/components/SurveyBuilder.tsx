@@ -153,10 +153,10 @@ const SurveyBuilder: React.FC<{
           <SurveyPreview />
         </div>
       ) : (
-        <div className="mx-auto mb-24 flex w-full max-w-2xl flex-col gap-4">
+        <div className="mx-auto mb-24 flex w-full max-w-2xl flex-col gap-0.5">
           <ClickToEdit
             onSave={(value) => setTitle(value)}
-            className="text-3xl font-bold"
+            className="text-3xl font-medium"
           >
             <h1>{title}</h1>
           </ClickToEdit>
@@ -333,7 +333,7 @@ const SurveyPreview = () => {
   const { title, elements } = useSurveyBuilder();
   return (
     <>
-      <h1 className="text-2xl">{title}</h1>
+      <h1 className="text-3xl font-medium">{title}</h1>
       {elements.map((element, idx) => (
         <div key={idx + element.type} className="flex w-full">
           <p className="mr-2 text-lg">{idx + 1}. </p>
