@@ -47,7 +47,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Download } from "lucide-react";
+import { Download, Sparkles } from "lucide-react";
 import { HexColorInput, HexColorPicker } from "react-colorful";
 
 interface VisualizerProps {
@@ -63,22 +63,22 @@ interface VisualizerProps {
 }
 
 const CHART_COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
-  "hsl(var(--chart-6))",
-  "hsl(var(--chart-7))",
-  "hsl(var(--chart-8))",
-  "hsl(var(--chart-9))",
-  "hsl(var(--chart-10))",
-  "hsl(var(--chart-11))",
-  "hsl(var(--chart-12))",
-  "hsl(var(--chart-13))",
-  "hsl(var(--chart-14))",
-  "hsl(var(--chart-15))",
-  "hsl(var(--chart-16))",
+  "#2C75FF", // Vibrant blue
+  "#FB923C", // Light orange
+  "#6366F1", // Indigo
+  "#2DD4BF", // Teal
+  "#F59E0B", // Gold
+  "#0A2472", // Deep navy
+  "#EF4444", // Coral red
+  "#34D399", // Mint
+  "#8B5CF6", // Purple
+  "#89CFF0", // Light blue
+  "#EC4899", // Pink
+  "#059669", // Forest green
+  "#48CAE4", // Sky blue
+  "#A78BFA", // Lavender
+  "#86EFD1", // Pale mint
+  "#64748B", // Slate
 ];
 
 const ColorPicker = ({
@@ -322,6 +322,128 @@ export default function Visualizer({
       });
   }, [ref]);
 
+  const quickFormat = () => {
+    // Find the highest count
+    const maxCount = Math.max(...data.map((item) => item.count));
+
+    // Update colors - desaturate all except those with max count and make max count bars bolder
+    setOptionColors((prev) => {
+      return prev.map((color, index) => {
+        if (data[index]?.count === maxCount) {
+          // For max values, make color more saturated and brighter
+          if (color.startsWith("hsl")) {
+            return color.replace(/saturation/, "calc(var(--saturation) * 1.2)");
+          } else if (color.startsWith("#")) {
+            // For hex colors, increase saturation and brightness
+            const r = parseInt(color.slice(1, 3), 16) / 255;
+            const g = parseInt(color.slice(3, 5), 16) / 255;
+            const b = parseInt(color.slice(5, 7), 16) / 255;
+
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h = 0;
+            let s = 0;
+            const l = (max + min) / 2;
+
+            if (max !== min) {
+              const d = max - min;
+              s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+              switch (max) {
+                case r:
+                  h = (g - b) / d + (g < b ? 6 : 0);
+                  break;
+                case g:
+                  h = (b - r) / d + 2;
+                  break;
+                case b:
+                  h = (r - g) / d + 4;
+                  break;
+              }
+              h /= 6;
+            }
+
+            // Increase saturation by 20% and brightness slightly
+            s = Math.min(1, s * 1.2);
+            const l2 = Math.min(0.9, l * 1.1); // Increase brightness but cap at 0.9
+
+            const toRGB = (p: number, q: number, t: number) => {
+              if (t < 0) t += 1;
+              if (t > 1) t -= 1;
+              if (t < 1 / 6) return p + (q - p) * 6 * t;
+              if (t < 1 / 2) return q;
+              if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+              return p;
+            };
+
+            const q = l2 < 0.5 ? l2 * (1 + s) : l2 + s - l2 * s;
+            const p = 2 * l2 - q;
+
+            const r2 = Math.round(toRGB(p, q, h + 1 / 3) * 255);
+            const g2 = Math.round(toRGB(p, q, h) * 255);
+            const b2 = Math.round(toRGB(p, q, h - 1 / 3) * 255);
+
+            return `#${r2.toString(16).padStart(2, "0")}${g2.toString(16).padStart(2, "0")}${b2.toString(16).padStart(2, "0")}`;
+          }
+          return color;
+        }
+
+        // Desaturate non-max values
+        if (color.startsWith("hsl")) {
+          return color.replace(/saturation/, "calc(var(--saturation) * 0.3)");
+        } else if (color.startsWith("#")) {
+          const r = parseInt(color.slice(1, 3), 16) / 255;
+          const g = parseInt(color.slice(3, 5), 16) / 255;
+          const b = parseInt(color.slice(5, 7), 16) / 255;
+
+          const max = Math.max(r, g, b);
+          const min = Math.min(r, g, b);
+          let h = 0;
+          let s = 0;
+          const l = (max + min) / 2;
+
+          if (max !== min) {
+            const d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+              case r:
+                h = (g - b) / d + (g < b ? 6 : 0);
+                break;
+              case g:
+                h = (b - r) / d + 2;
+                break;
+              case b:
+                h = (r - g) / d + 4;
+                break;
+            }
+            h /= 6;
+          }
+
+          // Reduce saturation by 70%
+          s *= 0.3;
+
+          const toRGB = (p: number, q: number, t: number) => {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1 / 6) return p + (q - p) * 6 * t;
+            if (t < 1 / 2) return q;
+            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
+            return p;
+          };
+
+          const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+          const p = 2 * l - q;
+
+          const r2 = Math.round(toRGB(p, q, h + 1 / 3) * 255);
+          const g2 = Math.round(toRGB(p, q, h) * 255);
+          const b2 = Math.round(toRGB(p, q, h - 1 / 3) * 255);
+
+          return `#${r2.toString(16).padStart(2, "0")}${g2.toString(16).padStart(2, "0")}${b2.toString(16).padStart(2, "0")}`;
+        }
+        return color; // Return unchanged if format not recognized
+      });
+    });
+  };
+
   return (
     <>
       <div className="mx-auto flex gap-4">
@@ -390,6 +512,13 @@ export default function Visualizer({
           </CardHeader>
           <CardContent className="flex-grow overflow-y-scroll">
             <div className="flex flex-col gap-2">
+              <Button
+                size="sm"
+                className="w-fit bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+                onClick={quickFormat}
+              >
+                Quick Format <Sparkles className="ml-1 h-4 w-4" />
+              </Button>
               <Label>Edit labels and colors</Label>
               {editableOptions.map((option, idx) => (
                 <OptionInput
