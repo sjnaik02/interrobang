@@ -164,20 +164,27 @@ const BarChartComponent = ({
   const yAxisMax = Math.ceil((maxPercentage + 10) / 10) * 10;
 
   return (
-    <ResponsiveContainer width={chartWidth} height={400}>
-      <BarChart data={data} barGap={0} barCategoryGap={barCategoryGap}>
+    <ResponsiveContainer width={chartWidth - 32} height={400}>
+      <BarChart
+        data={data}
+        barGap={0}
+        barCategoryGap={barCategoryGap}
+        margin={{ top: 0, right: 0, bottom: 16, left: 0 }}
+      >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
         <XAxis
           dataKey="option"
           interval={0}
-          height={60}
+          height={40}
           tick={({ x, y, payload }) => (
             <Text
               x={x}
               y={y}
-              width={120}
+              height={60}
+              width={150}
               textAnchor="middle"
               verticalAnchor="start"
+              className="text-base"
             >
               {payload.value}
             </Text>
@@ -216,8 +223,13 @@ const RankingBarChartComponent = ({
   barCategoryGap: number;
 }) => {
   return (
-    <ResponsiveContainer width={chartWidth} height={400}>
-      <BarChart data={data} barGap={0} barCategoryGap={barCategoryGap}>
+    <ResponsiveContainer width={chartWidth - 32} height={400}>
+      <BarChart
+        data={data}
+        barGap={0}
+        barCategoryGap={barCategoryGap}
+        margin={{ top: 0, right: 0, bottom: 16, left: 0 }}
+      >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
         <XAxis
           dataKey="option"
@@ -227,9 +239,11 @@ const RankingBarChartComponent = ({
             <Text
               x={x}
               y={y}
-              width={120}
+              height={40}
+              width={150}
               textAnchor="middle"
               verticalAnchor="start"
+              className="text-base"
             >
               {payload.value}
             </Text>
@@ -454,7 +468,7 @@ export default function Visualizer({
             className="mx-auto h-fit bg-card"
           >
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="mr-4">{questionLabel}</CardTitle>
+              <CardTitle className="mr-4 text-3xl">{questionLabel}</CardTitle>
               <Image
                 src="/tangle-gradient.png"
                 alt="tangle logo"
@@ -462,7 +476,7 @@ export default function Visualizer({
                 height={200}
               />
             </CardHeader>
-            <CardContent className="flex">
+            <CardContent className="flex pb-0">
               {type === "Ranking" ? (
                 <RankingBarChartComponent
                   data={chartData}
@@ -477,7 +491,7 @@ export default function Visualizer({
                 />
               )}
             </CardContent>
-            <CardFooter className="flex flex-row justify-between">
+            <CardFooter className="flex flex-row justify-between pt-4">
               <p className="text-sm text-muted-foreground">Source: Tangle</p>
             </CardFooter>
           </div>
