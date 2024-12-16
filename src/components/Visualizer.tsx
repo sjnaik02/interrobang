@@ -78,7 +78,7 @@ const CHART_COLORS = [
   "#48CAE4", // Sky blue
   "#A78BFA", // Lavender
   "#86EFD1", // Pale mint
-  "#64748B", // Slate
+  "#94A3B8",
 ];
 
 const ColorPicker = ({
