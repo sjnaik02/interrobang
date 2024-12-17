@@ -8,12 +8,13 @@ import { useOrganization, useUser } from "@clerk/nextjs";
 export default function UsersPage() {
   const { organization } = useOrganization();
   const { user } = useUser();
-  if (user?.firstName !== "Shourya") {
+
+  if (user?.firstName?.toLowerCase().trim() !== "shourya") {
     return <div>You are not authorized to access this page</div>;
   }
   return (
     <div className="flex min-h-screen w-full flex-col gap-4 p-4">
-      <h1 className="text-2xl">Users</h1>
+      <h1 className="text-2xl">Users for {organization?.name}</h1>
       <Alert className="border-yellow-500 bg-yellow-50 text-yellow-900">
         <Building className="h-4 w-4" />
         <AlertTitle>Under construction</AlertTitle>
@@ -25,9 +26,11 @@ export default function UsersPage() {
         <h2 className="text-lg">Organization Users</h2>
         <div className="flex flex-col gap-2">
           {organization?.getMemberships().then((memberships) => {
-            console.log(memberships);
             return memberships.data.map((membership) => (
-              <div key={membership.id} className="flex items-center gap-2">
+              <div
+                key={membership.id}
+                className="flex w-full items-center gap-2"
+              >
                 {membership.publicUserData.hasImage ? (
                   <img
                     src={membership.publicUserData.imageUrl}
