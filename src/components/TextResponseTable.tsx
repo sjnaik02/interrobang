@@ -30,7 +30,7 @@ export default function TextResponseTable({
           <CardTitle>{questionLabel}</CardTitle>
         </CardHeader>
         <CardContent>
-          <Table>
+          <Table className="w-full">
             <TableHeader>
               <TableRow>
                 <TableHead className="w-32">Created At</TableHead>
@@ -61,7 +61,7 @@ export default function TextResponseTable({
         <CardTitle>{questionLabel}</CardTitle>
       </CardHeader>
       <CardContent>
-        <Table>
+        <Table className="w-full">
           <TableHeader>
             <TableRow>
               <TableHead className="w-32">Created At</TableHead>
@@ -74,7 +74,9 @@ export default function TextResponseTable({
                 <TableCell className="w-32 whitespace-nowrap">
                   {new Date(response.createdAt).toLocaleDateString()}
                 </TableCell>
-                <TableCell>{response.text}</TableCell>
+                <TableCell className="max-w-3xl break-words">
+                  {response.text}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
