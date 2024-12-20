@@ -50,3 +50,5 @@ Interrobang is a tool for creating and visualising audience polls for Tangle.
 - [x] More question types - Checkbox, Ranking
 - [ ] More visualisation types - Pie chart, Horizontal bar chart
 - [ ] Add user Management through Clerk
+- [ ] Add Invitation functionality
+- [ ] Add View Invitations functionality
