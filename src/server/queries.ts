@@ -3,7 +3,7 @@ import "server-only";
 import { responses, surveys } from "@/server/db/schema";
 import { db } from "@/server/db";
 import { eq, desc, gte, sql } from "drizzle-orm";
-import { auth } from "@clerk/nextjs/server";
+import { auth, clerkClient } from "@clerk/nextjs/server";
 import { cache } from "react";
 
 export const getSurveyFromId = cache(async (id: string) => {
@@ -137,4 +137,14 @@ export const getSurveyIds = cache(async (limit: number) => {
     .orderBy(desc(surveys.createdAt))
     .limit(limit);
   return surveyIds;
+});
+
+export const getPendingInvitations = cache(async () => {
+  const userId = auth().userId;
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  const client = clerkClient();
+  const invitations = await client.invitations.getInvitationList();
+  return invitations;
 });
