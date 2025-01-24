@@ -155,10 +155,14 @@ const BarChartComponent = ({
   data,
   chartWidth,
   barCategoryGap,
+  textWidth,
+  textSize,
 }: {
   data: any[];
   chartWidth: number;
   barCategoryGap: number;
+  textWidth: number;
+  textSize: string;
 }) => {
   const maxPercentage = Math.max(...data.map((d) => d.percentage));
   const yAxisMax = Math.ceil((maxPercentage + 10) / 10) * 10;
@@ -181,10 +185,10 @@ const BarChartComponent = ({
               x={x}
               y={y}
               height={60}
-              width={135}
+              width={textWidth}
               textAnchor="middle"
               verticalAnchor="start"
-              className="text-base"
+              className={textSize}
             >
               {payload.value}
             </Text>
@@ -217,10 +221,14 @@ const RankingBarChartComponent = ({
   data,
   chartWidth,
   barCategoryGap,
+  textWidth,
+  textSize,
 }: {
   data: any[];
   chartWidth: number;
   barCategoryGap: number;
+  textWidth: number;
+  textSize: string;
 }) => {
   return (
     <ResponsiveContainer width={chartWidth - 32} height={400}>
@@ -240,10 +248,10 @@ const RankingBarChartComponent = ({
               x={x}
               y={y}
               height={40}
-              width={135}
+              width={textWidth}
               textAnchor="middle"
               verticalAnchor="start"
-              className="text-base"
+              className={textSize}
             >
               {payload.value}
             </Text>
@@ -280,6 +288,8 @@ export default function Visualizer({
 }: VisualizerProps) {
   const [chartWidth, setChartWidth] = useState<number>(900);
   const [barCategoryGap, setBarCategoryGap] = useState<number>(45);
+  const [textWidth, setTextWidth] = useState<number>(130);
+  const [textSize, setTextSize] = useState<string>("text-sm");
   const ref = useRef<HTMLDivElement>(null);
   const [editableOptions, setEditableOptions] = useState<string[]>(options);
   const [showOptions, setShowOptions] = useState<boolean>(false);
@@ -482,12 +492,16 @@ export default function Visualizer({
                   data={chartData}
                   chartWidth={chartWidth}
                   barCategoryGap={barCategoryGap}
+                  textWidth={textWidth}
+                  textSize={textSize}
                 />
               ) : (
                 <BarChartComponent
                   data={chartData}
                   chartWidth={chartWidth}
                   barCategoryGap={barCategoryGap}
+                  textWidth={textWidth}
+                  textSize={textSize}
                 />
               )}
             </CardContent>
@@ -557,6 +571,54 @@ export default function Visualizer({
               </div>
               {showOptions && (
                 <>
+                  <Label className="mt-2 text-sm">Label width</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={textWidth === 125 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setTextWidth(125)}
+                    >
+                      Small
+                    </Button>
+                    <Button
+                      variant={textWidth === 130 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setTextWidth(130)}
+                    >
+                      Medium
+                    </Button>
+                    <Button
+                      variant={textWidth === 140 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setTextWidth(140)}
+                    >
+                      Large
+                    </Button>
+                  </div>
+                  <Label className="mt-2 text-sm">Label text size</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      variant={textSize === "text-xs" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setTextSize("text-xs")}
+                    >
+                      Small
+                    </Button>
+                    <Button
+                      variant={textSize === "text-sm" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setTextSize("text-sm")}
+                    >
+                      Medium
+                    </Button>
+                    <Button
+                      variant={textSize === "text-base" ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setTextSize("text-base")}
+                    >
+                      Large
+                    </Button>
+                  </div>
                   <Label className="mt-2 text-sm">
                     Chart width: {chartWidth}px
                   </Label>
