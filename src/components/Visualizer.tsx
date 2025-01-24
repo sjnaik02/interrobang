@@ -574,25 +574,32 @@ export default function Visualizer({
                   <Label className="mt-2 text-sm">Label width</Label>
                   <div className="flex gap-2">
                     <Button
-                      variant={textWidth === 125 ? "default" : "outline"}
+                      variant={textWidth === 110 ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setTextWidth(125)}
+                      onClick={() => setTextWidth(110)}
                     >
-                      Small
+                      XS
+                    </Button>
+                    <Button
+                      variant={textWidth === 120 ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setTextWidth(120)}
+                    >
+                      Sm
                     </Button>
                     <Button
                       variant={textWidth === 130 ? "default" : "outline"}
                       size="sm"
                       onClick={() => setTextWidth(130)}
                     >
-                      Medium
+                      Md
                     </Button>
                     <Button
                       variant={textWidth === 140 ? "default" : "outline"}
                       size="sm"
                       onClick={() => setTextWidth(140)}
                     >
-                      Large
+                      Lg
                     </Button>
                   </div>
                   <Label className="mt-2 text-sm">Label text size</Label>
