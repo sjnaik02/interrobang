@@ -74,7 +74,7 @@ export default function TextResponseTable({
                 <TableCell className="w-32 whitespace-nowrap">
                   {new Date(response.createdAt).toLocaleDateString()}
                 </TableCell>
-                <TableCell className="max-w-3xl break-words">
+                <TableCell className="max-w-3xl break-words text-[14.5px]">
                   {response.text}
                 </TableCell>
               </TableRow>
