@@ -173,7 +173,7 @@ const BarChartComponent = ({
         data={data}
         barGap={0}
         barCategoryGap={barCategoryGap}
-        margin={{ top: 0, right: 0, bottom: 16, left: 0 }}
+        margin={{ top: 0, right: 0, bottom: 32, left: 0 }}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
         <XAxis
@@ -189,6 +189,7 @@ const BarChartComponent = ({
               textAnchor="middle"
               verticalAnchor="start"
               className={textSize}
+              fill="#333333"
             >
               {payload.value}
             </Text>
@@ -197,7 +198,7 @@ const BarChartComponent = ({
         <YAxis
           domain={[0, yAxisMax]}
           tickFormatter={(value) => `${value}%`}
-          tick={{ fill: "hsl(var(--foreground))" }}
+          tick={{ fill: "#333333" }}
           dx={-10}
         />
         <Bar dataKey="percentage">
@@ -208,7 +209,7 @@ const BarChartComponent = ({
             dataKey="percentage"
             position="top"
             formatter={(value: number) => `${value.toFixed(1)}%`}
-            fill="hsl(var(--foreground))"
+            fill="#333333"
             dy={-10}
           />
         </Bar>
@@ -236,7 +237,7 @@ const RankingBarChartComponent = ({
         data={data}
         barGap={0}
         barCategoryGap={barCategoryGap}
-        margin={{ top: 0, right: 0, bottom: 16, left: 0 }}
+        margin={{ top: 0, right: 0, bottom: 32, left: 0 }}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
         <XAxis
@@ -251,7 +252,7 @@ const RankingBarChartComponent = ({
               width={textWidth}
               textAnchor="middle"
               verticalAnchor="start"
-              className={textSize}
+              className={textSize + " text-black"}
             >
               {payload.value}
             </Text>
@@ -259,7 +260,7 @@ const RankingBarChartComponent = ({
         />
         <YAxis
           domain={[1, (dataMax: number) => Math.ceil(dataMax * 1.1)]}
-          tick={{ fill: "hsl(var(--foreground))" }}
+          tick={{ fill: "#333333" }}
           dx={-10}
         />
         <Bar dataKey="score">
@@ -270,7 +271,7 @@ const RankingBarChartComponent = ({
             dataKey="score"
             position="top"
             formatter={(value: number) => value.toFixed(2)}
-            fill="hsl(var(--foreground))"
+            fill="#333333"
             dy={-10}
           />
         </Bar>
@@ -595,9 +596,9 @@ export default function Visualizer({
                       Md
                     </Button>
                     <Button
-                      variant={textWidth === 140 ? "default" : "outline"}
+                      variant={textWidth === 150 ? "default" : "outline"}
                       size="sm"
-                      onClick={() => setTextWidth(140)}
+                      onClick={() => setTextWidth(150)}
                     >
                       Lg
                     </Button>
