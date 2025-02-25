@@ -34,6 +34,7 @@ import randomId from "@/lib/randomId";
 import React from "react";
 import useAutosave from "./hooks/useAutosave";
 import { AnimatePresence, motion } from "framer-motion";
+import SurveyPreview from "./SurveyPreview";
 
 const SurveyBuilder: React.FC<{
   survey: Survey;
@@ -43,6 +44,7 @@ const SurveyBuilder: React.FC<{
   const [isReady, setIsReady] = useState(false);
   const [preview, setPreview] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [previewLinkCopied, setPreviewLinkCopied] = useState(false);
 
   const {
     elements,
@@ -114,7 +116,42 @@ const SurveyBuilder: React.FC<{
         publishSurvey={publishSurvey}
         status={status}
       />
-      {/* if published, display link to access survey with a copy button */}
+      {/* Preview link section - only show when not published */}
+      {!isPublished && (
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 rounded-md border border-muted/40 bg-muted/5 pl-2">
+          <span className="flex items-center whitespace-nowrap text-sm text-muted-foreground">
+            <LinkIcon className="mr-1 h-4 w-4" />
+            Preview Link
+          </span>
+          <Link
+            href={`/survey/preview/${survey.id}`}
+            className="inline-block truncate whitespace-nowrap text-sm text-muted-foreground hover:text-foreground"
+          >
+            {`${window.location.origin}/survey/preview/${survey.id}`}
+          </Link>
+
+          <Button
+            onClick={async () => {
+              await navigator.clipboard.writeText(
+                `${window.location.origin}/survey/preview/${survey.id}`,
+              );
+              toast.success("Copied preview link to clipboard");
+              setPreviewLinkCopied(true);
+              setTimeout(() => setPreviewLinkCopied(false), 2000);
+            }}
+            size="sm"
+            variant="default"
+            className="rounded-l-none border-l px-2 hover:bg-muted hover:text-foreground"
+          >
+            {previewLinkCopied ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+      )}
+      {/* Published link section */}
       {isPublished ? (
         <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 rounded-md border border-muted-foreground pl-2">
           <span className="flex items-center whitespace-nowrap font-mono">
@@ -150,7 +187,19 @@ const SurveyBuilder: React.FC<{
       ) : null}
       {preview ? (
         <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 pb-12">
-          <SurveyPreview />
+          <SurveyPreview
+            survey={{
+              id: survey.id,
+              title,
+              questions: elements,
+              isPublished,
+              isArchived: survey.isArchived,
+              createdBy: survey.createdBy,
+              responseCount: survey.responseCount,
+              createdAt: survey.createdAt,
+              updatedAt: survey.updatedAt,
+            }}
+          />
         </div>
       ) : (
         <div className="mx-auto mb-24 flex w-full max-w-2xl flex-col gap-0.5">
@@ -326,25 +375,5 @@ const BuilderElementWrapper: React.FC<{
         </AnimatePresence>
       </div>
     </div>
-  );
-};
-
-const SurveyPreview = () => {
-  const { title, elements } = useSurveyBuilder();
-  return (
-    <>
-      <h1 className="text-3xl font-medium">{title}</h1>
-      {elements.map((element, idx) => (
-        <div key={idx + element.type} className="flex w-full">
-          <p className="mr-2 text-lg">{idx + 1}. </p>
-          {SurveyElements[element.type].previewComponent({
-            elementInstance: element,
-          })}
-        </div>
-      ))}
-      <Button variant="default" className="mt-4 w-fit">
-        Submit
-      </Button>
-    </>
   );
 };
