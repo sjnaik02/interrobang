@@ -288,9 +288,11 @@ export default function Visualizer({
   otherResponses,
 }: VisualizerProps) {
   const [chartWidth, setChartWidth] = useState<number>(900);
-  const [barCategoryGap, setBarCategoryGap] = useState<number>(45);
-  const [textWidth, setTextWidth] = useState<number>(130);
-  const [textSize, setTextSize] = useState<string>("text-sm");
+  const [barCategoryGap, setBarCategoryGap] = useState<number>(
+    options.length <= 4 ? 40 : 35,
+  );
+  const [textWidth, setTextWidth] = useState<number>(120);
+  const [textSize, setTextSize] = useState<string>("text-base");
   const ref = useRef<HTMLDivElement>(null);
   const [editableOptions, setEditableOptions] = useState<string[]>(options);
   const [showOptions, setShowOptions] = useState<boolean>(false);
