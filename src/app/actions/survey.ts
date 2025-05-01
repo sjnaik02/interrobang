@@ -6,6 +6,7 @@ import { responses, surveys } from "@/server/db/schema";
 import { auth } from "@clerk/nextjs/server";
 import { eq, sql } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { type OrganizationCustomRoleKey } from "@clerk/types";
 
 export const saveChangesToSurvey = async ({
   id,
@@ -188,6 +189,17 @@ export const duplicateSurvey = async (id: string) => {
     console.error(error);
     throw new Error("Failed to duplicate survey");
   }
+};
+
+export const createInvitation = async (
+  email: string,
+  role: OrganizationCustomRoleKey,
+) => {
+  const userId = auth().userId;
+  if (!userId) {
+    throw new Error("Unauthorized");
+  }
+  console.log(email, role);
 };
 
 export type SaveChangesToSurveyType = typeof saveChangesToSurvey;
