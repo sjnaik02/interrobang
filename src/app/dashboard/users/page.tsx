@@ -15,7 +15,6 @@ import {
   RefreshCcw,
 } from "lucide-react";
 import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import {
   createInvitation,
@@ -112,7 +111,7 @@ type UserRowProps = {
     role: string;
   };
   onRemove: (id: string) => Promise<void>;
-  currentUserId: string;
+  currentUserId: string | undefined;
 };
 
 function UserRow({ user, onRemove, currentUserId }: UserRowProps) {
@@ -165,7 +164,7 @@ type UserListProps = {
     role: string;
   }>;
   onRemove: (id: string) => Promise<void>;
-  currentUserId: string;
+  currentUserId: string | undefined;
 };
 
 function UserList({ users, onRemove, currentUserId }: UserListProps) {
@@ -188,7 +187,6 @@ function UserList({ users, onRemove, currentUserId }: UserListProps) {
 
 export default function UsersPage() {
   const { user, isLoaded } = useUser();
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [isInviting, setIsInviting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -225,12 +223,6 @@ export default function UsersPage() {
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     );
-  }
-
-  // Check authorization
-  if (!user || user.firstName?.toLowerCase().trim() !== "shourya") {
-    router.push("/dashboard");
-    return null;
   }
 
   const handleInvite = async (e: React.FormEvent) => {
@@ -343,7 +335,7 @@ export default function UsersPage() {
               <UserList
                 users={usersData.users}
                 onRemove={handleRemoveUser}
-                currentUserId={user.id}
+                currentUserId={user?.id ?? undefined}
               />
             </section>
           </>
