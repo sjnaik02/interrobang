@@ -16,7 +16,7 @@ export const DashboardSidebar = ({
 }) => {
   const { isLoaded, user } = useUser();
   return (
-    <aside className="flex h-full w-64 max-w-64 flex-col border-r bg-background shadow-sm">
+    <aside className="flex h-full w-64 max-w-64 flex-col border-r bg-background shadow-xs">
       <div className="flex items-center justify-center border-b py-4">
         <h1 className="text-2xl">Interrobang ‽</h1>
       </div>

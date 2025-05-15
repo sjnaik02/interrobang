@@ -541,11 +541,11 @@ export default function Visualizer({
             <CardTitle>Customize</CardTitle>
             <CardDescription>Customize your chart</CardDescription>
           </CardHeader>
-          <CardContent className="flex-grow overflow-y-scroll">
+          <CardContent className="grow overflow-y-scroll">
             <div className="flex flex-col gap-2">
               <Button
                 size="sm"
-                className="w-fit bg-gradient-to-r from-blue-500 to-purple-500 text-white"
+                className="w-fit bg-linear-to-r from-blue-500 to-purple-500 text-white"
                 onClick={quickFormat}
               >
                 Quick Format <Sparkles className="ml-1 h-4 w-4" />

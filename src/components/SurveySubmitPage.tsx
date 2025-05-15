@@ -100,7 +100,7 @@ const SurveySubmitPage = ({
 
   return (
     <main className="container mx-auto flex min-h-screen w-full max-w-3xl flex-col p-4">
-      <div className="mb-12 flex-grow">
+      <div className="mb-12 grow">
         <h1 className="mb-8 mt-12 text-3xl font-semibold">{survey.title}</h1>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -150,7 +150,7 @@ const SurveyFooter: React.FC = () => {
 const ThankYouPage = ({ survey }: { survey: Survey }) => {
   return (
     <>
-      <main className="container mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-3xl flex-grow flex-col items-center justify-center p-4 text-center">
+      <main className="container mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-3xl grow flex-col items-center justify-center p-4 text-center">
         <h1 className="mb-4 text-3xl font-semibold">Thank You!</h1>
         <p className="mb-8 text-muted-foreground">
           Your response to {survey.title} has been recorded.
