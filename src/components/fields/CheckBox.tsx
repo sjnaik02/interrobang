@@ -61,7 +61,7 @@ const ReorderableItem = ({
   index: number;
   editingIndex: number | null;
   editingValue: string;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   startEditing: (index: number) => void;
   setEditingValue: (value: string) => void;
   saveEdit: () => void;

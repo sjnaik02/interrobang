@@ -12,11 +12,12 @@ export async function generateStaticParams() {
   return surveyIds;
 }
 
-export default async function SurveyPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default async function SurveyPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
   const uuidSchema = z.string().uuid();
   const parsedId = uuidSchema.safeParse(params.id);
   if (!parsedId.success) {

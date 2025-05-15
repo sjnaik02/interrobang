@@ -22,16 +22,20 @@ export type UsersData = {
 
 export async function getUsersData(): Promise<UsersData> {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       throw new Error("Unauthorized: No user ID found");
     }
 
-    const [invitations, users] = await Promise.all([
-      clerkClient.invitations.getInvitationList(),
-      clerkClient.users.getUserList(),
+    const client = await clerkClient();
+    const [invitationsResponse, usersResponse] = await Promise.all([
+      client.invitations.getInvitationList(),
+      client.users.getUserList(),
     ]);
+
+    const invitations = invitationsResponse.data;
+    const users = usersResponse.data;
 
     if (!invitations || !users) {
       throw new Error("Failed to fetch data from Clerk");
@@ -39,13 +43,13 @@ export async function getUsersData(): Promise<UsersData> {
 
     // Get all user email addresses to filter out invitations for existing users
     const existingEmails = new Set(
-      users.data.flatMap((user) =>
+      users.flatMap((user) =>
         user.emailAddresses.map((email) => email.emailAddress.toLowerCase()),
       ),
     );
 
     // Convert to plain objects and filter invitations
-    const plainInvitations = invitations.data
+    const plainInvitations = invitations
       .filter(
         (invitation) =>
           // Only include invitations that are pending and not for existing users
@@ -59,7 +63,7 @@ export async function getUsersData(): Promise<UsersData> {
         status: invitation.status,
       }));
 
-    const plainUsers = users.data.map((user) => ({
+    const plainUsers = users.map((user) => ({
       id: user.id,
       firstName: user.firstName,
       lastName: user.lastName,

@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-call */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 "use server";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
@@ -14,13 +17,14 @@ export const createInvitation = async (
   email: string,
 ): Promise<InvitationResponse> => {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       throw new Error("Unauthorized");
     }
 
-    const invitation = await clerkClient.invitations.createInvitation({
+    const client = await clerkClient();
+    const invitation = await client.invitations.createInvitation({
       emailAddress: email,
       redirectUrl: process.env.NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL,
       publicMetadata: {
@@ -45,13 +49,14 @@ export const createInvitation = async (
 
 export const revokeInvitation = async (invitationId: string) => {
   try {
-    const { userId } = auth();
+    const { userId } = await auth();
 
     if (!userId) {
       throw new Error("Unauthorized");
     }
 
-    await clerkClient.invitations.revokeInvitation(invitationId);
+    const client = await clerkClient();
+    await client.invitations.revokeInvitation(invitationId);
     revalidatePath("/dashboard/users");
     return true;
   } catch (error) {
@@ -62,13 +67,14 @@ export const revokeInvitation = async (invitationId: string) => {
 
 export const removeUser = async (userId: string) => {
   try {
-    const { userId: currentUserId } = auth();
+    const { userId: currentUserId } = await auth();
 
     if (!currentUserId) {
       throw new Error("Unauthorized");
     }
 
-    await clerkClient.users.deleteUser(userId);
+    const client = await clerkClient();
+    await client.users.deleteUser(userId);
     revalidatePath("/dashboard/users");
     return true;
   } catch (error) {

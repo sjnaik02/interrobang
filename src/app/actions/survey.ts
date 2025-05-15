@@ -20,7 +20,7 @@ export const saveChangesToSurvey = async ({
   updatedAt: Date;
 }) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -41,7 +41,7 @@ export const saveChangesToSurvey = async ({
 
 export const publishSurvey = async (id: string) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -87,7 +87,7 @@ export const submitSurvey = async (
 };
 
 export const createSurvey = async () => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
@@ -103,7 +103,7 @@ export const createSurvey = async () => {
 
 export const archiveSurvey = async (id: string) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -121,7 +121,7 @@ export const archiveSurvey = async (id: string) => {
 
 export const deleteSurvey = async (id: string) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -139,7 +139,7 @@ export const deleteSurvey = async (id: string) => {
 
 export const renameSurvey = async (id: string, title: string) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -157,7 +157,7 @@ export const renameSurvey = async (id: string, title: string) => {
 
 export const duplicateSurvey = async (id: string) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -195,7 +195,7 @@ export const createInvitation = async (
   email: string,
   role: OrganizationCustomRoleKey,
 ) => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }

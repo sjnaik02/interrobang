@@ -14,7 +14,7 @@ export const getSurveyFromId = cache(async (id: string) => {
 });
 
 export const getSurveys = cache(async (skip: number, take: number) => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
@@ -37,7 +37,7 @@ export const getSurveys = cache(async (skip: number, take: number) => {
 
 export const getResponsesFromSurveyId = cache(
   async (id: string, skip: number, take: number) => {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -51,7 +51,7 @@ export const getResponsesFromSurveyId = cache(
 );
 
 export const getAllResponsesFromSurveyId = cache(async (id: string) => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
@@ -62,7 +62,7 @@ export const getAllResponsesFromSurveyId = cache(async (id: string) => {
 });
 
 export const getResponses = cache(async (lastDays: number) => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
@@ -78,7 +78,7 @@ export const getResponses = cache(async (lastDays: number) => {
 });
 
 export const getDashboardData = cache(async (limit: number, days: number) => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) throw new Error("Unauthorized");
 
   const [requestedSurveys, responseCount] = await Promise.all([
@@ -116,7 +116,7 @@ export const getDashboardData = cache(async (limit: number, days: number) => {
 });
 
 export const getTotalSurveyCount = cache(async () => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
@@ -140,11 +140,11 @@ export const getSurveyIds = cache(async (limit: number) => {
 });
 
 export const getPendingInvitations = cache(async () => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
   const client = clerkClient();
-  const invitations = await client.invitations.getInvitationList();
+  const invitations = await (await client).invitations.getInvitationList();
   return invitations;
 });

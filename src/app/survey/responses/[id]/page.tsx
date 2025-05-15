@@ -20,13 +20,14 @@ import { notFound } from "next/navigation";
 
 const ITEMS_PER_PAGE = 100;
 
-const SurveyResponsesPage = async ({
-  params,
-  searchParams,
-}: {
-  params: { id: string };
-  searchParams: { page?: string };
-}) => {
+const SurveyResponsesPage = async (
+  props: {
+    params: Promise<{ id: string }>;
+    searchParams: Promise<{ page?: string }>;
+  }
+) => {
+  const searchParams = await props.searchParams;
+  const params = await props.params;
   const currentPage = Number(searchParams.page) || 1;
   const skip = (currentPage - 1) * ITEMS_PER_PAGE;
 

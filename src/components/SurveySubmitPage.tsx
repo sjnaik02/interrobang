@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { type Survey } from "@/server/db/schema";
 import { type SurveyElementInstance, SurveyElements } from "./SurveyElement";
@@ -113,7 +114,7 @@ const SurveySubmitPage = ({
                     elementInstance: element,
                     field,
                     index: idx,
-                  }) as React.ReactElement
+                  }) as React.ReactElement<any>
                 }
               />
             ))}
