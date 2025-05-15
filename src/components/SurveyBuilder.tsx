@@ -118,14 +118,14 @@ const SurveyBuilder: React.FC<{
       />
       {/* Preview link section - only show when not published */}
       {!isPublished && (
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 rounded-md border border-muted/40 bg-muted/5 pl-2">
-          <span className="flex items-center whitespace-nowrap text-sm text-muted-foreground">
+        <div className="border-muted/40 bg-muted/5 mx-auto flex w-full max-w-3xl items-center justify-between gap-2 rounded-md border pl-2">
+          <span className="text-muted-foreground flex items-center text-sm whitespace-nowrap">
             <LinkIcon className="mr-1 h-4 w-4" />
             Preview Link
           </span>
           <Link
             href={`/survey/preview/${survey.id}`}
-            className="inline-block truncate whitespace-nowrap text-sm text-muted-foreground hover:text-foreground"
+            className="text-muted-foreground hover:text-foreground inline-block truncate text-sm whitespace-nowrap"
           >
             {`${window.location.origin}/survey/preview/${survey.id}`}
           </Link>
@@ -141,7 +141,7 @@ const SurveyBuilder: React.FC<{
             }}
             size="sm"
             variant="default"
-            className="rounded-l-none border-l px-2 hover:bg-muted hover:text-foreground"
+            className="hover:bg-muted hover:text-foreground rounded-l-none border-l px-2"
           >
             {previewLinkCopied ? (
               <Check className="h-4 w-4" />
@@ -153,14 +153,14 @@ const SurveyBuilder: React.FC<{
       )}
       {/* Published link section */}
       {isPublished ? (
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 rounded-md border border-muted-foreground pl-2">
-          <span className="flex items-center whitespace-nowrap font-mono">
+        <div className="border-muted-foreground mx-auto flex w-full max-w-3xl items-center justify-between gap-2 rounded-md border pl-2">
+          <span className="flex items-center font-mono whitespace-nowrap">
             <LinkIcon className="mr-1 h-4 w-4" />
             Survey Link:{" "}
           </span>
           <Link
             href={`/survey/${survey.id}`}
-            className="inline-block truncate whitespace-nowrap font-mono text-black hover:text-muted-foreground"
+            className="hover:text-muted-foreground inline-block truncate font-mono whitespace-nowrap text-black"
           >
             {`${window.location.origin}/survey/${survey.id}`}
           </Link>
@@ -259,6 +259,7 @@ const BuilderElementWrapper: React.FC<{
   setSelectedElement,
   changeElementType,
 }) => {
+  const EditorComponent = SurveyElements[element.type].editorComponent;
   return (
     <div className="relative flex w-full gap-2" key={element.id}>
       <div className="flex flex-col items-center gap-2 p-2">
@@ -271,7 +272,7 @@ const BuilderElementWrapper: React.FC<{
           <ChevronUp className="h-4 w-4" />
         </Button>
 
-        <p className="font-mono text-muted-foreground">{idx + 1}</p>
+        <p className="text-muted-foreground font-mono">{idx + 1}</p>
 
         <Button
           variant="ghost"
@@ -284,8 +285,8 @@ const BuilderElementWrapper: React.FC<{
       </div>
       <div
         className={cn(
-          "flex w-full cursor-pointer flex-col items-center gap-2 rounded-md p-4 transition-all duration-100 hover:border-primary",
-          selectedElement?.id === element.id && "border-2 border-primary",
+          "hover:border-primary flex w-full cursor-pointer flex-col items-center gap-2 rounded-md p-4 transition-all duration-100",
+          selectedElement?.id === element.id && "border-primary border-2",
         )}
         onClick={(e) => {
           e.stopPropagation();
@@ -297,9 +298,7 @@ const BuilderElementWrapper: React.FC<{
         role="button"
         aria-pressed={selectedElement?.id === element.id}
       >
-        {SurveyElements[element.type].editorComponent({
-          elementInstance: element,
-        })}
+        <EditorComponent elementInstance={element} />
         <AnimatePresence>
           {selectedElement?.id === element.id && (
             <motion.div
