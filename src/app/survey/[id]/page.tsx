@@ -1,4 +1,8 @@
-import { getSurveyFromId, getSurveyIds } from "@/server/queries";
+import {
+  getSurveyFromId,
+  getSurveyIds,
+  getSponsorAdBySurveyId,
+} from "@/server/queries";
 import { submitSurvey } from "@/app/actions/survey";
 import { notFound } from "next/navigation";
 import SurveySubmitPage from "@/components/SurveySubmitPage";
@@ -12,11 +16,9 @@ export async function generateStaticParams() {
   return surveyIds;
 }
 
-export default async function SurveyPage(
-  props: {
-    params: Promise<{ id: string }>;
-  }
-) {
+export default async function SurveyPage(props: {
+  params: Promise<{ id: string }>;
+}) {
   const params = await props.params;
   const uuidSchema = z.string().uuid();
   const parsedId = uuidSchema.safeParse(params.id);
@@ -31,5 +33,16 @@ export default async function SurveyPage(
     notFound();
   }
 
-  return <SurveySubmitPage survey={survey} submitSurvey={submitSurvey} />;
+  // Preload sponsor ad if exists
+  const sponsorAd = survey.sponsorAdId
+    ? await getSponsorAdBySurveyId(survey.id)
+    : null;
+
+  return (
+    <SurveySubmitPage
+      survey={survey}
+      submitSurvey={submitSurvey}
+      sponsorAd={sponsorAd ? { ...sponsorAd, updatedAt: null } : null}
+    />
+  );
 }

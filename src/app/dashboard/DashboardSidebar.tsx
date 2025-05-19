@@ -2,7 +2,7 @@
 
 import { NavLink } from "@/app/_components/NavLink";
 import { Separator } from "@/components/ui/separator";
-import { LayoutDashboard, Pen, Users } from "lucide-react";
+import { LayoutDashboard, Pen, Users, Megaphone } from "lucide-react";
 import { UserButton, useUser } from "@clerk/nextjs";
 import { CreateSurveyButton } from "./CreateSurveyButton";
 import type { CreateSurveyType } from "@/app/actions/survey";
@@ -16,7 +16,7 @@ export const DashboardSidebar = ({
 }) => {
   const { isLoaded, user } = useUser();
   return (
-    <aside className="flex h-full w-64 max-w-64 flex-col border-r bg-background shadow-xs">
+    <aside className="bg-background flex h-full w-64 max-w-64 flex-col border-r shadow-xs">
       <div className="flex items-center justify-center border-b py-4">
         <h1 className="text-2xl">Interrobang ‽</h1>
       </div>
@@ -41,6 +41,14 @@ export const DashboardSidebar = ({
             Surveys
           </NavLink>
           <NavLink
+            href="/dashboard/ads"
+            className="hover:bg-muted/80"
+            icon={<Megaphone className="h-4 w-4" />}
+            selectedIcon={<Megaphone className="h-4 w-4" fill="currentColor" />}
+          >
+            Ads
+          </NavLink>
+          <NavLink
             href="/dashboard/users"
             className="hover:bg-muted/80"
             icon={<Users className="h-4 w-4" />}
@@ -51,7 +59,7 @@ export const DashboardSidebar = ({
         </nav>
         <CreateSurveyButton createSurvey={createSurvey} />
         <Separator className="opacity-50" />
-        <Card className="mt-auto bg-muted/50">
+        <Card className="bg-muted/50 mt-auto">
           <CardContent className="flex items-center gap-3 p-3">
             {isLoaded ? (
               <>
@@ -59,7 +67,7 @@ export const DashboardSidebar = ({
                 {user?.fullName && (
                   <div className="flex flex-col">
                     <p className="text-sm font-semibold">{user.fullName}</p>
-                    <p className="max-w-32 truncate text-xs text-muted-foreground/80">
+                    <p className="text-muted-foreground/80 max-w-32 truncate text-xs">
                       {user.primaryEmailAddress?.emailAddress}
                     </p>
                   </div>

@@ -24,6 +24,7 @@ import {
   type PublishSurveyType,
   type SaveChangesToSurveyType,
 } from "@/app/actions/survey";
+import { type CreateSponsorAdForSurveyType } from "@/app/actions/sponsorAd";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,16 +36,24 @@ import React from "react";
 import useAutosave from "./hooks/useAutosave";
 import { AnimatePresence, motion } from "framer-motion";
 import SurveyPreview from "./SurveyPreview";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
 
 const SurveyBuilder: React.FC<{
   survey: Survey;
   saveChanges: SaveChangesToSurveyType;
   publishSurvey: PublishSurveyType;
-}> = ({ survey, saveChanges, publishSurvey }) => {
+  createSponsorAdForSurvey: CreateSponsorAdForSurveyType;
+}> = ({ survey, saveChanges, publishSurvey, createSponsorAdForSurvey }) => {
   const [isReady, setIsReady] = useState(false);
   const [preview, setPreview] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewLinkCopied, setPreviewLinkCopied] = useState(false);
+  const [enableSponsorship, setEnableSponsorship] = useState(false);
+  const [sponsorName, setSponsorName] = useState("");
+  const [sponsorCopy, setSponsorCopy] = useState("");
+  const [ctaText, setCtaText] = useState("");
+  const [ctaUrl, setCtaUrl] = useState("");
 
   const {
     elements,
@@ -79,17 +88,37 @@ const SurveyBuilder: React.FC<{
 
   const handleSave = async () => {
     try {
-      await saveChanges({
+      const surveyDataToSave = {
         id: survey.id,
         title,
         questions: elements,
         updatedAt: new Date(),
-      });
+        enableSponsorship,
+        sponsorName: enableSponsorship ? sponsorName : undefined,
+        sponsorCopy: enableSponsorship ? sponsorCopy : undefined,
+        ctaText: enableSponsorship ? ctaText : undefined,
+        ctaUrl: enableSponsorship ? ctaUrl : undefined,
+      };
+
+      const dataForSaveChanges: {
+        id: string;
+        title: string;
+        questions: SurveyElementInstance[];
+        updatedAt: Date;
+      } = {
+        id: surveyDataToSave.id,
+        title: surveyDataToSave.title,
+        questions: surveyDataToSave.questions,
+        updatedAt: surveyDataToSave.updatedAt,
+      };
+
+      await saveChanges(dataForSaveChanges);
 
       toast.success("Saved survey");
       return true;
     } catch (err) {
       console.error("Autosave failed:", err);
+      toast.error("Failed to save survey. Some details may not be persisted.");
       return false;
     }
   };
@@ -102,7 +131,28 @@ const SurveyBuilder: React.FC<{
     if (status === "saving") return;
     triggerSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [elements, title]);
+  }, [
+    elements,
+    title,
+    enableSponsorship,
+    sponsorName,
+    sponsorCopy,
+    ctaText,
+    ctaUrl,
+  ]);
+
+  const handlePublishWithSponsor: PublishSurveyType = async (id) => {
+    if (enableSponsorship) {
+      await createSponsorAdForSurvey(
+        id,
+        sponsorName,
+        sponsorCopy,
+        ctaText,
+        ctaUrl,
+      );
+    }
+    return publishSurvey(id);
+  };
 
   return (
     <div
@@ -113,7 +163,7 @@ const SurveyBuilder: React.FC<{
         preview={preview}
         setPreview={setPreview}
         saveChanges={saveChanges}
-        publishSurvey={publishSurvey}
+        publishSurvey={handlePublishWithSponsor}
         status={status}
       />
       {/* Preview link section - only show when not published */}
@@ -198,11 +248,12 @@ const SurveyBuilder: React.FC<{
               responseCount: survey.responseCount,
               createdAt: survey.createdAt,
               updatedAt: survey.updatedAt,
+              sponsorAdId: survey.sponsorAdId,
             }}
           />
         </div>
       ) : (
-        <div className="mx-auto mb-24 flex w-full max-w-2xl flex-col gap-0.5">
+        <div className="mx-auto flex w-full max-w-2xl flex-col gap-0.5">
           <ClickToEdit
             onSave={(value) => setTitle(value)}
             className="text-3xl font-medium"
@@ -223,6 +274,107 @@ const SurveyBuilder: React.FC<{
               changeElementType={changeElementType}
             />
           ))}
+        </div>
+      )}
+      {!preview && (
+        <div className="mx-auto mt-8 w-full max-w-2xl space-y-6 border-t border-gray-200 py-6">
+          <div className="rounded-lg border border-gray-300 bg-gray-50 p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-semibold text-gray-700">
+                Sponsorship Ad (Optional)
+              </h3>
+              <div className="flex items-center gap-2">
+                <Label
+                  htmlFor="enable-sponsorship"
+                  className="text-sm text-gray-600"
+                >
+                  Enable
+                </Label>
+                <Switch
+                  id="enable-sponsorship"
+                  checked={enableSponsorship}
+                  onCheckedChange={setEnableSponsorship}
+                />
+              </div>
+            </div>
+
+            {enableSponsorship && (
+              <div className="mt-6 space-y-4 border-t border-gray-200 pt-4">
+                <div>
+                  <Label
+                    htmlFor="sponsor-name"
+                    className="block text-sm font-medium text-gray-600"
+                  >
+                    Sponsor Name
+                  </Label>
+                  <Input
+                    id="sponsor-name"
+                    value={sponsorName}
+                    onChange={(e) => setSponsorName(e.target.value)}
+                    className="mt-1 w-full"
+                    placeholder="e.g., Acme Corp"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="sponsor-copy"
+                    className="block text-sm font-medium text-gray-600"
+                  >
+                    Promotional Copy
+                  </Label>
+                  <Textarea
+                    id="sponsor-copy"
+                    value={sponsorCopy}
+                    onChange={(e) => setSponsorCopy(e.target.value)}
+                    maxLength={256}
+                    className="mt-1 w-full"
+                    placeholder="Briefly describe the sponsor or their offer."
+                    rows={3}
+                  />
+                  <p className="mt-1 text-right text-xs text-gray-500">
+                    {sponsorCopy.length} / 256 characters
+                  </p>
+                </div>
+                <div>
+                  <Label
+                    htmlFor="cta-text"
+                    className="block text-sm font-medium text-gray-600"
+                  >
+                    Call to Action Text
+                  </Label>
+                  <Input
+                    id="cta-text"
+                    value={ctaText}
+                    onChange={(e) => setCtaText(e.target.value)}
+                    className="mt-1 w-full"
+                    placeholder="e.g., Learn More, Visit Website"
+                  />
+                </div>
+                <div>
+                  <Label
+                    htmlFor="cta-url"
+                    className="block text-sm font-medium text-gray-600"
+                  >
+                    Call to Action URL
+                  </Label>
+                  <Input
+                    id="cta-url"
+                    type="url"
+                    value={ctaUrl}
+                    onChange={(e) => setCtaUrl(e.target.value)}
+                    className="mt-1 w-full"
+                    placeholder="https://example.com"
+                  />
+                </div>
+              </div>
+            )}
+            {!enableSponsorship && (
+              <p className="mt-4 text-sm text-gray-500">
+                Enable this to configure and attach a sponsor advertisement to
+                your survey when it&apos;s published.
+              </p>
+            )}
+          </div>
         </div>
       )}
     </div>

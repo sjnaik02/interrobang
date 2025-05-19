@@ -1,4 +1,5 @@
 import { saveChangesToSurvey, publishSurvey } from "@/app/actions/survey";
+import { createSponsorAdForSurvey } from "@/app/actions/sponsorAd";
 import SurveyBuilder from "@/components/SurveyBuilder";
 import { getSurveyFromId } from "@/server/queries";
 
@@ -15,6 +16,7 @@ const CreateFormPage = async (props: { params: Promise<{ id: string }> }) => {
         survey={survey}
         saveChanges={saveChangesToSurvey}
         publishSurvey={publishSurvey}
+        createSponsorAdForSurvey={createSponsorAdForSurvey}
       />
     </main>
   );

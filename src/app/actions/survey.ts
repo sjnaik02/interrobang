@@ -45,15 +45,26 @@ export const publishSurvey = async (id: string) => {
     if (!userId) {
       throw new Error("Unauthorized");
     }
-    const updatedSurvey = await db
+    const [updated] = await db
       .update(surveys)
       .set({
         isPublished: true,
         updatedAt: new Date(),
       })
       .where(eq(surveys.id, id))
-      .returning();
-    return updatedSurvey[0];
+      .returning({
+        id: surveys.id,
+        title: surveys.title,
+        questions: surveys.questions,
+        isPublished: surveys.isPublished,
+        isArchived: surveys.isArchived,
+        createdBy: surveys.createdBy,
+        responseCount: surveys.responseCount,
+        sponsorAdId: surveys.sponsorAdId,
+        createdAt: surveys.createdAt,
+        updatedAt: surveys.updatedAt,
+      });
+    return updated;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to publish survey");

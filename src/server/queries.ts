@@ -1,8 +1,13 @@
 import "server-only";
 
-import { responses, surveys } from "@/server/db/schema";
+import {
+  responses,
+  surveys,
+  sponsorAds,
+  sponsorAdEvents,
+} from "@/server/db/schema";
 import { db } from "@/server/db";
-import { eq, desc, gte, sql } from "drizzle-orm";
+import { eq, desc, gte, sql, and } from "drizzle-orm";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { cache } from "react";
 
@@ -147,4 +152,47 @@ export const getPendingInvitations = cache(async () => {
   const client = clerkClient();
   const invitations = await (await client).invitations.getInvitationList();
   return invitations;
+});
+
+export const getSponsorAdBySurveyId = cache(async (surveyId: string) => {
+  const result = await db
+    .select({
+      id: sponsorAds.id,
+      sponsorName: sponsorAds.sponsorName,
+      copy: sponsorAds.copy,
+      ctaText: sponsorAds.ctaText,
+      ctaUrl: sponsorAds.ctaUrl,
+      createdAt: sponsorAds.createdAt,
+    })
+    .from(sponsorAds)
+    .innerJoin(surveys, eq(sponsorAds.id, surveys.sponsorAdId))
+    .where(eq(surveys.id, surveyId))
+    .limit(1);
+  return result[0] ?? null;
+});
+
+export const getSponsorAdImpressions = cache(async (sponsorAdId: string) => {
+  const [result] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(sponsorAdEvents)
+    .where(
+      and(
+        eq(sponsorAdEvents.sponsorAdId, sponsorAdId),
+        eq(sponsorAdEvents.eventType, "impression"),
+      ),
+    );
+  return result?.count ?? 0;
+});
+
+export const getSponsorAdClicks = cache(async (sponsorAdId: string) => {
+  const [result] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(sponsorAdEvents)
+    .where(
+      and(
+        eq(sponsorAdEvents.sponsorAdId, sponsorAdId),
+        eq(sponsorAdEvents.eventType, "click"),
+      ),
+    );
+  return result?.count ?? 0;
 });
