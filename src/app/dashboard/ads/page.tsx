@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/table";
 import { ExternalLinkIcon } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdsPage() {
   // Fetch recent surveys with sponsorAdId
   const rows = await db
