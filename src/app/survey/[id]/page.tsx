@@ -1,20 +1,11 @@
-import {
-  getSurveyFromId,
-  getSurveyIds,
-  getSponsorAdBySurveyId,
-} from "@/server/queries";
+import { getSurveyFromId, getSponsorAdBySurveyId } from "@/server/queries";
 import { submitSurvey } from "@/app/actions/survey";
 import { notFound } from "next/navigation";
 import SurveySubmitPage from "@/components/SurveySubmitPage";
 import { z } from "zod";
 
 export const dynamicParams = true;
-
-export async function generateStaticParams() {
-  console.log("Generating static params");
-  const surveyIds = await getSurveyIds(100);
-  return surveyIds;
-}
+export const dynamic = "force-dynamic";
 
 export default async function SurveyPage(props: {
   params: Promise<{ id: string }>;
