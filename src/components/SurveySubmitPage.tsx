@@ -151,6 +151,7 @@ const SurveyFooter: React.FC = () => {
 };
 
 export const ThankYouPage = ({
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   survey,
   sponsorAd,
 }: {
@@ -188,10 +189,7 @@ export const ThankYouPage = ({
   return (
     <>
       <main className="container mx-auto flex min-h-[calc(100vh-4rem)] w-full max-w-lg grow flex-col items-center justify-center p-4 text-center">
-        <h1 className="mb-4 text-lg">
-          Thank you for your response to{" "}
-          <span className="font-bold">{survey.title}</span>!
-        </h1>
+        <h1 className="mb-4 text-lg">Thank you for your response!</h1>
         {sponsorAd && (
           <div className="mx-auto mb-10 flex w-full max-w-lg flex-col items-start space-y-4 rounded-lg border p-6 shadow-md">
             <p className="text-left text-xl">
