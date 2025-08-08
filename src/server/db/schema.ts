@@ -60,7 +60,7 @@ export const sponsorAdEventType = pgEnum("sponsor_ad_event_type", [
 export const sponsorAds = createTable("sponsor_ad", {
   id: uuid("id").primaryKey().defaultRandom(),
   sponsorName: varchar("sponsor_name", { length: 256 }).notNull(),
-  copy: varchar("copy", { length: 256 }).notNull(),
+  copy: jsonb("copy").notNull(),
   ctaText: varchar("cta_text", { length: 256 }).notNull(),
   ctaUrl: varchar("cta_url", { length: 256 }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })

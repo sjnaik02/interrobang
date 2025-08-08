@@ -12,6 +12,8 @@ import Link from "next/link";
 import { Home, Loader2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { notFound } from "next/navigation";
+import { SponsorCopyRenderer } from "./editor/SponsorCopyRenderer";
+import type { Value } from "@udecode/plate/react";
 
 const SurveySubmitPage = ({
   survey,
@@ -196,7 +198,11 @@ export const ThankYouPage = ({
               This survey was brought to you by{" "}
               <strong>{sponsorAd.sponsorName}</strong>
             </p>
-            <p className="text-left text-lg">{sponsorAd.copy}</p>
+            <SponsorCopyRenderer 
+              // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+              value={sponsorAd.copy as Value} 
+              className="text-left text-lg"
+            />
             <Button onClick={handleCTA} className="w-full self-start">
               {sponsorAd.ctaText}
             </Button>

@@ -177,3 +177,35 @@
   body {
   }
 }
+/*
+  ---break---
+*/
+:root {
+  --brand:
+    oklch(0.623 0.214 259.815);
+}
+/*
+  ---break---
+*/
+.dark {
+  --brand:
+    oklch(0.707 0.165 254.624);
+}
+/*
+  ---break---
+*/
+@theme inline {
+  --color-brand:
+    var(--brand);
+}
+/*
+  ---break---
+*/
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}

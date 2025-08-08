@@ -1,8 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { Label } from "../ui/label";
 import { Switch } from "../ui/switch";
 import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
 import { type SponsorshipState } from "../hooks/useSponsorshipState";
+import { SponsorCopyEditor } from "../editor/SponsorCopyEditor";
 
 interface SponsorshipSectionProps {
   sponsorshipState: SponsorshipState;
@@ -70,18 +71,14 @@ const SponsorshipSection: React.FC<SponsorshipSectionProps> = ({
               >
                 Promotional Copy
               </Label>
-              <Textarea
-                id="sponsor-copy"
-                value={sponsorCopy}
-                onChange={(e) => setSponsorCopy(e.target.value)}
-                maxLength={256}
-                className="mt-1 w-full"
-                placeholder="Briefly describe the sponsor or their offer."
-                rows={3}
-              />
-              <p className="mt-1 text-right text-xs text-gray-500">
-                {sponsorCopy.length} / 256 characters
-              </p>
+              <div className="mt-1">
+                <SponsorCopyEditor
+                  value={sponsorCopy}
+                  onChange={setSponsorCopy}
+                  placeholder="Briefly describe the sponsor or their offer."
+                  maxLength={256}
+                />
+              </div>
             </div>
             <div>
               <Label

@@ -1,12 +1,6 @@
-import React from "react";
-import { db } from "@/server/db";
-import { surveys } from "@/server/db/schema";
-import { desc } from "drizzle-orm";
-import {
-  getSponsorAdBySurveyId,
-  getSponsorAdImpressions,
-  getSponsorAdClicks,
-} from "@/server/queries";
+"use client";
+
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import {
@@ -18,51 +12,99 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ExternalLinkIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
-export const dynamic = "force-dynamic";
+interface AdData {
+  surveyId: string;
+  title: string;
+  sponsorName: string;
+  impressions: number;
+  clicks: number;
+  ctaUrl: string;
+}
 
-export default async function AdsPage() {
-  // Fetch recent surveys with sponsorAdId
-  const rows = await db
-    .select({
-      id: surveys.id,
-      title: surveys.title,
-      sponsorAdId: surveys.sponsorAdId,
-      createdAt: surveys.createdAt,
-    })
-    .from(surveys)
-    .orderBy(desc(surveys.createdAt))
-    .limit(100);
-  const sponsoredRows = rows.filter((r) => r.sponsorAdId !== null);
+interface SponsorGroupData {
+  sponsorName: string;
+  totalImpressions: number;
+  totalClicks: number;
+  surveyCount: number;
+  surveys: AdData[];
+}
 
-  const adsData = await Promise.all(
-    sponsoredRows.map(async (row) => {
-      const ad = await getSponsorAdBySurveyId(row.id);
-      if (!ad) return null;
-      const impressions = await getSponsorAdImpressions(ad.id);
-      const clicks = await getSponsorAdClicks(ad.id);
-      return {
-        surveyId: row.id,
-        title: row.title,
+export default function AdsPage() {
+  const [adsData, setAdsData] = useState<AdData[]>([]);
+  const [viewMode, setViewMode] = useState<'survey' | 'sponsor'>('survey');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const response = await fetch('/api/ads-data');
+        const data = await response.json();
+        setAdsData(data);
+      } catch (error) {
+        console.error('Failed to fetch ads data:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="container mx-auto p-4 md:p-8">
+        <h1 className="mb-6 text-3xl font-medium tracking-tight">
+          Ads Dashboard
+        </h1>
+        <p>Loading...</p>
+      </main>
+    );
+  }
+
+  const latest = adsData[0];
+
+  // Group ads by sponsor
+  const groupedBySponsor = adsData.reduce((acc, ad) => {
+    const existing = acc.find(group => group.sponsorName === ad.sponsorName);
+    if (existing) {
+      existing.totalImpressions += Number(ad.impressions);
+      existing.totalClicks += Number(ad.clicks);
+      existing.surveyCount += 1;
+      existing.surveys.push(ad);
+    } else {
+      acc.push({
         sponsorName: ad.sponsorName,
-        impressions,
-        clicks,
-        ctaUrl: ad.ctaUrl,
-      };
-    }),
-  );
-
-  const validAds = adsData.filter((x): x is NonNullable<typeof x> => !!x);
-  const latest = validAds[0]; // latest is the first
-
-  // All ads including the latest one for the table view
-  const allAdsForTable = validAds;
+        totalImpressions: Number(ad.impressions),
+        totalClicks: Number(ad.clicks),
+        surveyCount: 1,
+        surveys: [ad]
+      });
+    }
+    return acc;
+  }, [] as SponsorGroupData[]);
 
   return (
     <main className="container mx-auto p-4 md:p-8">
-      <h1 className="mb-6 text-3xl font-medium tracking-tight">
-        Ads Dashboard
-      </h1>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-medium tracking-tight">
+          Ads Dashboard
+        </h1>
+        <div className="flex gap-2">
+          <Button
+            variant={viewMode === 'survey' ? 'default' : 'outline'}
+            onClick={() => setViewMode('survey')}
+          >
+            By Survey
+          </Button>
+          <Button
+            variant={viewMode === 'sponsor' ? 'default' : 'outline'}
+            onClick={() => setViewMode('sponsor')}
+          >
+            By Sponsor
+          </Button>
+        </div>
+      </div>
 
       {latest && (
         <section className="mb-8">
@@ -121,59 +163,109 @@ export default async function AdsPage() {
       )}
 
       <section>
-        <h2 className="mb-4 text-2xl">All Sponsored Surveys</h2>
+        <h2 className="mb-4 text-2xl">
+          {viewMode === 'survey' ? 'All Sponsored Surveys' : 'Stats by Sponsor'}
+        </h2>
         <Card className="shadow-sm">
           <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[350px]">Survey Title</TableHead>
-                  <TableHead>Sponsor</TableHead>
-                  <TableHead className="text-right">Impressions</TableHead>
-                  <TableHead className="text-right">Clicks</TableHead>
-                  <TableHead className="text-right">CTR</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {allAdsForTable.length > 0 ? (
-                  allAdsForTable.map((ad) => (
-                    <TableRow key={ad.surveyId}>
-                      <TableCell className="font-medium">
-                        <Link
-                          href={`/survey/${ad.surveyId}`}
-                          className="group text-blue-600 hover:underline"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {ad.title}
-                          <ExternalLinkIcon className="mb-1 ml-1.5 inline-block h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
-                        </Link>
-                      </TableCell>
-                      <TableCell>{ad.sponsorName}</TableCell>
-                      <TableCell className="text-right">
-                        {ad.impressions}
-                      </TableCell>
-                      <TableCell className="text-right">{ad.clicks}</TableCell>
-                      <TableCell className="text-right">
-                        {ad.impressions > 0
-                          ? ((ad.clicks / ad.impressions) * 100).toFixed(2) +
-                            "%"
-                          : "0.00%"}
+            {viewMode === 'survey' ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[350px]">Survey Title</TableHead>
+                    <TableHead>Sponsor</TableHead>
+                    <TableHead className="text-right">Impressions</TableHead>
+                    <TableHead className="text-right">Clicks</TableHead>
+                    <TableHead className="text-right">CTR</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {adsData.length > 0 ? (
+                    adsData.map((ad) => (
+                      <TableRow key={ad.surveyId}>
+                        <TableCell className="font-medium">
+                          <Link
+                            href={`/survey/${ad.surveyId}`}
+                            className="group text-blue-600 hover:underline"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {ad.title}
+                            <ExternalLinkIcon className="mb-1 ml-1.5 inline-block h-4 w-4 opacity-0 transition-opacity group-hover:opacity-100" />
+                          </Link>
+                        </TableCell>
+                        <TableCell>{ad.sponsorName}</TableCell>
+                        <TableCell className="text-right">
+                          {ad.impressions}
+                        </TableCell>
+                        <TableCell className="text-right">{ad.clicks}</TableCell>
+                        <TableCell className="text-right">
+                          {ad.impressions > 0
+                            ? ((ad.clicks / ad.impressions) * 100).toFixed(2) +
+                              "%"
+                            : "0.00%"}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="text-muted-foreground text-center"
+                      >
+                        No sponsored surveys found.
                       </TableCell>
                     </TableRow>
-                  ))
-                ) : (
+                  )}
+                </TableBody>
+              </Table>
+            ) : (
+              <Table>
+                <TableHeader>
                   <TableRow>
-                    <TableCell
-                      colSpan={5}
-                      className="text-muted-foreground text-center"
-                    >
-                      No sponsored surveys found.
-                    </TableCell>
+                    <TableHead className="w-[350px]">Sponsor Name</TableHead>
+                    <TableHead className="text-right">Surveys</TableHead>
+                    <TableHead className="text-right">Total Impressions</TableHead>
+                    <TableHead className="text-right">Total Clicks</TableHead>
+                    <TableHead className="text-right">Average CTR</TableHead>
                   </TableRow>
-                )}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {groupedBySponsor.length > 0 ? (
+                    groupedBySponsor.map((sponsor) => (
+                      <TableRow key={sponsor.sponsorName}>
+                        <TableCell className="font-medium">
+                          {sponsor.sponsorName}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {sponsor.surveyCount}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {sponsor.totalImpressions}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {sponsor.totalClicks}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {sponsor.totalImpressions > 0
+                            ? ((sponsor.totalClicks / sponsor.totalImpressions) * 100).toFixed(2) + "%"
+                            : "0.00%"}
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  ) : (
+                    <TableRow>
+                      <TableCell
+                        colSpan={5}
+                        className="text-muted-foreground text-center"
+                      >
+                        No sponsors found.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            )}
           </CardContent>
         </Card>
       </section>

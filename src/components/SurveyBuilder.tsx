@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import useSurveyBuilder from "./hooks/useSurveyBuilder";
 import { type SurveyElementInstance } from "./SurveyElement";
 import TopBar from "./TopBar";
@@ -74,6 +74,7 @@ const SurveyBuilder: React.FC<{
         sponsorName: sponsorshipState.enableSponsorship
           ? sponsorshipState.sponsorName
           : undefined,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         sponsorCopy: sponsorshipState.enableSponsorship
           ? sponsorshipState.sponsorCopy
           : undefined,
@@ -110,6 +111,10 @@ const SurveyBuilder: React.FC<{
 
   const { status, triggerSave } = useAutosave(handleSave);
 
+  // Extract sponsorCopy serialization for stable comparison
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  const sponsorCopySerialized = useMemo(() => JSON.stringify(sponsorshipState.sponsorCopy), [sponsorshipState.sponsorCopy]);
+
   useEffect(() => {
     if (!isReady) return;
     if (isPublished) return;
@@ -121,7 +126,7 @@ const SurveyBuilder: React.FC<{
     title,
     sponsorshipState.enableSponsorship,
     sponsorshipState.sponsorName,
-    sponsorshipState.sponsorCopy,
+    sponsorCopySerialized,
     sponsorshipState.ctaText,
     sponsorshipState.ctaUrl,
   ]);

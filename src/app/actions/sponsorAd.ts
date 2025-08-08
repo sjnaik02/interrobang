@@ -5,6 +5,7 @@ import { auth } from "@clerk/nextjs/server";
 import { sponsorAds, sponsorAdEvents, surveys } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import type { Value } from "@udecode/plate/react";
 
 /**
  * Creates a Sponsor Ad and links it to the given survey in a single transaction.
@@ -12,7 +13,7 @@ import { revalidatePath } from "next/cache";
 export const createSponsorAdForSurvey = async (
   surveyId: string,
   sponsorName: string,
-  copy: string,
+  copy: Value,
   ctaText: string,
   ctaUrl: string,
 ) => {
