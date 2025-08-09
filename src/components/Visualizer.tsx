@@ -47,7 +47,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Download, Sparkles } from "lucide-react";
+import { Download } from "lucide-react";
 import { HexColorInput, HexColorPicker } from "react-colorful";
 
 interface VisualizerProps {
@@ -63,13 +63,13 @@ interface VisualizerProps {
 }
 
 const CHART_COLORS = [
-  "#2C75FF", // Vibrant blue
-  "#FB923C", // Light orange
-  "#6366F1", // Indigo
-  "#2DD4BF", // Teal
-  "#F59E0B", // Gold
-  "#0A2472", // Deep navy
-  "#EF4444", // Coral red
+  "#00BC7A", // Vibrant green
+  "#497C77", // Light green
+  "#123C3E", // Dark green
+  "#D6007A", // Pink
+  "#FFBC42", // Yellow
+  "#6A004E", // Deep purple
+  "#00BC7A", // Coral red
   "#34D399", // Mint
   "#8B5CF6", // Purple
   "#89CFF0", // Light blue
@@ -189,7 +189,7 @@ const BarChartComponent = ({
               textAnchor="middle"
               verticalAnchor="start"
               className={textSize}
-              fill="#333333"
+              fill="#232122"
             >
               {payload.value}
             </Text>
@@ -252,7 +252,7 @@ const RankingBarChartComponent = ({
               width={textWidth}
               textAnchor="middle"
               verticalAnchor="start"
-              className={textSize + " text-black"}
+              className={textSize + " text-inkwell"}
             >
               {payload.value}
             </Text>
@@ -299,6 +299,8 @@ export default function Visualizer({
   const [optionColors, setOptionColors] = useState<string[]>(
     options.map((_, i) => CHART_COLORS[i % CHART_COLORS.length]) as string[],
   );
+  const [backgroundStyle, setBackgroundStyle] =
+    useState<string>("bg-foundation");
 
   const chartData = useMemo(() => {
     return data.map(
@@ -349,142 +351,40 @@ export default function Visualizer({
       });
   }, [ref]);
 
-  const quickFormat = () => {
-    // Find the highest count
-    const maxCount = Math.max(...data.map((item) => item.count));
+  const setBrandColors = (colorIndex: number) => {
+    const brandColors = [
+      "#00BC7A", // Bulletin
+      "#497C77", // Pundit
+      "#123C3E", // Charter
+      "#D6007A", // Dateline
+      "#FFBC42", // Byline
+      "#6A004E", // Plum
+    ];
 
-    // Update colors - desaturate all except those with max count and make max count bars bolder
-    setOptionColors((prev) => {
-      return prev.map((color, index) => {
-        if (data[index]?.count === maxCount) {
-          // For max values, make color more saturated and brighter
-          if (color.startsWith("hsl")) {
-            return color.replace(/saturation/, "calc(var(--saturation) * 1.2)");
-          } else if (color.startsWith("#")) {
-            // For hex colors, increase saturation and brightness
-            const r = parseInt(color.slice(1, 3), 16) / 255;
-            const g = parseInt(color.slice(3, 5), 16) / 255;
-            const b = parseInt(color.slice(5, 7), 16) / 255;
-
-            const max = Math.max(r, g, b);
-            const min = Math.min(r, g, b);
-            let h = 0;
-            let s = 0;
-            const l = (max + min) / 2;
-
-            if (max !== min) {
-              const d = max - min;
-              s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-              switch (max) {
-                case r:
-                  h = (g - b) / d + (g < b ? 6 : 0);
-                  break;
-                case g:
-                  h = (b - r) / d + 2;
-                  break;
-                case b:
-                  h = (r - g) / d + 4;
-                  break;
-              }
-              h /= 6;
-            }
-
-            // Increase saturation by 20% and brightness slightly
-            s = Math.min(1, s * 1.2);
-            const l2 = Math.min(0.9, l * 1.1); // Increase brightness but cap at 0.9
-
-            const toRGB = (p: number, q: number, t: number) => {
-              if (t < 0) t += 1;
-              if (t > 1) t -= 1;
-              if (t < 1 / 6) return p + (q - p) * 6 * t;
-              if (t < 1 / 2) return q;
-              if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-              return p;
-            };
-
-            const q = l2 < 0.5 ? l2 * (1 + s) : l2 + s - l2 * s;
-            const p = 2 * l2 - q;
-
-            const r2 = Math.round(toRGB(p, q, h + 1 / 3) * 255);
-            const g2 = Math.round(toRGB(p, q, h) * 255);
-            const b2 = Math.round(toRGB(p, q, h - 1 / 3) * 255);
-
-            return `#${r2.toString(16).padStart(2, "0")}${g2.toString(16).padStart(2, "0")}${b2.toString(16).padStart(2, "0")}`;
-          }
-          return color;
-        }
-
-        // Desaturate non-max values
-        if (color.startsWith("hsl")) {
-          return color.replace(/saturation/, "calc(var(--saturation) * 0.3)");
-        } else if (color.startsWith("#")) {
-          const r = parseInt(color.slice(1, 3), 16) / 255;
-          const g = parseInt(color.slice(3, 5), 16) / 255;
-          const b = parseInt(color.slice(5, 7), 16) / 255;
-
-          const max = Math.max(r, g, b);
-          const min = Math.min(r, g, b);
-          let h = 0;
-          let s = 0;
-          const l = (max + min) / 2;
-
-          if (max !== min) {
-            const d = max - min;
-            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-            switch (max) {
-              case r:
-                h = (g - b) / d + (g < b ? 6 : 0);
-                break;
-              case g:
-                h = (b - r) / d + 2;
-                break;
-              case b:
-                h = (r - g) / d + 4;
-                break;
-            }
-            h /= 6;
-          }
-
-          // Reduce saturation by 70%
-          s *= 0.3;
-
-          const toRGB = (p: number, q: number, t: number) => {
-            if (t < 0) t += 1;
-            if (t > 1) t -= 1;
-            if (t < 1 / 6) return p + (q - p) * 6 * t;
-            if (t < 1 / 2) return q;
-            if (t < 2 / 3) return p + (q - p) * (2 / 3 - t) * 6;
-            return p;
-          };
-
-          const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
-          const p = 2 * l - q;
-
-          const r2 = Math.round(toRGB(p, q, h + 1 / 3) * 255);
-          const g2 = Math.round(toRGB(p, q, h) * 255);
-          const b2 = Math.round(toRGB(p, q, h - 1 / 3) * 255);
-
-          return `#${r2.toString(16).padStart(2, "0")}${g2.toString(16).padStart(2, "0")}${b2.toString(16).padStart(2, "0")}`;
-        }
-        return color; // Return unchanged if format not recognized
-      });
-    });
+    const selectedColor = brandColors[colorIndex];
+    if (selectedColor) {
+      setOptionColors((prev) => prev.map(() => selectedColor));
+    }
   };
 
   return (
     <>
-      <div className="mx-auto flex gap-4">
-        <Card className="flex w-full flex-col justify-center p-4">
+      <div className="text-inkwell font-diatype mx-auto flex gap-4">
+        <Card
+          className={`${backgroundStyle} flex w-full flex-col justify-center p-4`}
+        >
           <div
             style={{ width: `${chartWidth}px` }}
             ref={ref}
-            className="mx-auto h-fit bg-card"
+            className={`mx-auto h-fit border border-black`}
           >
-            <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="mr-4 text-3xl">{questionLabel}</CardTitle>
+            <CardHeader className="flex flex-row">
+              <CardTitle className="font-heading mr-4 text-3xl font-normal">
+                {questionLabel}
+              </CardTitle>
               <Image
-                src="/tangle-gradient.png"
-                alt="tangle logo"
+                src="/Tangle-News-Logotype-Plum.svg"
+                alt="Tangle News Logo"
                 width={200}
                 height={200}
               />
@@ -509,13 +409,13 @@ export default function Visualizer({
               )}
             </CardContent>
             <CardFooter className="flex flex-row justify-between pt-4">
-              <p className="text-sm text-muted-foreground">Source: Tangle</p>
+              <p className="text-inkwell-2 text-sm">Source: Tangle</p>
             </CardFooter>
           </div>
           {otherResponses && otherResponses.length > 0 && (
             <>
-              <p className="text-sm text-muted-foreground">Other responses:</p>
-              <Table className="rounded-lg border border-muted">
+              <p className="text-muted-foreground text-sm">Other responses:</p>
+              <Table className="border-muted rounded-lg border">
                 <TableHeader>
                   <TableRow>
                     <TableHead>No.</TableHead>
@@ -541,16 +441,85 @@ export default function Visualizer({
             <CardTitle>Customize</CardTitle>
             <CardDescription>Customize your chart</CardDescription>
           </CardHeader>
-          <CardContent className="grow overflow-y-scroll">
+          <CardContent className="grow">
             <div className="flex flex-col gap-2">
-              <Button
-                size="sm"
-                className="w-fit bg-linear-to-r from-blue-500 to-purple-500 text-white"
-                onClick={quickFormat}
-              >
-                Quick Format <Sparkles className="ml-1 h-4 w-4" />
-              </Button>
-              <Label>Edit labels and colors</Label>
+              <div className="space-y-2">
+                <Label>Background Color</Label>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-start"
+                    >
+                      {backgroundStyle === "bg-parchment"
+                        ? "Parchment"
+                        : backgroundStyle === "bg-foundation"
+                          ? "Foundation"
+                          : "White"}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem
+                      onClick={() => setBackgroundStyle("bg-parchment")}
+                    >
+                      Parchment
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setBackgroundStyle("bg-foundation")}
+                    >
+                      Foundation
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setBackgroundStyle("bg-white")}
+                    >
+                      White
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <div className="space-y-2">
+                <Label>Set to Brand Colours</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  <Button
+                    size="sm"
+                    className="h-8 p-0"
+                    style={{ backgroundColor: "#00BC7A" }}
+                    onClick={() => setBrandColors(0)}
+                  />
+                  <Button
+                    size="sm"
+                    className="h-8 p-0"
+                    style={{ backgroundColor: "#497C77" }}
+                    onClick={() => setBrandColors(1)}
+                  />
+                  <Button
+                    size="sm"
+                    className="h-8 p-0"
+                    style={{ backgroundColor: "#123C3E" }}
+                    onClick={() => setBrandColors(2)}
+                  />
+                  <Button
+                    size="sm"
+                    className="h-8 p-0"
+                    style={{ backgroundColor: "#D6007A" }}
+                    onClick={() => setBrandColors(3)}
+                  />
+                  <Button
+                    size="sm"
+                    className="h-8 p-0"
+                    style={{ backgroundColor: "#FFBC42" }}
+                    onClick={() => setBrandColors(4)}
+                  />
+                  <Button
+                    size="sm"
+                    className="h-8 p-0"
+                    style={{ backgroundColor: "#6A004E" }}
+                    onClick={() => setBrandColors(5)}
+                  />
+                </div>
+              </div>
+              <Label className="mt-4">Edit labels and colors</Label>
               {editableOptions.map((option, idx) => (
                 <OptionInput
                   key={idx}
@@ -561,7 +530,7 @@ export default function Visualizer({
                   onColorChange={handleColorChange}
                 />
               ))}
-              <div className="flex items-center gap-2 pt-4">
+              <div className="mt-4 flex items-center gap-2">
                 <Label>Chart settings</Label>
                 <Button
                   variant="ghost"

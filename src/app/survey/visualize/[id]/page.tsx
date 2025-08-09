@@ -220,7 +220,7 @@ const VisualizePage = async (props: { params: Promise<{ id: string }> }) => {
           surveyId={survey.id}
         />
         <main className="container mx-auto">
-          <h1 className="mb-4 mt-8 text-2xl">
+          <h1 className="mt-8 mb-4 text-2xl">
             No questions found for{" "}
             <span className="underline underline-offset-4">{survey.title}</span>
           </h1>
@@ -244,10 +244,12 @@ const VisualizePage = async (props: { params: Promise<{ id: string }> }) => {
         surveyId={survey.id}
       />
       <main className="container mx-auto">
-        <h1 className="mb-4 mt-8 text-2xl">
-          Visualize <span className="font-mono">{responses.length}</span>{" "}
-          Responses for{" "}
-          <span className="underline underline-offset-4">{survey.title}</span>
+        <h1 className="font-heading mt-8 mb-4 text-2xl">
+          {survey.title}
+          <span className="font-diatype text-lg">
+            {" "}
+            ({responses.length} responses)
+          </span>
         </h1>
         {questions.map((question) => {
           if (question.type === "TextArea") {
