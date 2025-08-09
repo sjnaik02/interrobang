@@ -168,12 +168,12 @@ const BarChartComponent = ({
   const yAxisMax = Math.ceil((maxPercentage + 10) / 10) * 10;
 
   return (
-    <ResponsiveContainer width={chartWidth - 32} height={400}>
+    <ResponsiveContainer width={chartWidth - 32} height={450}>
       <BarChart
         data={data}
         barGap={0}
         barCategoryGap={barCategoryGap}
-        margin={{ top: 0, right: 0, bottom: 32, left: 0 }}
+        margin={{ top: 0, right: 0, bottom: 64, left: 0 }}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
         <XAxis
@@ -232,12 +232,12 @@ const RankingBarChartComponent = ({
   textSize: string;
 }) => {
   return (
-    <ResponsiveContainer width={chartWidth - 32} height={400}>
+    <ResponsiveContainer width={chartWidth - 32} height={450}>
       <BarChart
         data={data}
         barGap={0}
         barCategoryGap={barCategoryGap}
-        margin={{ top: 0, right: 0, bottom: 32, left: 0 }}
+        margin={{ top: 0, right: 0, bottom: 64, left: 0 }}
       >
         <CartesianGrid strokeDasharray="3 3" opacity={0.1} vertical={false} />
         <XAxis
@@ -371,12 +371,12 @@ export default function Visualizer({
     <>
       <div className="text-inkwell font-diatype mx-auto flex gap-4">
         <Card
-          className={`${backgroundStyle} flex w-full flex-col justify-center p-4`}
+          className={`${backgroundStyle} flex w-full flex-col items-center justify-center p-4`}
         >
           <div
             style={{ width: `${chartWidth}px` }}
             ref={ref}
-            className={`mx-auto h-fit border border-black`}
+            className={`${backgroundStyle} h-fit`}
           >
             <CardHeader className="flex flex-row">
               <CardTitle className="font-heading mr-4 text-3xl font-normal">
