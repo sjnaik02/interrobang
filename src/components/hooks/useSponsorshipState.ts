@@ -1,6 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { useState } from "react";
-import type { Value } from "@udecode/plate/react";
+// import type { Value } from "@udecode/plate/react";
+
+// Define Value type locally since it's not exported from the package
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Value = any[];
 
 export interface SponsorshipState {
   enableSponsorship: boolean;

@@ -9,7 +9,9 @@ import { createSlateEditor } from "@udecode/plate";
 import { PlateStatic } from "@udecode/plate";
 import { BasicElementsPlugin } from "@udecode/plate-basic-elements/react";
 import { BasicMarksPlugin } from "@udecode/plate-basic-marks/react";
-import type { Value } from "@udecode/plate";
+// import type { Value } from "@udecode/plate";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Value = any[];
 import React from "react";
 
 interface SponsorCopyRendererProps {

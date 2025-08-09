@@ -33,22 +33,22 @@ interface SponsorGroupData {
 
 export default function AdsPage() {
   const [adsData, setAdsData] = useState<AdData[]>([]);
-  const [viewMode, setViewMode] = useState<'survey' | 'sponsor'>('survey');
+  const [viewMode, setViewMode] = useState<"survey" | "sponsor">("survey");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const response = await fetch('/api/ads-data');
-        const data = await response.json();
+        const response = await fetch("/api/ads-data");
+        const data = (await response.json()) as AdData[];
         setAdsData(data);
       } catch (error) {
-        console.error('Failed to fetch ads data:', error);
+        console.error("Failed to fetch ads data:", error);
       } finally {
         setLoading(false);
       }
     }
-    fetchData();
+    void fetchData();
   }, []);
 
   if (loading) {
@@ -66,7 +66,7 @@ export default function AdsPage() {
 
   // Group ads by sponsor
   const groupedBySponsor = adsData.reduce((acc, ad) => {
-    const existing = acc.find(group => group.sponsorName === ad.sponsorName);
+    const existing = acc.find((group) => group.sponsorName === ad.sponsorName);
     if (existing) {
       existing.totalImpressions += Number(ad.impressions);
       existing.totalClicks += Number(ad.clicks);
@@ -78,7 +78,7 @@ export default function AdsPage() {
         totalImpressions: Number(ad.impressions),
         totalClicks: Number(ad.clicks),
         surveyCount: 1,
-        surveys: [ad]
+        surveys: [ad],
       });
     }
     return acc;
@@ -86,20 +86,18 @@ export default function AdsPage() {
 
   return (
     <main className="container mx-auto p-4 md:p-8">
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-3xl font-medium tracking-tight">
-          Ads Dashboard
-        </h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-3xl font-medium tracking-tight">Ads Dashboard</h1>
         <div className="flex gap-2">
           <Button
-            variant={viewMode === 'survey' ? 'default' : 'outline'}
-            onClick={() => setViewMode('survey')}
+            variant={viewMode === "survey" ? "default" : "outline"}
+            onClick={() => setViewMode("survey")}
           >
             By Survey
           </Button>
           <Button
-            variant={viewMode === 'sponsor' ? 'default' : 'outline'}
-            onClick={() => setViewMode('sponsor')}
+            variant={viewMode === "sponsor" ? "default" : "outline"}
+            onClick={() => setViewMode("sponsor")}
           >
             By Sponsor
           </Button>
@@ -164,11 +162,11 @@ export default function AdsPage() {
 
       <section>
         <h2 className="mb-4 text-2xl">
-          {viewMode === 'survey' ? 'All Sponsored Surveys' : 'Stats by Sponsor'}
+          {viewMode === "survey" ? "All Sponsored Surveys" : "Stats by Sponsor"}
         </h2>
         <Card className="shadow-sm">
           <CardContent className="p-0">
-            {viewMode === 'survey' ? (
+            {viewMode === "survey" ? (
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -198,7 +196,9 @@ export default function AdsPage() {
                         <TableCell className="text-right">
                           {ad.impressions}
                         </TableCell>
-                        <TableCell className="text-right">{ad.clicks}</TableCell>
+                        <TableCell className="text-right">
+                          {ad.clicks}
+                        </TableCell>
                         <TableCell className="text-right">
                           {ad.impressions > 0
                             ? ((ad.clicks / ad.impressions) * 100).toFixed(2) +
@@ -225,7 +225,9 @@ export default function AdsPage() {
                   <TableRow>
                     <TableHead className="w-[350px]">Sponsor Name</TableHead>
                     <TableHead className="text-right">Surveys</TableHead>
-                    <TableHead className="text-right">Total Impressions</TableHead>
+                    <TableHead className="text-right">
+                      Total Impressions
+                    </TableHead>
                     <TableHead className="text-right">Total Clicks</TableHead>
                     <TableHead className="text-right">Average CTR</TableHead>
                   </TableRow>
@@ -248,7 +250,11 @@ export default function AdsPage() {
                         </TableCell>
                         <TableCell className="text-right">
                           {sponsor.totalImpressions > 0
-                            ? ((sponsor.totalClicks / sponsor.totalImpressions) * 100).toFixed(2) + "%"
+                            ? (
+                                (sponsor.totalClicks /
+                                  sponsor.totalImpressions) *
+                                100
+                              ).toFixed(2) + "%"
                             : "0.00%"}
                         </TableCell>
                       </TableRow>

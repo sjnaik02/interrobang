@@ -5,7 +5,8 @@ import { auth } from "@clerk/nextjs/server";
 import { sponsorAds, sponsorAdEvents, surveys } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
-import type { Value } from "@udecode/plate/react";
+// Remove the broken import for Value
+// import type { Value } from "@udecode/plate/react";
 
 /**
  * Creates a Sponsor Ad and links it to the given survey in a single transaction.
@@ -13,7 +14,9 @@ import type { Value } from "@udecode/plate/react";
 export const createSponsorAdForSurvey = async (
   surveyId: string,
   sponsorName: string,
-  copy: Value,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  copy: unknown, // Use unknown or a more appropriate type for your rich text value
+  // copy: Value,
   ctaText: string,
   ctaUrl: string,
 ) => {

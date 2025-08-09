@@ -13,7 +13,9 @@ import { Home, Loader2 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { notFound } from "next/navigation";
 import { SponsorCopyRenderer } from "./editor/SponsorCopyRenderer";
-import type { Value } from "@udecode/plate/react";
+// import type { Value } from "@udecode/plate/react";
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Value = any[];
 
 const SurveySubmitPage = ({
   survey,

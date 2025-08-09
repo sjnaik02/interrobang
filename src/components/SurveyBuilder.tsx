@@ -18,17 +18,21 @@ import ClickToEdit from "./ClickToEdit";
 import PreviewLinkSection from "@/components/survey-builder/PreviewLinkSection";
 import PublishedLinkSection from "@/components/survey-builder/PublishedLinkSection";
 import SponsorshipSection from "@/components/survey-builder/SponsorshipSection";
+import SponsorshipPreview from "@/components/survey-builder/SponsorshipPreview";
 import BuilderElementWrapper from "@/components/survey-builder/BuilderElementWrapper";
 import { useSponsorshipState } from "@/components/hooks/useSponsorshipState";
+import { type SponsorAd } from "@/server/db/schema";
 
 const SurveyBuilder: React.FC<{
   survey: Survey;
   saveChanges: SaveChangesToSurveyType;
   publishSurvey: PublishSurveyType;
   createSponsorAdForSurvey: CreateSponsorAdForSurveyType;
-}> = ({ survey, saveChanges, publishSurvey, createSponsorAdForSurvey }) => {
+  existingSponsorAd?: Pick<SponsorAd, "sponsorName" | "copy" | "ctaText" | "ctaUrl"> | null;
+}> = ({ survey, saveChanges, publishSurvey, createSponsorAdForSurvey, existingSponsorAd }) => {
   const [isReady, setIsReady] = useState(false);
   const [preview, setPreview] = useState(false);
+  const [currentSponsorAd, setCurrentSponsorAd] = useState<Pick<SponsorAd, "sponsorName" | "copy" | "ctaText" | "ctaUrl"> | null>(existingSponsorAd ?? null);
 
   const {
     elements,
@@ -62,6 +66,28 @@ const SurveyBuilder: React.FC<{
     setIsReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Auto-switch to preview mode when survey gets published
+  useEffect(() => {
+    if (isPublished && !preview) {
+      setPreview(true);
+    }
+  }, [isPublished, preview]);
+
+  // Function to fetch sponsor ad data
+  const fetchSponsorAd = async (surveyId: string) => {
+    try {
+      const response = await fetch(`/api/sponsor-ad?surveyId=${surveyId}`);
+      if (response.ok) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const sponsorAd = await response.json();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        setCurrentSponsorAd(sponsorAd);
+      }
+    } catch (error) {
+      console.error("Failed to fetch sponsor ad:", error);
+    }
+  };
 
   const handleSave = async () => {
     try {
@@ -140,6 +166,8 @@ const SurveyBuilder: React.FC<{
         sponsorshipState.ctaText,
         sponsorshipState.ctaUrl,
       );
+      // Fetch the newly created sponsor ad
+      await fetchSponsorAd(id);
     }
     return publishSurvey(id);
   };
@@ -177,12 +205,14 @@ const SurveyBuilder: React.FC<{
           title={title}
           elements={elements}
           isPublished={isPublished}
+          existingSponsorAd={currentSponsorAd}
         />
       ) : (
         <BuilderContent
           title={title}
           setTitle={setTitle}
           sponsorshipState={sponsorshipState}
+          isPublished={isPublished}
           {...surveyElementsProps}
         />
       )}
@@ -195,7 +225,8 @@ const PreviewContent: React.FC<{
   title: string;
   elements: SurveyElementInstance[];
   isPublished: boolean;
-}> = ({ survey, title, elements, isPublished }) => (
+  existingSponsorAd?: Pick<SponsorAd, "sponsorName" | "copy" | "ctaText" | "ctaUrl"> | null;
+}> = ({ survey, title, elements, isPublished, existingSponsorAd }) => (
   <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 pb-12">
     <SurveyPreview
       survey={{
@@ -211,6 +242,7 @@ const PreviewContent: React.FC<{
         sponsorAdId: survey.sponsorAdId,
       }}
     />
+    {isPublished && existingSponsorAd && <SponsorshipPreview sponsorAd={existingSponsorAd} />}
   </div>
 );
 
@@ -232,6 +264,7 @@ const BuilderContent: React.FC<{
     element: SurveyElementInstance,
   ) => SurveyElementInstance;
   sponsorshipState: ReturnType<typeof useSponsorshipState>;
+  isPublished: boolean;
 }> = ({
   title,
   setTitle,
@@ -243,6 +276,7 @@ const BuilderContent: React.FC<{
   setSelectedElement,
   changeElementType,
   sponsorshipState,
+  isPublished,
 }) => (
   <>
     <div className="mx-auto flex w-full max-w-2xl flex-col gap-0.5">
@@ -267,7 +301,7 @@ const BuilderContent: React.FC<{
         />
       ))}
     </div>
-    <SponsorshipSection sponsorshipState={sponsorshipState} />
+    {!isPublished && <SponsorshipSection sponsorshipState={sponsorshipState} />}
   </>
 );
 

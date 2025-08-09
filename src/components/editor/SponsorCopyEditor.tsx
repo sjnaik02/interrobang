@@ -24,7 +24,11 @@ import { Editor, EditorContainer } from "@/components/ui/editor";
 import { FixedToolbar } from "@/components/ui/fixed-toolbar";
 import { MarkToolbarButton } from "@/components/ui/mark-toolbar-button";
 import { useCallback, useEffect, useMemo, useRef } from "react";
-import type { Value } from "@udecode/plate/react";
+// import type { Value } from "@udecode/plate/react";
+
+// Define Value type locally since it's not exported from the package
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Value = any[];
 
 interface SponsorCopyEditorProps {
   value: Value;
@@ -39,7 +43,7 @@ export function SponsorCopyEditor({
   placeholder = "Enter promotional copy...",
   maxLength = 256,
 }: SponsorCopyEditorProps) {
-  const changeTimeoutRef = useRef<NodeJS.Timeout>();
+  const changeTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
 
   const editor = usePlateEditor({
     components: {
@@ -107,14 +111,14 @@ export function SponsorCopyEditor({
         editor={editor} 
         onChange={({ value }) => handleChange(value)}
       >
-        <FixedToolbar className="justify-start rounded-t-lg border border-gray-300 bg-gray-50 px-3 py-2">
-          <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)">
+        <FixedToolbar className="justify-start rounded-t-lg border border-gray-300 bg-white px-3 py-2 shadow-sm [&_button[aria-checked='true']]:bg-blue-100 [&_button[aria-checked='true']]:text-blue-800 [&_button[data-state='on']]:bg-blue-100 [&_button[data-state='on']]:text-blue-800">
+          <MarkToolbarButton nodeType="bold" tooltip="Bold (⌘+B)" className="hover:bg-gray-100">
             <span className="font-bold">B</span>
           </MarkToolbarButton>
-          <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)">
+          <MarkToolbarButton nodeType="italic" tooltip="Italic (⌘+I)" className="hover:bg-gray-100">
             <span className="italic">I</span>
           </MarkToolbarButton>
-          <MarkToolbarButton nodeType="underline" tooltip="Underline (⌘+U)">
+          <MarkToolbarButton nodeType="underline" tooltip="Underline (⌘+U)" className="hover:bg-gray-100">
             <span className="underline">U</span>
           </MarkToolbarButton>
         </FixedToolbar>
@@ -122,7 +126,7 @@ export function SponsorCopyEditor({
           <Editor
             variant="none"
             placeholder={placeholder}
-            className="min-h-[80px] max-h-[120px] overflow-y-auto rounded-t-none rounded-b-lg border-x border-b border-gray-300 px-3 py-2 text-sm"
+            className="min-h-[80px] max-h-[120px] overflow-y-auto rounded-t-none rounded-b-lg border-x border-b border-gray-300 bg-white px-3 py-2 text-sm"
           />
         </EditorContainer>
       </Plate>
