@@ -17,40 +17,4 @@ Interrobang is a tool for creating and visualising audience polls for Tangle.
 
 ## TODOS
 
-### Stage 1: Survey Builder
-
-- [x] Scaffold out the project
-- [x] Connect to database
-- [x] Connect to Clerk
-- [x] Set up auth + protected dashboard route
-- [x] Set up database schemas
-- [x] Create a survey with 1 question
-- [x] Save survey as draft functionality
-- [x] Publish survey functionality
-- [x] Add more question types
-- [x] Edit published survey functionality
-- [x] Archive survey functionality
-- [x] Basic responses page works
-- [x] Basic visualisation for responses
-- [x] Export visualisation as image
-- [x] Table for Text Responses
-- [x] Add pagination to responses page
-- [ ] Add search to responses page
-- [ ] Add filters to responses page
-- [x] Add pagination to Text Responses table
-- [ ] Polished design for survey/visualise page
-- [x] Detailed visualisation customisation
-- [ ] Refactor visualisations to use Shadcn's Recharts Utils
-- [ ] Better design for responses page
-- [ ] More details in dashboard
-- [ ] Searchable surveys
-- [ ] Sortable surveys
-- [ ] Filterable surveys
-- [x] Visualise page
-- [x] More question types - Checkbox, Ranking
-- [ ] More visualisation types - Pie chart, Horizontal bar chart
-- [x] View list of invitations
-- [ ] Create invitations
-- [ ] Delete invitations
-- [ ] Edit invitations
-- [ ] Remove user from application
+Add new todos
