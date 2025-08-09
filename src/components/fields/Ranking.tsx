@@ -54,7 +54,7 @@ const ReorderableItem = ({
   index: number;
   editingIndex: number | null;
   editingValue: string;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   startEditing: (index: number) => void;
   setEditingValue: (value: string) => void;
   saveEdit: () => void;
@@ -68,7 +68,7 @@ const ReorderableItem = ({
       value={option}
       dragListener={false}
       dragControls={dragControls}
-      className="flex w-full select-none items-center gap-2"
+      className="flex w-full items-center gap-2 select-none"
     >
       <div
         onPointerDown={(event) => dragControls.start(event)}
@@ -89,9 +89,9 @@ const ReorderableItem = ({
         placeholder="Enter option text"
         className={`w-full rounded-none border-0 px-0 text-base ${
           editingIndex === index
-            ? "focus-visible:border-b-2 focus-visible:border-b-primary"
+            ? "focus-visible:border-b-primary focus-visible:border-b-2"
             : "border-transparent"
-        } focus-visible:outline-none focus-visible:ring-0`}
+        } focus-visible:ring-0 focus-visible:outline-hidden`}
       />
       <Button
         variant="outline"
@@ -262,7 +262,7 @@ const RankingPreviewComponent: React.FC<{
           <Reorder.Item
             key={option}
             value={option}
-            className="flex w-full items-center gap-2 border border-dashed border-transparent bg-background px-2 py-1 hover:border-solid hover:border-muted-foreground"
+            className="bg-background hover:border-muted-foreground flex w-full items-center gap-2 border border-dashed border-transparent px-2 py-1 hover:border-solid"
           >
             <GripVertical className="h-4 w-4 cursor-grab active:cursor-grabbing" />
             {option}
@@ -308,7 +308,7 @@ const RankingSurveyComponent: React.FC<{
             <Reorder.Item
               key={option}
               value={option}
-              className="flex w-full items-center gap-2 border border-dashed border-transparent bg-background px-2 py-1 hover:border-solid hover:border-muted-foreground"
+              className="bg-background hover:border-muted-foreground flex w-full items-center gap-2 border border-dashed border-transparent px-2 py-1 hover:border-solid"
             >
               <GripVertical className="h-4 w-4 cursor-grab active:cursor-grabbing" />
               {optionIndex + 1}. {option}

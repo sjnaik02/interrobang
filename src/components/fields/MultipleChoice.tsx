@@ -58,7 +58,7 @@ const ReorderableItem = ({
   index: number;
   editingIndex: number | null;
   editingValue: string;
-  inputRef: React.RefObject<HTMLInputElement>;
+  inputRef: React.RefObject<HTMLInputElement | null>;
   startEditing: (index: number) => void;
   setEditingValue: (value: string) => void;
   saveEdit: () => void;
@@ -95,7 +95,7 @@ const ReorderableItem = ({
           editingIndex === index
             ? "focus-visible:border-b-2 focus-visible:border-b-primary"
             : "border-transparent"
-        } focus-visible:outline-none focus-visible:ring-0`}
+        } focus-visible:outline-hidden focus-visible:ring-0`}
       />
       <Button
         variant="outline"

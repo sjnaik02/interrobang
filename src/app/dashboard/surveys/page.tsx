@@ -6,11 +6,12 @@ import { DataTable } from "./data-table";
 
 const PAGE_SIZE = 10;
 
-const SurveysPage = async ({
-  searchParams,
-}: {
-  searchParams: { page?: string };
-}) => {
+const SurveysPage = async (
+  props: {
+    searchParams: Promise<{ page?: string }>;
+  }
+) => {
+  const searchParams = await props.searchParams;
   const page = Number(searchParams.page) || 1;
   const skip = (page - 1) * PAGE_SIZE;
 

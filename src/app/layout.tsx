@@ -21,8 +21,10 @@ export default function RootLayout({
         lang="en"
         className={`${GeistSans.variable} ${GeistMono.variable} bg-background text-foreground`}
       >
-        <body>{children}</body>
-        <Toaster richColors theme="light" />
+        <body>
+          {children}
+          <Toaster richColors theme="light" />
+        </body>
       </html>
     </ClerkProvider>
   );

@@ -5,12 +5,13 @@ import { surveys } from "@/server/db/schema";
 import { eq } from "drizzle-orm";
 import SurveyPreview from "@/components/SurveyPreview";
 
-export default async function PreviewSurveyPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const { userId } = auth();
+export default async function PreviewSurveyPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = await props.params;
+  const { userId } = await auth();
 
   // Redirect to login if not authenticated
   if (!userId) {

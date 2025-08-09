@@ -20,7 +20,7 @@ export const saveChangesToSurvey = async ({
   updatedAt: Date;
 }) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -41,19 +41,30 @@ export const saveChangesToSurvey = async ({
 
 export const publishSurvey = async (id: string) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
-    const updatedSurvey = await db
+    const [updated] = await db
       .update(surveys)
       .set({
         isPublished: true,
         updatedAt: new Date(),
       })
       .where(eq(surveys.id, id))
-      .returning();
-    return updatedSurvey[0];
+      .returning({
+        id: surveys.id,
+        title: surveys.title,
+        questions: surveys.questions,
+        isPublished: surveys.isPublished,
+        isArchived: surveys.isArchived,
+        createdBy: surveys.createdBy,
+        responseCount: surveys.responseCount,
+        sponsorAdId: surveys.sponsorAdId,
+        createdAt: surveys.createdAt,
+        updatedAt: surveys.updatedAt,
+      });
+    return updated;
   } catch (error) {
     console.error(error);
     throw new Error("Failed to publish survey");
@@ -87,7 +98,7 @@ export const submitSurvey = async (
 };
 
 export const createSurvey = async () => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
@@ -103,7 +114,7 @@ export const createSurvey = async () => {
 
 export const archiveSurvey = async (id: string) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -121,7 +132,7 @@ export const archiveSurvey = async (id: string) => {
 
 export const deleteSurvey = async (id: string) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -139,7 +150,7 @@ export const deleteSurvey = async (id: string) => {
 
 export const renameSurvey = async (id: string, title: string) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -157,7 +168,7 @@ export const renameSurvey = async (id: string, title: string) => {
 
 export const duplicateSurvey = async (id: string) => {
   try {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -195,7 +206,7 @@ export const createInvitation = async (
   email: string,
   role: OrganizationCustomRoleKey,
 ) => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }

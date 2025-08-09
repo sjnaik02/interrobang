@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 import React, { useState, useRef, useEffect } from "react";
 
 type ClickToEditProps = {
@@ -22,8 +21,8 @@ const ClickToEdit: React.FC<ClickToEditProps> = ({
     // Extract text content from children
     if (typeof children === "string") {
       setValue(children);
-    } else if (React.isValidElement(children)) {
-      setValue(String(children.props.children || ""));
+    } else if (React.isValidElement<{ children?: React.ReactNode }>(children)) {
+      setValue(String(children.props.children ?? ""));
     }
   }, [children]);
 
@@ -53,7 +52,7 @@ const ClickToEdit: React.FC<ClickToEditProps> = ({
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && e.shiftKey === false) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       textareaRef.current?.blur();
     }
@@ -61,8 +60,10 @@ const ClickToEdit: React.FC<ClickToEditProps> = ({
       setIsEditing(false);
       if (typeof children === "string") {
         setValue(children);
-      } else if (React.isValidElement(children)) {
-        setValue(String(children.props.children || ""));
+      } else if (
+        React.isValidElement<{ children?: React.ReactNode }>(children)
+      ) {
+        setValue(String(children.props.children ?? ""));
       }
     }
   };
@@ -79,7 +80,7 @@ const ClickToEdit: React.FC<ClickToEditProps> = ({
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className={`w-full resize-none overflow-hidden rounded border px-2 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 ${className}`}
+        className={`w-full resize-none overflow-hidden rounded border px-2 py-1 focus:ring-2 focus:ring-blue-500 focus:outline-hidden ${className}`}
         rows={1}
       />
     );
@@ -91,7 +92,7 @@ const ClickToEdit: React.FC<ClickToEditProps> = ({
   return (
     <span
       onClick={handleClick}
-      className={`block cursor-pointer whitespace-pre-wrap rounded px-2 py-1 hover:bg-gray-100 ${isEmpty ? "italic text-gray-400" : ""} ${className}`}
+      className={`block cursor-pointer rounded px-2 py-1 whitespace-pre-wrap hover:bg-gray-100 ${isEmpty ? "text-gray-400 italic" : ""} ${className}`}
       role="button"
       tabIndex={0}
     >

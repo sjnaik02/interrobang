@@ -1,22 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import useSurveyBuilder from "./hooks/useSurveyBuilder";
-import { Button } from "./ui/button";
-import { Label } from "./ui/label";
-import { cn } from "@/lib/utils";
-import { SurveyElements, type SurveyElementInstance } from "./SurveyElement";
-import {
-  Trash,
-  ChevronUp,
-  ChevronDown,
-  Link as LinkIcon,
-  Copy,
-  Check,
-} from "lucide-react";
-import Link from "next/link";
-import { Switch } from "./ui/switch";
-import ClickToEdit from "./ClickToEdit";
+import { type SurveyElementInstance } from "./SurveyElement";
 import TopBar from "./TopBar";
 import { type Survey } from "@/server/db/schema";
 import { toast } from "sonner";
@@ -24,27 +10,29 @@ import {
   type PublishSurveyType,
   type SaveChangesToSurveyType,
 } from "@/app/actions/survey";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import randomId from "@/lib/randomId";
+import { type CreateSponsorAdForSurveyType } from "@/app/actions/sponsorAd";
 import React from "react";
 import useAutosave from "./hooks/useAutosave";
-import { AnimatePresence, motion } from "framer-motion";
 import SurveyPreview from "./SurveyPreview";
+import ClickToEdit from "./ClickToEdit";
+import PreviewLinkSection from "@/components/survey-builder/PreviewLinkSection";
+import PublishedLinkSection from "@/components/survey-builder/PublishedLinkSection";
+import SponsorshipSection from "@/components/survey-builder/SponsorshipSection";
+import SponsorshipPreview from "@/components/survey-builder/SponsorshipPreview";
+import BuilderElementWrapper from "@/components/survey-builder/BuilderElementWrapper";
+import { useSponsorshipState } from "@/components/hooks/useSponsorshipState";
+import { type SponsorAd } from "@/server/db/schema";
 
 const SurveyBuilder: React.FC<{
   survey: Survey;
   saveChanges: SaveChangesToSurveyType;
   publishSurvey: PublishSurveyType;
-}> = ({ survey, saveChanges, publishSurvey }) => {
+  createSponsorAdForSurvey: CreateSponsorAdForSurveyType;
+  existingSponsorAd?: Pick<SponsorAd, "sponsorName" | "copy" | "ctaText" | "ctaUrl"> | null;
+}> = ({ survey, saveChanges, publishSurvey, createSponsorAdForSurvey, existingSponsorAd }) => {
   const [isReady, setIsReady] = useState(false);
   const [preview, setPreview] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const [previewLinkCopied, setPreviewLinkCopied] = useState(false);
+  const [currentSponsorAd, setCurrentSponsorAd] = useState<Pick<SponsorAd, "sponsorName" | "copy" | "ctaText" | "ctaUrl"> | null>(existingSponsorAd ?? null);
 
   const {
     elements,
@@ -62,6 +50,8 @@ const SurveyBuilder: React.FC<{
     changeElementType,
   } = useSurveyBuilder();
 
+  const sponsorshipState = useSponsorshipState();
+
   useEffect(() => {
     if (isReady) return;
     setTitle(survey.title);
@@ -77,24 +67,79 @@ const SurveyBuilder: React.FC<{
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Auto-switch to preview mode when survey gets published
+  useEffect(() => {
+    if (isPublished && !preview) {
+      setPreview(true);
+    }
+  }, [isPublished, preview]);
+
+  // Function to fetch sponsor ad data
+  const fetchSponsorAd = async (surveyId: string) => {
+    try {
+      const response = await fetch(`/api/sponsor-ad?surveyId=${surveyId}`);
+      if (response.ok) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const sponsorAd = await response.json();
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        setCurrentSponsorAd(sponsorAd);
+      }
+    } catch (error) {
+      console.error("Failed to fetch sponsor ad:", error);
+    }
+  };
+
   const handleSave = async () => {
     try {
-      await saveChanges({
+      const surveyDataToSave = {
         id: survey.id,
         title,
         questions: elements,
         updatedAt: new Date(),
-      });
+        enableSponsorship: sponsorshipState.enableSponsorship,
+        sponsorName: sponsorshipState.enableSponsorship
+          ? sponsorshipState.sponsorName
+          : undefined,
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        sponsorCopy: sponsorshipState.enableSponsorship
+          ? sponsorshipState.sponsorCopy
+          : undefined,
+        ctaText: sponsorshipState.enableSponsorship
+          ? sponsorshipState.ctaText
+          : undefined,
+        ctaUrl: sponsorshipState.enableSponsorship
+          ? sponsorshipState.ctaUrl
+          : undefined,
+      };
+
+      const dataForSaveChanges: {
+        id: string;
+        title: string;
+        questions: SurveyElementInstance[];
+        updatedAt: Date;
+      } = {
+        id: surveyDataToSave.id,
+        title: surveyDataToSave.title,
+        questions: surveyDataToSave.questions,
+        updatedAt: surveyDataToSave.updatedAt,
+      };
+
+      await saveChanges(dataForSaveChanges);
 
       toast.success("Saved survey");
       return true;
     } catch (err) {
       console.error("Autosave failed:", err);
+      toast.error("Failed to save survey. Some details may not be persisted.");
       return false;
     }
   };
 
   const { status, triggerSave } = useAutosave(handleSave);
+
+  // Extract sponsorCopy serialization for stable comparison
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  const sponsorCopySerialized = useMemo(() => JSON.stringify(sponsorshipState.sponsorCopy), [sponsorshipState.sponsorCopy]);
 
   useEffect(() => {
     if (!isReady) return;
@@ -102,7 +147,40 @@ const SurveyBuilder: React.FC<{
     if (status === "saving") return;
     triggerSave();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [elements, title]);
+  }, [
+    elements,
+    title,
+    sponsorshipState.enableSponsorship,
+    sponsorshipState.sponsorName,
+    sponsorCopySerialized,
+    sponsorshipState.ctaText,
+    sponsorshipState.ctaUrl,
+  ]);
+
+  const handlePublishWithSponsor: PublishSurveyType = async (id) => {
+    if (sponsorshipState.enableSponsorship) {
+      await createSponsorAdForSurvey(
+        id,
+        sponsorshipState.sponsorName,
+        sponsorshipState.sponsorCopy,
+        sponsorshipState.ctaText,
+        sponsorshipState.ctaUrl,
+      );
+      // Fetch the newly created sponsor ad
+      await fetchSponsorAd(id);
+    }
+    return publishSurvey(id);
+  };
+
+  const surveyElementsProps = {
+    elements,
+    removeElement,
+    updateElement,
+    moveElement,
+    selectedElement,
+    setSelectedElement,
+    changeElementType,
+  };
 
   return (
     <div
@@ -113,126 +191,65 @@ const SurveyBuilder: React.FC<{
         preview={preview}
         setPreview={setPreview}
         saveChanges={saveChanges}
-        publishSurvey={publishSurvey}
+        publishSurvey={handlePublishWithSponsor}
         status={status}
       />
-      {/* Preview link section - only show when not published */}
-      {!isPublished && (
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 rounded-md border border-muted/40 bg-muted/5 pl-2">
-          <span className="flex items-center whitespace-nowrap text-sm text-muted-foreground">
-            <LinkIcon className="mr-1 h-4 w-4" />
-            Preview Link
-          </span>
-          <Link
-            href={`/survey/preview/${survey.id}`}
-            className="inline-block truncate whitespace-nowrap text-sm text-muted-foreground hover:text-foreground"
-          >
-            {`${window.location.origin}/survey/preview/${survey.id}`}
-          </Link>
 
-          <Button
-            onClick={async () => {
-              await navigator.clipboard.writeText(
-                `${window.location.origin}/survey/preview/${survey.id}`,
-              );
-              toast.success("Copied preview link to clipboard");
-              setPreviewLinkCopied(true);
-              setTimeout(() => setPreviewLinkCopied(false), 2000);
-            }}
-            size="sm"
-            variant="default"
-            className="rounded-l-none border-l px-2 hover:bg-muted hover:text-foreground"
-          >
-            {previewLinkCopied ? (
-              <Check className="h-4 w-4" />
-            ) : (
-              <Copy className="h-4 w-4" />
-            )}
-          </Button>
-        </div>
-      )}
-      {/* Published link section */}
-      {isPublished ? (
-        <div className="mx-auto flex w-full max-w-3xl items-center justify-between gap-2 rounded-md border border-muted-foreground pl-2">
-          <span className="flex items-center whitespace-nowrap font-mono">
-            <LinkIcon className="mr-1 h-4 w-4" />
-            Survey Link:{" "}
-          </span>
-          <Link
-            href={`/survey/${survey.id}`}
-            className="inline-block truncate whitespace-nowrap font-mono text-black hover:text-muted-foreground"
-          >
-            {`${window.location.origin}/survey/${survey.id}`}
-          </Link>
+      {!isPublished && <PreviewLinkSection surveyId={survey.id} />}
 
-          <Button
-            onClick={async () => {
-              await navigator.clipboard.writeText(
-                `${window.location.origin}/survey/${survey.id}`,
-              );
-              toast.success("Copied survey link to clipboard");
-              setCopied(true);
-            }}
-            size="sm"
-            className="rounded-l-none"
-          >
-            {copied ? (
-              <Check className="mr-1 h-4 w-4" />
-            ) : (
-              <Copy className="mr-1 h-4 w-4" />
-            )}
-            Copy Link
-          </Button>
-        </div>
-      ) : null}
+      {isPublished && <PublishedLinkSection surveyId={survey.id} />}
+
       {preview ? (
-        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 pb-12">
-          <SurveyPreview
-            survey={{
-              id: survey.id,
-              title,
-              questions: elements,
-              isPublished,
-              isArchived: survey.isArchived,
-              createdBy: survey.createdBy,
-              responseCount: survey.responseCount,
-              createdAt: survey.createdAt,
-              updatedAt: survey.updatedAt,
-            }}
-          />
-        </div>
+        <PreviewContent
+          survey={survey}
+          title={title}
+          elements={elements}
+          isPublished={isPublished}
+          existingSponsorAd={currentSponsorAd}
+        />
       ) : (
-        <div className="mx-auto mb-24 flex w-full max-w-2xl flex-col gap-0.5">
-          <ClickToEdit
-            onSave={(value) => setTitle(value)}
-            className="text-3xl font-medium"
-          >
-            <h1>{title}</h1>
-          </ClickToEdit>
-          {elements.map((element, idx) => (
-            <BuilderElementWrapper
-              key={element.id}
-              element={element}
-              removeElement={removeElement}
-              updateElement={updateElement}
-              moveElement={moveElement}
-              selectedElement={selectedElement}
-              setSelectedElement={setSelectedElement}
-              idx={idx}
-              length={elements.length}
-              changeElementType={changeElementType}
-            />
-          ))}
-        </div>
+        <BuilderContent
+          title={title}
+          setTitle={setTitle}
+          sponsorshipState={sponsorshipState}
+          isPublished={isPublished}
+          {...surveyElementsProps}
+        />
       )}
     </div>
   );
 };
 
-export default SurveyBuilder;
+const PreviewContent: React.FC<{
+  survey: Survey;
+  title: string;
+  elements: SurveyElementInstance[];
+  isPublished: boolean;
+  existingSponsorAd?: Pick<SponsorAd, "sponsorName" | "copy" | "ctaText" | "ctaUrl"> | null;
+}> = ({ survey, title, elements, isPublished, existingSponsorAd }) => (
+  <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 pb-12">
+    <SurveyPreview
+      survey={{
+        id: survey.id,
+        title,
+        questions: elements,
+        isPublished,
+        isArchived: survey.isArchived,
+        createdBy: survey.createdBy,
+        responseCount: survey.responseCount,
+        createdAt: survey.createdAt,
+        updatedAt: survey.updatedAt,
+        sponsorAdId: survey.sponsorAdId,
+      }}
+    />
+    {isPublished && existingSponsorAd && <SponsorshipPreview sponsorAd={existingSponsorAd} />}
+  </div>
+);
 
-const BuilderElementWrapper: React.FC<{
-  element: SurveyElementInstance;
+const BuilderContent: React.FC<{
+  title: string;
+  setTitle: (title: string) => void;
+  elements: SurveyElementInstance[];
   removeElement: (id: string) => void;
   updateElement: (id: string, element: SurveyElementInstance) => void;
   moveElement: (
@@ -240,140 +257,52 @@ const BuilderElementWrapper: React.FC<{
     direction: "up" | "down",
     element: SurveyElementInstance,
   ) => void;
-  idx: number;
-  length: number;
   selectedElement: SurveyElementInstance | null;
   setSelectedElement: (element: SurveyElementInstance | null) => void;
   changeElementType: (
     idx: string,
     element: SurveyElementInstance,
   ) => SurveyElementInstance;
+  sponsorshipState: ReturnType<typeof useSponsorshipState>;
+  isPublished: boolean;
 }> = ({
-  element,
+  title,
+  setTitle,
+  elements,
   removeElement,
   updateElement,
   moveElement,
-  idx,
-  length,
   selectedElement,
   setSelectedElement,
   changeElementType,
-}) => {
-  return (
-    <div className="relative flex w-full gap-2" key={element.id}>
-      <div className="flex flex-col items-center gap-2 p-2">
-        <Button
-          variant="ghost"
-          onClick={() => moveElement(element.id, "up", element)}
-          size="icon"
-          disabled={idx === 0}
-        >
-          <ChevronUp className="h-4 w-4" />
-        </Button>
-
-        <p className="font-mono text-muted-foreground">{idx + 1}</p>
-
-        <Button
-          variant="ghost"
-          onClick={() => moveElement(element.id, "down", element)}
-          size="icon"
-          disabled={idx === length - 1}
-        >
-          <ChevronDown className="h-4 w-4" />
-        </Button>
-      </div>
-      <div
-        className={cn(
-          "flex w-full cursor-pointer flex-col items-center gap-2 rounded-md p-4 transition-all duration-100 hover:border-primary",
-          selectedElement?.id === element.id && "border-2 border-primary",
-        )}
-        onClick={(e) => {
-          e.stopPropagation();
-          setSelectedElement(element);
-        }}
-        tabIndex={0}
-        onFocus={() => setSelectedElement(element)}
-        onBlur={() => setSelectedElement(null)}
-        role="button"
-        aria-pressed={selectedElement?.id === element.id}
+  sponsorshipState,
+  isPublished,
+}) => (
+  <>
+    <div className="mx-auto flex w-full max-w-2xl flex-col gap-0.5">
+      <ClickToEdit
+        onSave={(value) => setTitle(value)}
+        className="text-3xl font-medium"
       >
-        {SurveyElements[element.type].editorComponent({
-          elementInstance: element,
-        })}
-        <AnimatePresence>
-          {selectedElement?.id === element.id && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
-              className="mt-4 flex w-full items-center justify-between gap-2"
-            >
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="sm" className="font-mono">
-                    {/* render the correct icon */}
-                    {React.createElement(SurveyElements[element.type].icon)}
-                    {element.type}
-                    <ChevronDown className="ml-2 h-4 w-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="font-mono">
-                  {Object.entries(SurveyElements)
-                    .filter(([key]) => key !== element.type)
-                    .map(([key, value]) => (
-                      <DropdownMenuItem
-                        key={key}
-                        onClick={() => {
-                          const updatedElement = changeElementType(
-                            element.id,
-                            value.construct(randomId()),
-                          );
-                          //this makes the new element selected, doesn't work without the setTimeout
-                          setTimeout(() => {
-                            setSelectedElement(updatedElement);
-                          }, 0);
-                        }}
-                      >
-                        <value.icon className="mr-1 h-4 w-4" />
-                        {value.name}
-                      </DropdownMenuItem>
-                    ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <Button
-                variant="outline"
-                onClick={() => removeElement(element.id)}
-                className="border-destructive text-destructive"
-                size="sm"
-              >
-                <Trash className="mr-1 h-4 w-4" color="red" />
-                Remove
-              </Button>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="required" className="font-mono">
-                  Required
-                </Label>
-                <Switch
-                  id="required"
-                  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-                  checked={element.properties?.required}
-                  onCheckedChange={(checked) => {
-                    updateElement(element.id, {
-                      id: element.id,
-                      type: element.type,
-                      properties: {
-                        ...element.properties,
-                        required: checked,
-                      },
-                    });
-                  }}
-                />
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+        <h1>{title}</h1>
+      </ClickToEdit>
+      {elements.map((element, idx) => (
+        <BuilderElementWrapper
+          key={element.id}
+          element={element}
+          removeElement={removeElement}
+          updateElement={updateElement}
+          moveElement={moveElement}
+          selectedElement={selectedElement}
+          setSelectedElement={setSelectedElement}
+          idx={idx}
+          length={elements.length}
+          changeElementType={changeElementType}
+        />
+      ))}
     </div>
-  );
-};
+    {!isPublished && <SponsorshipSection sponsorshipState={sponsorshipState} />}
+  </>
+);
+
+export default SurveyBuilder;

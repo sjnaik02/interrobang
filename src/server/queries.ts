@@ -1,8 +1,13 @@
 import "server-only";
 
-import { responses, surveys } from "@/server/db/schema";
+import {
+  responses,
+  surveys,
+  sponsorAds,
+  sponsorAdEvents,
+} from "@/server/db/schema";
 import { db } from "@/server/db";
-import { eq, desc, gte, sql } from "drizzle-orm";
+import { eq, desc, gte, sql, and } from "drizzle-orm";
 import { auth, clerkClient } from "@clerk/nextjs/server";
 import { cache } from "react";
 
@@ -14,7 +19,7 @@ export const getSurveyFromId = cache(async (id: string) => {
 });
 
 export const getSurveys = cache(async (skip: number, take: number) => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
@@ -37,7 +42,7 @@ export const getSurveys = cache(async (skip: number, take: number) => {
 
 export const getResponsesFromSurveyId = cache(
   async (id: string, skip: number, take: number) => {
-    const userId = auth().userId;
+    const userId = (await auth()).userId;
     if (!userId) {
       throw new Error("Unauthorized");
     }
@@ -51,7 +56,7 @@ export const getResponsesFromSurveyId = cache(
 );
 
 export const getAllResponsesFromSurveyId = cache(async (id: string) => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
@@ -62,7 +67,7 @@ export const getAllResponsesFromSurveyId = cache(async (id: string) => {
 });
 
 export const getResponses = cache(async (lastDays: number) => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
@@ -78,7 +83,7 @@ export const getResponses = cache(async (lastDays: number) => {
 });
 
 export const getDashboardData = cache(async (limit: number, days: number) => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) throw new Error("Unauthorized");
 
   const [requestedSurveys, responseCount] = await Promise.all([
@@ -116,7 +121,7 @@ export const getDashboardData = cache(async (limit: number, days: number) => {
 });
 
 export const getTotalSurveyCount = cache(async () => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
@@ -140,11 +145,54 @@ export const getSurveyIds = cache(async (limit: number) => {
 });
 
 export const getPendingInvitations = cache(async () => {
-  const userId = auth().userId;
+  const userId = (await auth()).userId;
   if (!userId) {
     throw new Error("Unauthorized");
   }
   const client = clerkClient();
-  const invitations = await client.invitations.getInvitationList();
+  const invitations = await (await client).invitations.getInvitationList();
   return invitations;
+});
+
+export const getSponsorAdBySurveyId = cache(async (surveyId: string) => {
+  const result = await db
+    .select({
+      id: sponsorAds.id,
+      sponsorName: sponsorAds.sponsorName,
+      copy: sponsorAds.copy,
+      ctaText: sponsorAds.ctaText,
+      ctaUrl: sponsorAds.ctaUrl,
+      createdAt: sponsorAds.createdAt,
+    })
+    .from(sponsorAds)
+    .innerJoin(surveys, eq(sponsorAds.id, surveys.sponsorAdId))
+    .where(eq(surveys.id, surveyId))
+    .limit(1);
+  return result[0] ?? null;
+});
+
+export const getSponsorAdImpressions = cache(async (sponsorAdId: string) => {
+  const [result] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(sponsorAdEvents)
+    .where(
+      and(
+        eq(sponsorAdEvents.sponsorAdId, sponsorAdId),
+        eq(sponsorAdEvents.eventType, "impression"),
+      ),
+    );
+  return result?.count ?? 0;
+});
+
+export const getSponsorAdClicks = cache(async (sponsorAdId: string) => {
+  const [result] = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(sponsorAdEvents)
+    .where(
+      and(
+        eq(sponsorAdEvents.sponsorAdId, sponsorAdId),
+        eq(sponsorAdEvents.eventType, "click"),
+      ),
+    );
+  return result?.count ?? 0;
 });

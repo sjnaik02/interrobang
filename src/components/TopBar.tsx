@@ -208,7 +208,7 @@ const PublishSurveyButton = ({
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button
-          className="bg-gradient-to-r from-red-500 to-blue-500 px-2 py-1 text-sm hover:from-red-600 hover:to-blue-600"
+          className="bg-linear-to-r from-red-500 to-blue-500 px-2 py-1 text-sm hover:from-red-600 hover:to-blue-600"
           size="sm"
           disabled={isPublished || elements.length === 0}
         >
@@ -239,7 +239,7 @@ const PublishSurveyButton = ({
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
-              className="bg-gradient-to-r from-red-500 to-blue-500 px-2 py-1 text-sm hover:from-red-600 hover:to-blue-600"
+              className="bg-linear-to-r from-red-500 to-blue-500 px-2 py-1 text-sm hover:from-red-600 hover:to-blue-600"
               size="sm"
               onClick={handlePublish}
             >

@@ -199,7 +199,8 @@ function processQuestionData(
     otherResponses: otherResponses.length > 0 ? otherResponses : undefined,
   };
 }
-const VisualizePage = async ({ params }: { params: { id: string } }) => {
+const VisualizePage = async (props: { params: Promise<{ id: string }> }) => {
+  const params = await props.params;
   const survey = await getSurveyFromId(params.id);
   if (!survey) {
     notFound();
