@@ -48,7 +48,7 @@ export default function AdsPage() {
         setLoading(false);
       }
     }
-    void fetchData();
+    fetchData().catch((error) => console.error(error));
   }, []);
 
   if (loading) {
