@@ -16,6 +16,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 import { notFound } from "next/navigation";
 
 const ITEMS_PER_PAGE = 100;
@@ -52,10 +54,26 @@ const SurveyResponsesPage = async (
         surveyId={survey.id}
       />
       <main className="container mx-auto pb-12">
-        <h1 className="mb-4 mt-8 text-2xl">
-          Responses for:{" "}
-          <span className="underline underline-offset-4">{survey.title}</span>
-        </h1>
+        <div className="mb-4 mt-8 flex items-center justify-between">
+          <h1 className="text-2xl">
+            Responses for:{" "}
+            <span className="underline underline-offset-4">{survey.title}</span>
+          </h1>
+          <Button
+            asChild
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <a
+              href={`/api/survey/${survey.id}/export-csv`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Download className="h-4 w-4" />
+              Download CSV
+            </a>
+          </Button>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
