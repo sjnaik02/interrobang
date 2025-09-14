@@ -10,7 +10,7 @@ import {
   type PublishSurveyType,
   type SaveChangesToSurveyType,
 } from "@/app/actions/survey";
-import { type CreateSponsorAdForSurveyType } from "@/app/actions/sponsorAd";
+import { type CreateSponsorAdForSurveyType, type CreateOrUpdateSponsorAdForSurveyType } from "@/app/actions/sponsorAd";
 import React from "react";
 import useAutosave from "./hooks/useAutosave";
 import SurveyPreview from "./SurveyPreview";
@@ -28,8 +28,9 @@ const SurveyBuilder: React.FC<{
   saveChanges: SaveChangesToSurveyType;
   publishSurvey: PublishSurveyType;
   createSponsorAdForSurvey: CreateSponsorAdForSurveyType;
+  createOrUpdateSponsorAdForSurvey: CreateOrUpdateSponsorAdForSurveyType;
   existingSponsorAd?: Pick<SponsorAd, "sponsorName" | "copy" | "ctaText" | "ctaUrl"> | null;
-}> = ({ survey, saveChanges, publishSurvey, createSponsorAdForSurvey, existingSponsorAd }) => {
+}> = ({ survey, saveChanges, publishSurvey, createSponsorAdForSurvey, createOrUpdateSponsorAdForSurvey, existingSponsorAd }) => {
   const [isReady, setIsReady] = useState(false);
   const [preview, setPreview] = useState(false);
   const [currentSponsorAd, setCurrentSponsorAd] = useState<Pick<SponsorAd, "sponsorName" | "copy" | "ctaText" | "ctaUrl"> | null>(existingSponsorAd ?? null);
@@ -63,6 +64,17 @@ const SurveyBuilder: React.FC<{
     if (survey.isPublished) {
       setPreview(true);
     }
+    
+    // Initialize sponsorship state with existing sponsor ad data
+    if (existingSponsorAd) {
+      sponsorshipState.setEnableSponsorship(true);
+      sponsorshipState.setSponsorName(existingSponsorAd.sponsorName);
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+      sponsorshipState.setSponsorCopy(existingSponsorAd.copy);
+      sponsorshipState.setCtaText(existingSponsorAd.ctaText);
+      sponsorshipState.setCtaUrl(existingSponsorAd.ctaUrl);
+    }
+    
     setIsReady(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -126,6 +138,17 @@ const SurveyBuilder: React.FC<{
 
       await saveChanges(dataForSaveChanges);
 
+      // Save sponsor ad data if sponsorship is enabled
+      if (sponsorshipState.enableSponsorship) {
+        await createOrUpdateSponsorAdForSurvey(
+          survey.id,
+          sponsorshipState.sponsorName,
+          sponsorshipState.sponsorCopy,
+          sponsorshipState.ctaText,
+          sponsorshipState.ctaUrl,
+        );
+      }
+
       toast.success("Saved survey");
       return true;
     } catch (err) {
@@ -159,14 +182,14 @@ const SurveyBuilder: React.FC<{
 
   const handlePublishWithSponsor: PublishSurveyType = async (id) => {
     if (sponsorshipState.enableSponsorship) {
-      await createSponsorAdForSurvey(
+      await createOrUpdateSponsorAdForSurvey(
         id,
         sponsorshipState.sponsorName,
         sponsorshipState.sponsorCopy,
         sponsorshipState.ctaText,
         sponsorshipState.ctaUrl,
       );
-      // Fetch the newly created sponsor ad
+      // Fetch the newly created/updated sponsor ad
       await fetchSponsorAd(id);
     }
     return publishSurvey(id);

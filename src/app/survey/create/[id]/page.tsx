@@ -1,5 +1,5 @@
 import { saveChangesToSurvey, publishSurvey } from "@/app/actions/survey";
-import { createSponsorAdForSurvey } from "@/app/actions/sponsorAd";
+import { createSponsorAdForSurvey, createOrUpdateSponsorAdForSurvey } from "@/app/actions/sponsorAd";
 import SurveyBuilder from "@/components/SurveyBuilder";
 import { getSurveyFromId, getSponsorAdBySurveyId } from "@/server/queries";
 
@@ -10,8 +10,8 @@ const CreateFormPage = async (props: { params: Promise<{ id: string }> }) => {
     throw Error("No survey of this id exists");
   }
 
-  // Load sponsor ad if it exists for published surveys
-  const sponsorAd = survey.sponsorAdId && survey.isPublished
+  // Load sponsor ad if it exists
+  const sponsorAd = survey.sponsorAdId
     ? await getSponsorAdBySurveyId(survey.id)
     : null;
 
@@ -22,6 +22,7 @@ const CreateFormPage = async (props: { params: Promise<{ id: string }> }) => {
         saveChanges={saveChangesToSurvey}
         publishSurvey={publishSurvey}
         createSponsorAdForSurvey={createSponsorAdForSurvey}
+        createOrUpdateSponsorAdForSurvey={createOrUpdateSponsorAdForSurvey}
         existingSponsorAd={sponsorAd}
       />
     </main>
