@@ -69,8 +69,8 @@ const SurveyBuilder: React.FC<{
     if (existingSponsorAd) {
       sponsorshipState.setEnableSponsorship(true);
       sponsorshipState.setSponsorName(existingSponsorAd.sponsorName);
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-      sponsorshipState.setSponsorCopy(existingSponsorAd.copy);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      sponsorshipState.setSponsorCopy(existingSponsorAd.copy as any[]);
       sponsorshipState.setCtaText(existingSponsorAd.ctaText);
       sponsorshipState.setCtaUrl(existingSponsorAd.ctaUrl);
     }
